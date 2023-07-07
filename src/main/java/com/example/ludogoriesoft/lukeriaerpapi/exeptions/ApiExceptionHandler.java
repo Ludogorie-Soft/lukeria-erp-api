@@ -1,7 +1,5 @@
-package com.example.ludogoriesoft.lukeriaerpapi.exception;
+package com.example.ludogoriesoft.lukeriaerpapi.exeptions;
 
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiVillageNotFound;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
