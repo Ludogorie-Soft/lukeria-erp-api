@@ -1,4 +1,4 @@
-Project Summary for Lukeria Ltd.
+Project Summary for Lukeria Ltd
 Within the scope of the Lukeria Ltd. project, we are working on developing a software system that aims to help the company track inventory of materials, monitor inventory of finished products, and automatically generate invoices and other documents for specific orders.
 
 The main functionalities of the system include:
