@@ -7,10 +7,7 @@ import lombok.*;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 @Table(name = "carton")
 public class Carton {
     @Id
