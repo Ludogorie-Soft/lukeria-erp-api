@@ -12,7 +12,18 @@ public class ApiExceptionHandler {
     @ExceptionHandler(value = {ApiRequestException.class})
     public ResponseEntity<Object> handleApiRequestException(com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException e){
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
-        ApiVillageNotFound apiException = new ApiVillageNotFound(
+        ApiPackageNotFound apiException = new ApiPackageNotFound(
+                e.getMessage(),
+                e.getCause(),
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+        return new ResponseEntity<>(apiException, badRequest);
+    }
+    @ExceptionHandler(value = {ApiRequestException.class})
+    public ResponseEntity<Object> handleApiRequestExceptionCarton(com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException e){
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+        ApiCartonNotFound apiException = new ApiCartonNotFound(
                 e.getMessage(),
                 e.getCause(),
                 badRequest,

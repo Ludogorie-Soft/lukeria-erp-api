@@ -34,6 +34,7 @@ public class PackageMapper {
         Package entity = new Package();
         entity.setId(dto.getId());
         entity.setName(dto.getName());
+//        entity.setCartonId(dto.getCartonId());
         entity.setAvailableQuantity(dto.getAvailableQuantity());
         entity.setPiecesCarton(dto.getPiecesCarton());
         entity.setPhoto(dto.getPhoto());
