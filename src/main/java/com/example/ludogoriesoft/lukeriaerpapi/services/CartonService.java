@@ -1,4 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
+
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
 import com.example.ludogoriesoft.lukeriaerpapi.mappers.CartonMapper;
@@ -17,6 +18,7 @@ public class CartonService {
     private final CartonRepository cartonRepository;
     private final CartonMapper mapper;
 
+    //TODO да се обедини apiException за всички класове !
     public CartonDTO toDTO(Carton cartonEntity) {
         return mapper.toDto(cartonEntity);
     }
@@ -33,6 +35,7 @@ public class CartonService {
                 .map(this::toDTO)
                 .toList();
     }
+    //TODO да се обедини apiException за всички класове !
 
     public CartonDTO getCartonById(Long id) {
         Optional<Carton> optionalCarton = cartonRepository.findById(id);
@@ -41,7 +44,7 @@ public class CartonService {
         }
         return toDTO(optionalCarton.get());
     }
-
+    //TODO да се направят валидации за DTO преди Save!
     public CartonDTO createCarton(CartonDTO cartonDTO) {
         if (StringUtils.isBlank(cartonDTO.getName())) {
             throw new ApiRequestException("Carton is blank");
@@ -50,7 +53,7 @@ public class CartonService {
         return toDTO(cartonEntity);
     }
 
-
+//TODO да се оправи метода update при CRUD
     public CartonDTO updateCarton(Long id, CartonDTO cartonDTO) {
         Optional<Carton> optionalCarton = cartonRepository.findById(id);
         if (optionalCarton.isEmpty()) {
@@ -80,7 +83,7 @@ public class CartonService {
         return toDTO(updatedCarton);
     }
 
-
+    //TODO да се проучи SoftDelete 
     public void deleteCarton(Long id) {
         Optional<Carton> cartonOptional = cartonRepository.findById(id);
         if (cartonOptional.isEmpty()) {
