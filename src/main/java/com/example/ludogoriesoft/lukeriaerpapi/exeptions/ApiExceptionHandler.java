@@ -41,3 +41,4 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(apiException, badRequest);
     }
 }
+//TODO да се обедини
