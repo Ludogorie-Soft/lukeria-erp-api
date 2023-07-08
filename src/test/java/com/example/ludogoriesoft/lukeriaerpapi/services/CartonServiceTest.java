@@ -140,5 +140,7 @@ class CartonServiceTest {
         assertThrows(ApiRequestException.class, () -> cartonService.updateCarton(id, cartonDto));
         verify(cartonRepository, never()).save(any(Carton.class));
     }
+
+    //TODO да се добавят всички тестове за Service
 }
 

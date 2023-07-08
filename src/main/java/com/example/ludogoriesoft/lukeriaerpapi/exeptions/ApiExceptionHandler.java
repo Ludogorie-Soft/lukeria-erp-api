@@ -9,6 +9,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 @ControllerAdvice
 public class ApiExceptionHandler {
+    //TODO да се обедини apiException за всички класове !
+
     @ExceptionHandler(value = {ApiRequestException.class})
     public ResponseEntity<Object> handleApiRequestException(com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException e){
         HttpStatus badRequest = HttpStatus.BAD_REQUEST;
@@ -41,4 +43,4 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(apiException, badRequest);
     }
 }
-//TODO да се обедини
+//TODO да се обедини apiException за всички класове !
