@@ -30,4 +30,14 @@ public class ApiExceptionHandler {
         );
         return new ResponseEntity<>(apiException, badRequest);
     }
+    public ResponseEntity<Object> handleApiRequestExceptionPlate(com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException e){
+        HttpStatus badRequest = HttpStatus.BAD_REQUEST;
+        ApiPlateNotFound apiException = new ApiPlateNotFound(
+                e.getMessage(),
+                e.getCause(),
+                badRequest,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+        return new ResponseEntity<>(apiException, badRequest);
+    }
 }
