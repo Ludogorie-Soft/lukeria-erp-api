@@ -27,14 +27,14 @@ public class PlateController {
     }
 
     @PostMapping
-    public ResponseEntity<PlateDTO> createPlate(@Valid @RequestBody PlateDTO PlateDTO) {
-        PlateDTO cratedPlate = plateservice.createPlate(PlateDTO);
+    public ResponseEntity<PlateDTO> createPlate(@Valid @RequestBody PlateDTO plateDTO) {
+        PlateDTO cratedPlate = plateservice.createPlate(plateDTO);
         return new ResponseEntity<>(cratedPlate, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlateDTO> updatePlate(@PathVariable("id") Long id, @Valid @RequestBody PlateDTO PlateDTO) {
-        return ResponseEntity.ok(plateservice.updatePlate(id, PlateDTO));
+    public ResponseEntity<PlateDTO> updatePlate(@PathVariable("id") Long id, @Valid @RequestBody PlateDTO plateDTO) {
+        return ResponseEntity.ok(plateservice.updatePlate(id, plateDTO));
     }
 
     @DeleteMapping("/{id}")
