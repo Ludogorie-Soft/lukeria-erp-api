@@ -9,4 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CartonDTO {
     private Long id;
+    private String name;
+    private String size;
+    private Integer availableQuantity;
+    private double price;
 }

@@ -17,7 +17,7 @@ public class PackageController {
     private final PackageService packageService;
 
     @GetMapping
-    public ResponseEntity<List<PackageDTO>> getAllLandscapes() {
+    public ResponseEntity<List<PackageDTO>> getAllPackages() {
         return ResponseEntity.ok(packageService.getAllPackages());
     }
 
@@ -40,11 +40,8 @@ public class PackageController {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePackageById(@PathVariable("id") Long id) {
         packageService.deletePackage(id);
-        return ResponseEntity.ok("Package with id: " + id + " has been deleted successfully!!");
+        return ResponseEntity.ok("Package with id: " + id + " has been deleted successfully!");
     }
-
-
-
 }
 
 
