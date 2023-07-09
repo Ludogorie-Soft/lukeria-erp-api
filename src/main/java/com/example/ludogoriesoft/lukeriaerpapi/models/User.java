@@ -31,4 +31,6 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(name = "is_deleted")
+    private boolean deleted;
 }

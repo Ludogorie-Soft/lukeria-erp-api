@@ -4,5 +4,6 @@ CREATE TABLE user (
   full_name VARCHAR(255) NOT NULL,
   email VARCHAR(255),
   password VARCHAR(255) NOT NULL,
-  role VARCHAR(255)
+  role VARCHAR(255),
+  is_deleted TINYINT(1) DEFAULT FALSE
 );

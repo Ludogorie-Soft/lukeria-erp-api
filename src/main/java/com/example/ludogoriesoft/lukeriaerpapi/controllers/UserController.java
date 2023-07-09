@@ -5,6 +5,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,6 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
@@ -25,23 +25,39 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+        try {
+            UserDTO user = userService.getUserById(id);
+            return ResponseEntity.ok(user);
+        } catch (ChangeSetPersister.NotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@Valid @RequestBody User user) {
-        UserDTO cratedUser = userService.createUser(user);
-        return new ResponseEntity<>(cratedUser, HttpStatus.CREATED);
+        UserDTO createdUser = userService.createUser(user);
+        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO) {
-        return ResponseEntity.ok(userService.updateUserWithoutPassword(id, userDTO));
+    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(userService.updateUser(id, userDTO));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
+        } catch (ChangeSetPersister.NotFoundException ex) {
+            String errorMessage = "User with id: " + id + " was not found.";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+        }
     }
+
+    @PutMapping("restore/{id}")
+    public ResponseEntity<UserDTO> restoreUser(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(userService.restoreUser(id));
+    }
+
 }
