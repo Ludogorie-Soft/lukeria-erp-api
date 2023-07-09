@@ -101,6 +101,36 @@ public class PlateServiceTest {
         verify(plateRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+    @Test
+    void testCreatePlate_ValidPlate() {
+        PlateDTO plateDTO = new PlateDTO();
+        plateDTO.setName("Plate 1");
+        plateDTO.setPhoto("Photo 1");
+        plateDTO.setAvailableQuantity(10);
+        plateDTO.setPrice(10.0);
+
+        Plate plateEntity = new Plate();
+        plateEntity.setName("Plate 1");
+        plateEntity.setPhoto("Photo 1");
+        plateEntity.setAvailableQuantity(10);
+        plateEntity.setPrice(10.0);
+
+        when(plateRepository.save(any(Plate.class))).thenReturn(plateEntity);
+        when(modelMapper.map(plateDTO, Plate.class)).thenReturn(plateEntity);
+        when(modelMapper.map(plateEntity, PlateDTO.class)).thenReturn(plateDTO);
+
+        // Act
+        PlateDTO result = plateService.createPlate(plateDTO);
+
+        // Assert
+        assertEquals(plateDTO.getName(), result.getName());
+        assertEquals(plateDTO.getPhoto(), result.getPhoto());
+        assertEquals(plateDTO.getAvailableQuantity(), result.getAvailableQuantity());
+        assertEquals(plateDTO.getPrice(), result.getPrice());
+
+        // Verify that plateRepository.save() is called with the expected Plate object
+        verify(plateRepository).save(plateEntity);
+    }
 
     @Test
     public void testCreatePlate_InvalidPlateDTO_NameMissing() {
@@ -161,6 +191,33 @@ public class PlateServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(plateRepository);
     }
+    @Test
+    void testUpdatePlate_ValidPlate() throws ChangeSetPersister.NotFoundException {
+        Long plateId = 1L;
+        Plate existingPlate = new Plate();
+        existingPlate.setId(plateId);
+        existingPlate.setName("Plate 1");
+        existingPlate.setPhoto("Photo 1");
+        existingPlate.setAvailableQuantity(10);
+        existingPlate.setPrice(10.0);
+
+        PlateDTO plateDTO = new PlateDTO();
+        plateDTO.setName("Updated Plate 1");
+        plateDTO.setPhoto("Updated Photo 1");
+        plateDTO.setAvailableQuantity(20);
+        plateDTO.setPrice(20.0);
+
+        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(Optional.of(existingPlate));
+        when(modelMapper.map(existingPlate, PlateDTO.class)).thenReturn(plateDTO);
+
+        Plate updatedPlate = new Plate();
+        updatedPlate.setId(plateId);
+        when(plateRepository.save(existingPlate)).thenReturn(updatedPlate);
+        PlateDTO result = plateService.updatePlate(plateId, plateDTO);
+
+        verify(plateRepository).save(existingPlate);
+    }
+
 
     @Test
     public void testUpdatePlate_MissingName() {
