@@ -298,6 +298,39 @@ import static org.mockito.Mockito.*;
         verify(cartonRepository).save(existingCarton);
     }
 
+    @Test
+    void testCreateCarton_ValidCarton() {
+       // Arrange
+       CartonDTO cartonDTO = new CartonDTO();
+       cartonDTO.setName("Carton 1");
+       cartonDTO.setSize("Size 1");
+       cartonDTO.setAvailableQuantity(10);
+       cartonDTO.setPrice(10.0);
+
+       Carton cartonEntity = new Carton();
+       cartonEntity.setName("Carton 1");
+       cartonEntity.setSize("Size 1");
+       cartonEntity.setAvailableQuantity(10);
+       cartonEntity.setPrice(10.0);
+
+       when(cartonRepository.save(any(Carton.class))).thenReturn(cartonEntity);
+       when(modelMapper.map(cartonDTO, Carton.class)).thenReturn(cartonEntity);
+       when(modelMapper.map(cartonEntity, CartonDTO.class)).thenReturn(cartonDTO);
+
+       // Act
+       CartonDTO result = cartonService.createCarton(cartonDTO);
+
+       // Assert
+       assertEquals(cartonDTO.getName(), result.getName());
+       assertEquals(cartonDTO.getSize(), result.getSize());
+       assertEquals(cartonDTO.getAvailableQuantity(), result.getAvailableQuantity());
+       assertEquals(cartonDTO.getPrice(), result.getPrice());
+
+       // Verify that cartonRepository.save() is called with the expected Carton object
+       verify(cartonRepository).save(cartonEntity);
+    }
+
+
 
 
 }

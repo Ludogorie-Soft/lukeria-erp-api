@@ -11,21 +11,16 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class CartonService {
     private final CartonRepository cartonRepository;
     private final ModelMapper modelMapper;
-    //TODO да останат само анотациите @Data и @NoArgsConstructor - done
-    //TODO да се обедини apiException за всички класове ! - done
-    //TODO да се направят валидации за DTO преди Save! - done
-    // TODO да се оправи метода update при CRUD - done
-    //TODO да се проучи SoftDelete - done
+
     public List<CartonDTO> getAllCartons() {
         List<Carton> laptops = cartonRepository.findByDeletedFalse();
-        return laptops.stream().map(carton -> modelMapper.map(carton, CartonDTO.class)).collect(Collectors.toList());
+        return laptops.stream().map(carton -> modelMapper.map(carton, CartonDTO.class)).toList();
     }
 
     public CartonDTO getCartonById(Long id) throws ChangeSetPersister.NotFoundException {
