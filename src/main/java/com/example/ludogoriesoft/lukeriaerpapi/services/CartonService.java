@@ -1,94 +1,81 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
-import com.example.ludogoriesoft.lukeriaerpapi.mappers.CartonMapper;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import io.micrometer.common.util.StringUtils;
+import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class CartonService {
     private final CartonRepository cartonRepository;
-    private final CartonMapper mapper;
-
-    //TODO да се обедини apiException за всички класове !
-    public CartonDTO toDTO(Carton cartonEntity) {
-        return mapper.toDto(cartonEntity);
-    }
-
-    public Carton toEntity(CartonDTO cartonDTO) {
-        return mapper.toEntity(cartonDTO);
-    }
-
-
+    private final ModelMapper modelMapper;
+    //TODO да останат само анотациите @Data и @NoArgsConstructor - done
+    //TODO да се обедини apiException за всички класове ! - done
+    //TODO да се направят валидации за DTO преди Save! - done
+    // TODO да се оправи метода update при CRUD - done
+    //TODO да се проучи SoftDelete - done
     public List<CartonDTO> getAllCartons() {
-        List<Carton> cartons = cartonRepository.findAll();
-        return cartons
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        List<Carton> laptops = cartonRepository.findByDeletedFalse();
+        return laptops.stream().map(carton -> modelMapper.map(carton, CartonDTO.class)).collect(Collectors.toList());
     }
-    //TODO да се обедини apiException за всички класове !
 
-    public CartonDTO getCartonById(Long id) {
-        Optional<Carton> optionalCarton = cartonRepository.findById(id);
-        if (optionalCarton.isEmpty()) {
-            throw new ApiRequestException("Carton with id: " + id + " Not Found");
-        }
-        return toDTO(optionalCarton.get());
+    public CartonDTO getCartonById(Long id) throws ChangeSetPersister.NotFoundException {
+        Carton carton = cartonRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return modelMapper.map(carton, CartonDTO.class);
     }
-    //TODO да се направят валидации за DTO преди Save!
+
     public CartonDTO createCarton(CartonDTO cartonDTO) {
         if (StringUtils.isBlank(cartonDTO.getName())) {
-            throw new ApiRequestException("Carton is blank");
+            throw new ValidationException("Name is required");
         }
-        Carton cartonEntity = cartonRepository.save(toEntity(cartonDTO));
-        return toDTO(cartonEntity);
+        if (StringUtils.isBlank(cartonDTO.getSize())) {
+            throw new ValidationException("Size is required");
+        }
+        if (cartonDTO.getAvailableQuantity() <= 0) {
+            throw new ValidationException("Available quantity must be greater than zero");
+        }
+        if (cartonDTO.getPrice() <= 0) {
+            throw new ValidationException("Price must be greater than zero");
+        }
+        Carton cartonEntity = cartonRepository.save(modelMapper.map(cartonDTO, Carton.class));
+        return modelMapper.map(cartonEntity, CartonDTO.class);
     }
 
-//TODO да се оправи метода update при CRUD
-    public CartonDTO updateCarton(Long id, CartonDTO cartonDTO) {
-        Optional<Carton> optionalCarton = cartonRepository.findById(id);
-        if (optionalCarton.isEmpty()) {
-            throw new ApiRequestException("Carton with id: " + id + " Not Found");
+    public CartonDTO updateCarton(Long id, CartonDTO cartonDTO) throws ChangeSetPersister.NotFoundException {
+        Carton existingCarton = cartonRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        if (StringUtils.isBlank(cartonDTO.getName())) {
+            throw new ValidationException("Name is required");
         }
-
-        Carton existingCarton = optionalCarton.get();
-
-        if (cartonDTO == null || cartonDTO.getName() == null || cartonDTO.getPrice() == 0
-                || cartonDTO.getAvailableQuantity() == 0) {
-            throw new ApiRequestException("Invalid Carton data!");
+        if (StringUtils.isBlank(cartonDTO.getSize())) {
+            throw new ValidationException("Size is required");
         }
-        if (cartonDTO.getName() != null) {
-            existingCarton.setName(cartonDTO.getName());
+        if (cartonDTO.getAvailableQuantity() <= 0) {
+            throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (cartonDTO.getSize() != null) {
-            existingCarton.setSize(cartonDTO.getSize());
+        if (cartonDTO.getPrice() <= 0) {
+            throw new ValidationException("Price must be greater than zero");
         }
-        if (cartonDTO.getAvailableQuantity() != 0) {
-            existingCarton.setAvailableQuantity(cartonDTO.getAvailableQuantity());
-        }
-        if (cartonDTO.getPrice() != 0) {
-            cartonDTO.setPrice(cartonDTO.getPrice());
-        }
+        existingCarton.setName(cartonDTO.getName());
+        existingCarton.setSize(cartonDTO.getSize());
+        existingCarton.setAvailableQuantity(cartonDTO.getAvailableQuantity());
+        existingCarton.setPrice(cartonDTO.getPrice());
         Carton updatedCarton = cartonRepository.save(existingCarton);
         updatedCarton.setId(id);
-        return toDTO(updatedCarton);
+        return modelMapper.map(updatedCarton, CartonDTO.class);
     }
 
-    //TODO да се проучи SoftDelete 
-    public void deleteCarton(Long id) {
-        Optional<Carton> cartonOptional = cartonRepository.findById(id);
-        if (cartonOptional.isEmpty()) {
-            throw new ApiRequestException("Carton not found for id " + id);
-        }
-        cartonRepository.delete(cartonOptional.get());
+    public void deleteCarton(Long id) throws ChangeSetPersister.NotFoundException {
+        Carton carton = cartonRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        carton.setDeleted(true);
+        cartonRepository.save(carton);
     }
 }

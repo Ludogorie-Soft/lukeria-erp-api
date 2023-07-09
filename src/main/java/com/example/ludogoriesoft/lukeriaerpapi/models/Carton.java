@@ -21,4 +21,6 @@ public class Carton {
     private Integer availableQuantity;
     @Min(value = 1, message = "Цената не може да бъде отрицателно число!")
     private double price;
+    @Column(name = "is_deleted")
+    private boolean deleted;
 }

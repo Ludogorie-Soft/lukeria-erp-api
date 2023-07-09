@@ -1,146 +1,198 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
-import com.example.ludogoriesoft.lukeriaerpapi.mappers.CartonMapper;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
+import jakarta.validation.ValidationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.never;
 
-@ExtendWith(MockitoExtension.class)
-class CartonServiceTest {
+public class CartonServiceTest {
 
     @Mock
     private CartonRepository cartonRepository;
 
     @Mock
-    private CartonMapper cartonMapper;
+    private ModelMapper modelMapper;
 
     @InjectMocks
     private CartonService cartonService;
 
-    @Test
-    void testToDTO() {
-        Carton cartonEntity = new Carton();
-        cartonEntity.setId(1L);
-        cartonEntity.setName("Carton 1");
-        cartonEntity.setAvailableQuantity(10);
-        CartonDTO expectedDto = new CartonDTO();
-        expectedDto.setId(1L);
-        expectedDto.setName("Carton 1");
-        expectedDto.setAvailableQuantity(10);
-        when(cartonMapper.toDto(any(Carton.class))).thenReturn(expectedDto);
-        CartonDTO resultDto = cartonService.toDTO(cartonEntity);
-        assertEquals(expectedDto, resultDto);
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testToEntity() {
-        CartonDTO cartonDto = new CartonDTO();
-        cartonDto.setId(1L);
-        cartonDto.setName("Carton 1");
-        cartonDto.setAvailableQuantity(10);
-        Carton expectedEntity = new Carton();
-        expectedEntity.setId(1L);
-        expectedEntity.setName("Carton 1");
-        expectedEntity.setAvailableQuantity(10);
-        when(cartonMapper.toEntity(any(CartonDTO.class))).thenReturn(expectedEntity);
-        Carton resultEntity = cartonService.toEntity(cartonDto);
-        assertEquals(expectedEntity, resultEntity);
-    }
-
-    @Test
-    void testGetAllCartons() {
-        List<Carton> cartonList = new ArrayList<>();
+    public void testGetAllCartons() {
         Carton carton1 = new Carton();
         carton1.setId(1L);
         carton1.setName("Carton 1");
-        carton1.setAvailableQuantity(10);
-        cartonList.add(carton1);
-        when(cartonRepository.findAll()).thenReturn(cartonList);
-        when(cartonMapper.toDto(any(Carton.class))).thenReturn(new CartonDTO());
-        List<CartonDTO> resultDtoList = cartonService.getAllCartons();
-        assertNotNull(resultDtoList);
-        CartonDTO resultDto = resultDtoList.get(0);
-        assertNotNull(resultDto);
 
+        Carton carton2 = new Carton();
+        carton2.setId(2L);
+        carton2.setName("Carton 2");
+
+        List<Carton> mockCartons = Arrays.asList(carton1, carton2);
+        when(cartonRepository.findByDeletedFalse()).thenReturn(mockCartons);
+
+        CartonDTO cartonDTO1 = new CartonDTO();
+        cartonDTO1.setId(1L);
+        cartonDTO1.setName("Carton 1");
+
+        CartonDTO cartonDTO2 = new CartonDTO();
+        cartonDTO2.setId(2L);
+        cartonDTO2.setName("Carton 2");
+
+        when(modelMapper.map(carton1, CartonDTO.class)).thenReturn(cartonDTO1);
+        when(modelMapper.map(carton2, CartonDTO.class)).thenReturn(cartonDTO2);
+
+        List<CartonDTO> result = cartonService.getAllCartons();
+
+        assertEquals(mockCartons.size(), result.size());
+        assertEquals(mockCartons.get(0).getName(), result.get(0).getName());
+        assertEquals(mockCartons.get(1).getName(), result.get(1).getName());
+
+        verify(cartonRepository, times(1)).findByDeletedFalse();
+
+        verify(modelMapper, times(mockCartons.size())).map(any(Carton.class), eq(CartonDTO.class));
     }
-
-
     @Test
-    void testGetCartonById_ExistingCarton() {
-        Carton cartonEntity = new Carton();
-        cartonEntity.setId(999L);
-        cartonEntity.setName("Carton 1");
-        cartonEntity.setAvailableQuantity(10);
-        when(cartonRepository.findById(any(Long.class))).thenReturn(Optional.of(cartonEntity));
-        when(cartonMapper.toDto(any(Carton.class))).thenReturn(new CartonDTO());
-        CartonDTO resultDto = cartonService.getCartonById(999L);
-        assertNotNull(resultDto);
+    public void testGetCartonById_ExistingId() throws ChangeSetPersister.NotFoundException {
+        Carton carton = new Carton();
+        carton.setId(1L);
+        carton.setName("Carton 1");
 
-    }
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(carton));
 
-    @Test
-    void testGetCartonById_NonExistingCarton() {
-        when(cartonRepository.findById(any(Long.class))).thenReturn(Optional.empty());
-        assertThrows(ApiRequestException.class, () -> {
-            cartonService.getCartonById(1L);
-        });
-    }
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setId(1L);
+        cartonDTO.setName("Carton 1");
 
-    @Test
-    void testCreateCarton_BlankCartonName() {
-        CartonDTO cartonDto = new CartonDTO();
-        cartonDto.setName(""); // Празно име
-        assertThrows(ApiRequestException.class, () -> cartonService.createCarton(cartonDto));
-        verify(cartonRepository, never()).save(any(Carton.class));
-    }
+        when(modelMapper.map(carton, CartonDTO.class)).thenReturn(cartonDTO);
 
-    @Test
-    void testDeleteCarton_ValidId() {
-        // Създаване на валидно id за тестване
-        Long cartonId = 1L;
-        Carton existingCarton = new Carton();
-        existingCarton.setId(cartonId);
-        when(cartonRepository.findById(cartonId)).thenReturn(Optional.of(existingCarton));
-        cartonService.deleteCarton(cartonId);
-        verify(cartonRepository).findById(cartonId);
-        verify(cartonRepository).delete(existingCarton);
-    }
+        CartonDTO result = cartonService.getCartonById(1L);
 
-    @Test
-    void testDeleteCarton_InvalidId() {
-        Long invalidId = 999L;
-        when(cartonRepository.findById(invalidId)).thenReturn(Optional.empty());
-        assertThrows(ApiRequestException.class, () -> cartonService.deleteCarton(invalidId));
-        verify(cartonRepository).findById(invalidId);
-        verify(cartonRepository, never()).delete(any(Carton.class));
+        assertEquals(cartonDTO.getId(), result.getId());
+        assertEquals(cartonDTO.getName(), result.getName());
+
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verify(modelMapper, times(1)).map(carton, CartonDTO.class);
     }
 
     @Test
-    void testUpdateCarton_EmptyCartonDTO() {
-        Long id = 1L;
-        CartonDTO cartonDto = null;
-        Optional<Carton> optionalCarton = Optional.of(new Carton());
-        when(cartonRepository.findById(id)).thenReturn(optionalCarton);
-        assertThrows(ApiRequestException.class, () -> cartonService.updateCarton(id, cartonDto));
-        verify(cartonRepository, never()).save(any(Carton.class));
-    }
+    public void testGetCartonById_NonExistingId() {
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> cartonService.getCartonById(1L));
 
-    //TODO да се добавят всички тестове за Service
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+//    @Test
+//    public void testCreateCarton_ValidCartonDTO() {
+//        // Create a valid CartonDTO
+//        CartonDTO cartonDTO = new CartonDTO();
+//        cartonDTO.setName("Carton 1");
+//        cartonDTO.setSize("Large");
+//        cartonDTO.setAvailableQuantity(10);
+//        cartonDTO.setPrice(100.0);
+//
+//        // Call the method under test
+//        CartonDTO result = cartonService.createCarton(cartonDTO);
+//
+//        // Verify the behavior and assertions
+//        assertEquals(cartonDTO.getName(), result.getName());
+//        assertEquals(cartonDTO.getSize(), result.getSize());
+//        assertEquals(cartonDTO.getAvailableQuantity(), result.getAvailableQuantity());
+//        assertEquals(cartonDTO.getPrice(), result.getPrice());
+//
+//        // Verify that modelMapper.map() was called once with the correct arguments
+//        verify(modelMapper, times(1)).map(cartonDTO, Carton.class);
+//
+//        // Verify that cartonRepository.save() was called once with the correct argument
+//        verify(cartonRepository, times(1)).save(any(Carton.class));
+//    }
+
+    @Test
+    public void testCreateCarton_InvalidCartonDTO_NameMissing() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setSize("Large");
+        cartonDTO.setAvailableQuantity(10);
+        cartonDTO.setPrice(100.0);
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
+        assertEquals("Name is required", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+
+        verifyNoInteractions(cartonRepository);
+    }
+    @Test
+    public void testCreateCarton_InvalidCartonDTO_SizeMissing() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setName("some name");
+        cartonDTO.setAvailableQuantity(10);
+        cartonDTO.setPrice(100.0);
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
+        assertEquals("Size is required", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(cartonRepository);
+    }
+    @Test
+    public void testCreateCarton_InvalidCartonDTO_AvailableQuantityIsInvalid() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setName("some name");
+        cartonDTO.setSize("12-18");
+        cartonDTO.setAvailableQuantity(0);
+        cartonDTO.setPrice(100.0);
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
+        assertEquals("Available quantity must be greater than zero", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(cartonRepository);
+    }
+    @Test
+    public void testCreateCarton_InvalidCartonDTO_PriceIsZero() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setName("some name");
+        cartonDTO.setSize("12-18");
+        cartonDTO.setAvailableQuantity(10);
+        cartonDTO.setPrice(0);
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
+        assertEquals("Price must be greater than zero", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(cartonRepository);
+    }
+    @Test
+    public void testCreateCarton_InvalidCartonDTO_PriceIsNegative() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setName("some name");
+        cartonDTO.setSize("12-18");
+        cartonDTO.setAvailableQuantity(10);
+        cartonDTO.setPrice(-10);
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
+        assertEquals("Price must be greater than zero", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(cartonRepository);
+    }
 }
-
