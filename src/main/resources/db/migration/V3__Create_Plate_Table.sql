@@ -3,5 +3,6 @@ CREATE TABLE plate (
   name VARCHAR(255) NOT NULL,
   available_quantity INT,
   photo VARCHAR(255),
-  price DOUBLE
+  price DOUBLE,
+  is_deleted TINYINT(1) DEFAULT FALSE
 );

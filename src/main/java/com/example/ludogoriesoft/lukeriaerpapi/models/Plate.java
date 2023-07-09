@@ -7,10 +7,7 @@ import lombok.*;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Setter
-@Getter
 @Table(name = "plate")
 public class Plate {
     @Id
@@ -24,4 +21,6 @@ public class Plate {
     private String photo;
     @Min(value = 1, message = "Цената не може да бъде отрицателно число!")
     private double price;
+    @Column(name = "is_deleted")
+    private boolean deleted;
 }
