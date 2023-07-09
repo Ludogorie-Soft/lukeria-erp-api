@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class CartonServiceTest {
-
     @Mock
     private CartonRepository cartonRepository;
 
@@ -101,30 +100,6 @@ public class CartonServiceTest {
         verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
-//    @Test
-//    public void testCreateCarton_ValidCartonDTO() {
-//        // Create a valid CartonDTO
-//        CartonDTO cartonDTO = new CartonDTO();
-//        cartonDTO.setName("Carton 1");
-//        cartonDTO.setSize("Large");
-//        cartonDTO.setAvailableQuantity(10);
-//        cartonDTO.setPrice(100.0);
-//
-//        // Call the method under test
-//        CartonDTO result = cartonService.createCarton(cartonDTO);
-//
-//        // Verify the behavior and assertions
-//        assertEquals(cartonDTO.getName(), result.getName());
-//        assertEquals(cartonDTO.getSize(), result.getSize());
-//        assertEquals(cartonDTO.getAvailableQuantity(), result.getAvailableQuantity());
-//        assertEquals(cartonDTO.getPrice(), result.getPrice());
-//
-//        // Verify that modelMapper.map() was called once with the correct arguments
-//        verify(modelMapper, times(1)).map(cartonDTO, Carton.class);
-//
-//        // Verify that cartonRepository.save() was called once with the correct argument
-//        verify(cartonRepository, times(1)).save(any(Carton.class));
-//    }
 
     @Test
     public void testCreateCarton_InvalidCartonDTO_NameMissing() {
@@ -194,5 +169,102 @@ public class CartonServiceTest {
 
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(cartonRepository);
+    }
+    @Test
+    public void testUpdateCarton_MissingName() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setSize("Large");
+        cartonDTO.setAvailableQuantity(10);
+        cartonDTO.setPrice(100.0);
+
+        Carton existingCarton = new Carton();
+        existingCarton.setId(1L);
+        existingCarton.setName("Existing Carton");
+        existingCarton.setSize("Medium");
+        existingCarton.setAvailableQuantity(5);
+        existingCarton.setPrice(50.0);
+
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
+        assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
+    public void testUpdateCarton_MissingSize() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setId(1L);
+        cartonDTO.setName("name");
+        cartonDTO.setAvailableQuantity(10);
+        cartonDTO.setPrice(100.0);
+
+        Carton existingCarton = new Carton();
+        existingCarton.setId(1L);
+        existingCarton.setName("name");
+        existingCarton.setSize("Existing Carton");
+        existingCarton.setAvailableQuantity(5);
+        existingCarton.setPrice(50.0);
+
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
+        assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
+    public void testUpdateCarton_NotAvailableQuantity() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setId(1L);
+        cartonDTO.setSize("10-19");
+        cartonDTO.setName("name");
+        cartonDTO.setAvailableQuantity(-10);
+        cartonDTO.setPrice(100.0);
+
+        Carton existingCarton = new Carton();
+        existingCarton.setId(1L);
+        existingCarton.setName("name");
+        existingCarton.setSize("Existing Carton");
+        existingCarton.setAvailableQuantity(5);
+        existingCarton.setPrice(50.0);
+
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
+        assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
+    public void testUpdateCarton_InvalidPrice() {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setId(1L);
+        cartonDTO.setSize("10-19");
+        cartonDTO.setName("name");
+        cartonDTO.setAvailableQuantity(10);
+        cartonDTO.setPrice(-100.0);
+
+        Carton existingCarton = new Carton();
+        existingCarton.setId(1L);
+        existingCarton.setName("name");
+        existingCarton.setSize("Existing Carton");
+        existingCarton.setAvailableQuantity(5);
+        existingCarton.setPrice(50.0);
+
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
+        assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
+    public void testDeleteCarton_ExistingId() throws ChangeSetPersister.NotFoundException {
+        Carton existingCarton = new Carton();
+        existingCarton.setId(1L);
+        existingCarton.setDeleted(false);
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
+        cartonService.deleteCarton(1L);
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
+    }
+
+    @Test
+    public void testDeleteCarton_NonExistingId() {
+        when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> cartonService.deleteCarton(1L));
+        verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
     }
 }
