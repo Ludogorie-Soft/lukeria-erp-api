@@ -1,92 +1,70 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
-import com.example.ludogoriesoft.lukeriaerpapi.mappers.PlateMapper;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import io.micrometer.common.util.StringUtils;
+import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class PlateService {
     private final PlateRepository plateRepository;
-    private final PlateMapper mapper;
-
-    public PlateDTO toDTO(Plate plateEntity) {
-        return mapper.toDto(plateEntity);
-    }
-
-    public Plate toEntity(PlateDTO plateDTO) {
-        return mapper.toEntity(plateDTO);
-    }
-
+    private final ModelMapper modelMapper;
 
     public List<PlateDTO> getAllPlates() {
-        List<Plate> plates = plateRepository.findAll();
-        return plates
-                .stream()
-                .map(this::toDTO)
-                .toList();
+        List<Plate> laptops = plateRepository.findByDeletedFalse();
+        return laptops.stream().map(Plate -> modelMapper.map(Plate, PlateDTO.class)).collect(Collectors.toList());
     }
 
-    public PlateDTO getPlateById(Long id) {
-        Optional<Plate> optionalPlate = plateRepository.findById(id);
-        if (optionalPlate.isEmpty()) {
-            throw new ApiRequestException("Plate with id: " + id + " Not Found");
+    public PlateDTO getPlateById(Long id) throws ChangeSetPersister.NotFoundException {
+        Plate plate = plateRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return modelMapper.map(plate, PlateDTO.class);
+    }
+
+    public PlateDTO createPlate(PlateDTO PlateDTO) {
+        if (StringUtils.isBlank(PlateDTO.getName())) {
+            throw new ValidationException("Name is required");
         }
-        return toDTO(optionalPlate.get());
+        if (PlateDTO.getAvailableQuantity() <= 0) {
+            throw new ValidationException("Available quantity must be greater than zero");
+        }
+        if (PlateDTO.getPrice() <= 0) {
+            throw new ValidationException("Price must be greater than zero");
+        }
+        Plate PlateEntity = plateRepository.save(modelMapper.map(PlateDTO, Plate.class));
+        return modelMapper.map(PlateEntity, PlateDTO.class);
     }
 
-    public PlateDTO createPlate(PlateDTO plateDTO) {
+    public PlateDTO updatePlate(Long id, PlateDTO plateDTO) throws ChangeSetPersister.NotFoundException {
+        Plate existingPlate = plateRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         if (StringUtils.isBlank(plateDTO.getName())) {
-            throw new ApiRequestException("Plate is blank");
+            throw new ValidationException("Name is required");
         }
-        Plate PlateEntity = plateRepository.save(toEntity(plateDTO));
-        return toDTO(PlateEntity);
-    }
-
-
-    public PlateDTO updatePlate(Long id, PlateDTO plateDTO) {
-        Optional<Plate> optionalPlate = plateRepository.findById(id);
-        if (optionalPlate.isEmpty()) {
-            throw new ApiRequestException("Plate with id: " + id + " Not Found");
+        if (plateDTO.getAvailableQuantity() <= 0) {
+            throw new ValidationException("Available quantity must be greater than zero");
         }
-
-        Plate existingPlate = optionalPlate.get();
-
-        if (plateDTO == null || plateDTO.getName() == null || plateDTO.getPrice() == 0
-                || plateDTO.getAvailableQuantity() == 0) {
-            throw new ApiRequestException("Invalid Plate data!");
+        if (plateDTO.getPrice() <= 0) {
+            throw new ValidationException("Price must be greater than zero");
         }
-        if (plateDTO.getName() != null) {
-            existingPlate.setName(plateDTO.getName());
-        }
-        if (plateDTO.getAvailableQuantity() != 0) {
-            existingPlate.setAvailableQuantity(plateDTO.getAvailableQuantity());
-        }
-        if (plateDTO.getPrice() != 0) {
-            plateDTO.setPrice(plateDTO.getPrice());
-        }
-        if (plateDTO.getPhoto() != null) {
-            plateDTO.setPhoto(plateDTO.getPhoto());
-        }
+        existingPlate.setName(plateDTO.getName());
+        existingPlate.setAvailableQuantity(plateDTO.getAvailableQuantity());
+        existingPlate.setPrice(plateDTO.getPrice());
         Plate updatedPlate = plateRepository.save(existingPlate);
         updatedPlate.setId(id);
-        return toDTO(updatedPlate);
+        return modelMapper.map(updatedPlate, PlateDTO.class);
     }
 
-
-    public void deletePlate(Long id) {
-        Optional<Plate> plateOptional = plateRepository.findById(id);
-        if (plateOptional.isEmpty()) {
-            throw new ApiRequestException("Plate not found for id " + id);
-        }
-        plateRepository.delete(plateOptional.get());
+    public void deletePlate(Long id) throws ChangeSetPersister.NotFoundException {
+        Plate plate = plateRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        plate.setDeleted(true);
+        plateRepository.save(plate);
     }
 }
