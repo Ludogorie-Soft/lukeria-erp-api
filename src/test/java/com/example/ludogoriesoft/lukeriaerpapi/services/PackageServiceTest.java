@@ -2,7 +2,6 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
-import com.example.ludogoriesoft.lukeriaerpapi.mappers.CartonMapper;
 import com.example.ludogoriesoft.lukeriaerpapi.mappers.PackageMapper;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
@@ -14,21 +13,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
- class PackageServiceTest {
+class PackageServiceTest {
 
     @Mock
     private PackageRepository packageRepository;
 
     @Mock
     private PackageMapper packageMapper;
-    @Mock
-    private CartonMapper cartonMapper;
 
     @InjectMocks
     private PackageService packageService;

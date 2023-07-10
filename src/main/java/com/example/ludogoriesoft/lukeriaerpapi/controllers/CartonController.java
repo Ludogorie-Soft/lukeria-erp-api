@@ -4,9 +4,9 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.services.CartonService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class CartonController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CartonDTO> getCartonById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<CartonDTO> getCartonById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(cartonService.getCartonById(id));
     }
 
@@ -34,12 +34,12 @@ public class CartonController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CartonDTO> updateCarton(@PathVariable("id") Long id, @Valid @RequestBody CartonDTO cartonDTO) {
+    public ResponseEntity<CartonDTO> updateCarton(@PathVariable("id") Long id, @Valid @RequestBody CartonDTO cartonDTO) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(cartonService.updateCarton(id, cartonDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCartonById(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteCartonById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
         cartonService.deleteCarton(id);
         return ResponseEntity.ok("Carton with id: " + id + " has been deleted successfully!");
     }
