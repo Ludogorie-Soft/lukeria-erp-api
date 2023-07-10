@@ -91,9 +91,7 @@ class ProductServiceTest {
         when(productRepository.findByIdAndDeletedFalse(nonExistingProductId)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            productService.getProductById(nonExistingProductId);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> productService.getProductById(nonExistingProductId));
     }
 
     @Test
@@ -122,9 +120,7 @@ class ProductServiceTest {
         ProductDTO productDTO = new ProductDTO(1L, 0.0, 5, plate);
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            productService.createProduct(productDTO);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> productService.createProduct(productDTO));
     }
 
     @Test
@@ -134,9 +130,7 @@ class ProductServiceTest {
         ProductDTO productDTO = new ProductDTO(1L, 10.0, 0, plate);
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            productService.createProduct(productDTO);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> productService.createProduct(productDTO));
     }
 
     @Test
@@ -172,7 +166,7 @@ class ProductServiceTest {
     }
 
     @Test
-     void testUpdateProduct_InvalidPrice() throws ChangeSetPersister.NotFoundException {
+     void testUpdateProduct_InvalidPrice() {
         Plate plate=new Plate();
         plate.setId(1L);
         Long productId = 1L;
@@ -182,15 +176,13 @@ class ProductServiceTest {
         when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            productService.updateProduct(productId, productDTO);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> productService.updateProduct(productId, productDTO));
 
 
     }
 
     @Test
-     void testUpdateProduct_InvalidQuantity() throws ChangeSetPersister.NotFoundException {
+     void testUpdateProduct_InvalidQuantity()  {
         Plate plate=new Plate();
         plate.setId(1L);
         Long productId = 1L;
@@ -200,9 +192,7 @@ class ProductServiceTest {
         when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            productService.updateProduct(productId, productDTO);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> productService.updateProduct(productId, productDTO));
 
 
     }
@@ -218,9 +208,7 @@ class ProductServiceTest {
         when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
 
         // Act and Assert
-        assertThrows(NullPointerException.class, () -> {
-            productService.updateProduct(productId, productDTO);
-        });
+        assertThrows(NullPointerException.class, () -> productService.updateProduct(productId, productDTO));
 
     }
 
@@ -234,9 +222,7 @@ class ProductServiceTest {
         when(productRepository.findByIdAndDeletedFalse(nonExistingProductId)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            productService.updateProduct(nonExistingProductId, productDTO);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> productService.updateProduct(nonExistingProductId, productDTO));
 
         verify(productRepository, never()).save(any());
     }
@@ -268,9 +254,7 @@ class ProductServiceTest {
         when(productRepository.findByIdAndDeletedFalse(nonExistingProductId)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            productService.deleteProduct(nonExistingProductId);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> productService.deleteProduct(nonExistingProductId));
 
         verify(productRepository, never()).save(any());
     }
