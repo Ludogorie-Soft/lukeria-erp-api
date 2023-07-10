@@ -19,10 +19,8 @@ public class CartonService {
     private final ModelMapper modelMapper;
 
     public List<CartonDTO> getAllCartons() {
-        List<Carton> cartons = cartonRepository.findByDeletedFalse();
-        return cartons.stream()
-                .map(carton -> modelMapper.map(carton, CartonDTO.class))
-                .toList();
+        List<Carton> laptops = cartonRepository.findByDeletedFalse();
+        return laptops.stream().map(carton -> modelMapper.map(carton, CartonDTO.class)).toList();
     }
 
     public CartonDTO getCartonById(Long id) throws ChangeSetPersister.NotFoundException {
