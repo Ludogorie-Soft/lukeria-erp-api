@@ -1,6 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import io.micrometer.common.util.StringUtils;
@@ -20,8 +22,10 @@ public class PlateService {
     private final ModelMapper modelMapper;
 
     public List<PlateDTO> getAllPlates() {
-        List<Plate> laptops = plateRepository.findByDeletedFalse();
-        return laptops.stream().map(Plate -> modelMapper.map(Plate, PlateDTO.class)).collect(Collectors.toList());
+        List<Plate> plates = plateRepository.findByDeletedFalse();
+        return plates.stream()
+                .map(plate -> modelMapper.map(plate, PlateDTO.class))
+                .toList();
     }
 
     public PlateDTO getPlateById(Long id) throws ChangeSetPersister.NotFoundException {
@@ -29,18 +33,18 @@ public class PlateService {
         return modelMapper.map(plate, PlateDTO.class);
     }
 
-    public PlateDTO createPlate(PlateDTO PlateDTO) {
-        if (StringUtils.isBlank(PlateDTO.getName())) {
+    public PlateDTO createPlate(PlateDTO plateDTO) {
+        if (StringUtils.isBlank(plateDTO.getName())) {
             throw new ValidationException("Name is required");
         }
-        if (PlateDTO.getAvailableQuantity() <= 0) {
+        if (plateDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (PlateDTO.getPrice() <= 0) {
+        if (plateDTO.getPrice() <= 0) {
             throw new ValidationException("Price must be greater than zero");
         }
-        Plate PlateEntity = plateRepository.save(modelMapper.map(PlateDTO, Plate.class));
-        return modelMapper.map(PlateEntity, PlateDTO.class);
+        Plate plateEntity = plateRepository.save(modelMapper.map(plateDTO, Plate.class));
+        return modelMapper.map(plateEntity, PlateDTO.class);
     }
 
     public PlateDTO updatePlate(Long id, PlateDTO plateDTO) throws ChangeSetPersister.NotFoundException {

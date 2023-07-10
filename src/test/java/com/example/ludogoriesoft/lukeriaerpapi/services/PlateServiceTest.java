@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class PlateServiceTest {
+class PlateServiceTest {
     @Mock
     private PlateRepository plateRepository;
 
@@ -36,7 +36,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testGetAllPlates() {
+    void testGetAllPlates() {
         Plate plate1 = new Plate();
         plate1.setId(1L);
         plate1.setName("Plate 1");
@@ -71,7 +71,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testGetPlateById_ExistingId() throws ChangeSetPersister.NotFoundException {
+    void testGetPlateById_ExistingId() throws ChangeSetPersister.NotFoundException {
         Plate plate = new Plate();
         plate.setId(1L);
         plate.setName("Plate 1");
@@ -94,7 +94,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testGetPlateById_NonExistingId() {
+    void testGetPlateById_NonExistingId() {
         when(plateRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> plateService.getPlateById(1L));
 
@@ -133,7 +133,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testCreatePlate_InvalidPlateDTO_NameMissing() {
+    void testCreatePlate_InvalidPlateDTO_NameMissing() {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setPhoto("photo");
         plateDTO.setAvailableQuantity(10);
@@ -148,7 +148,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testCreatePlate_InvalidPlateDTO_AvailableQuantityIsInvalid() {
+    void testCreatePlate_InvalidPlateDTO_AvailableQuantityIsInvalid() {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setName("some name");
         plateDTO.setPhoto("photo");
@@ -163,7 +163,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testCreatePlate_InvalidPlateDTO_PriceIsZero() {
+    void testCreatePlate_InvalidPlateDTO_PriceIsZero() {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setName("some name");
         plateDTO.setPhoto("photo");
@@ -178,7 +178,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testCreatePlate_InvalidPlateDTO_PriceIsNegative() {
+    void testCreatePlate_InvalidPlateDTO_PriceIsNegative() {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setName("some name");
         plateDTO.setPhoto("photo");
@@ -220,7 +220,7 @@ public class PlateServiceTest {
 
 
     @Test
-    public void testUpdatePlate_MissingName() {
+    void testUpdatePlate_MissingName() {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setPhoto("photo");
         plateDTO.setAvailableQuantity(10);
@@ -241,7 +241,7 @@ public class PlateServiceTest {
 
 
     @Test
-    public void testUpdatePlate_NotAvailableQuantity() {
+    void testUpdatePlate_NotAvailableQuantity() {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setId(1L);
         plateDTO.setPhoto("photo");
@@ -263,7 +263,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testUpdatePlate_InvalidPrice() {
+    void testUpdatePlate_InvalidPrice() {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setId(1L);
         plateDTO.setPhoto("photo");
@@ -285,7 +285,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testDeletePlate_ExistingId() throws ChangeSetPersister.NotFoundException {
+    void testDeletePlate_ExistingId() throws ChangeSetPersister.NotFoundException {
         Plate existingPlate = new Plate();
         existingPlate.setId(1L);
         existingPlate.setDeleted(false);
@@ -295,7 +295,7 @@ public class PlateServiceTest {
     }
 
     @Test
-    public void testDeletePlate_NonExistingId() {
+    void testDeletePlate_NonExistingId() {
         when(plateRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> plateService.deletePlate(1L));
         verify(plateRepository, times(1)).findByIdAndDeletedFalse(1L);
