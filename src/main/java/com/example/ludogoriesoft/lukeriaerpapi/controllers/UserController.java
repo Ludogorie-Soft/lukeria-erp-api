@@ -24,13 +24,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable(name = "id") Long id) {
-        try {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
             UserDTO user = userService.getUserById(id);
             return ResponseEntity.ok(user);
-        } catch (ChangeSetPersister.NotFoundException ex) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @PostMapping
@@ -45,14 +41,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id) {
-        try {
+    public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
             userService.deleteUser(id);
             return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
-        } catch (ChangeSetPersister.NotFoundException ex) {
-            String errorMessage = "User with id: " + id + " was not found.";
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
-        }
     }
 
     @PutMapping("restore/{id}")
