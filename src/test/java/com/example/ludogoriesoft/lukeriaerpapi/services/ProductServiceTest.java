@@ -1,13 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
-import com.example.ludogoriesoft.lukeriaerpapi.mappers.ProductMapper;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
-import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -19,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
@@ -264,7 +261,7 @@ class ProductServiceTest {
     }
 
     @Test
-     void testDeleteProduct_NonExistingProduct() {
+    void testDeleteProduct_NonExistingProduct() {
         // Arrange
         Long nonExistingProductId = 10L;
 
