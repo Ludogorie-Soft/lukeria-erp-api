@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
- class UserServiceTest {
+class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
     }
 
     @Test
-     void testGetAllUsers() {
+    void testGetAllUsers() {
         // Arrange
         User user1 = new User();
         user1.setId(1L);
@@ -146,7 +146,7 @@ import static org.mockito.Mockito.*;
 
 
     @Test
-     void testDeleteUser_ExistingUser() throws ChangeSetPersister.NotFoundException {
+    void testDeleteUser_ExistingUser() throws ChangeSetPersister.NotFoundException {
         // Arrange
         Long userId = 1L;
         User user = new User();
@@ -166,7 +166,7 @@ import static org.mockito.Mockito.*;
     }
 
     @Test
-     void testDeleteUser_NonExistingUser() {
+    void testDeleteUser_NonExistingUser() {
         // Arrange
         Long userId = 1L;
 
@@ -179,7 +179,7 @@ import static org.mockito.Mockito.*;
     }
 
     @Test
-     void testRestoreUser_ExistingUser() throws ChangeSetPersister.NotFoundException {
+    void testRestoreUser_ExistingUser() throws ChangeSetPersister.NotFoundException {
         // Arrange
         Long userId = 1L;
         User user = new User();
@@ -208,7 +208,7 @@ import static org.mockito.Mockito.*;
     }
 
     @Test
-     void testRestoreUser_NonExistingUser() {
+    void testRestoreUser_NonExistingUser() {
         // Arrange
         Long userId = 1L;
 
@@ -273,55 +273,53 @@ import static org.mockito.Mockito.*;
         });
     }
 
-     @Test
-     void testUpdateUser_InvalidUser_FullNameBlank() {
-         // Arrange
-         Long userId = 1L;
-         User existingUser = new User();
-         existingUser.setId(userId);
-         existingUser.setUsername("user1");
-         existingUser.setFullName("User 1");
-         existingUser.setEmail("user1@example.com");
-         existingUser.setRole(Role.ADMIN);
+    @Test
+    void testUpdateUser_InvalidUser_FullNameBlank() {
+        // Arrange
+        Long userId = 1L;
+        User existingUser = new User();
+        existingUser.setId(userId);
+        existingUser.setUsername("user1");
+        existingUser.setFullName("User 1");
+        existingUser.setEmail("user1@example.com");
+        existingUser.setRole(Role.ADMIN);
 
-         UserDTO userDTO = new UserDTO();
-         userDTO.setUsername("user1");
-         userDTO.setFullName(""); // Празно потребителско име
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("user1");
+        userDTO.setFullName(""); // Празно потребителско име
 
-         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
 
-         // Act and Assert
-         assertThrows(jakarta.validation.ValidationException.class, () -> {
-             userService.updateUser(userId, userDTO);
-         });
-     }
+        // Act and Assert
+        assertThrows(jakarta.validation.ValidationException.class, () -> {
+            userService.updateUser(userId, userDTO);
+        });
+    }
 
-     @Test
-     void testUpdateUser_InvalidUser_EmailBlank() {
-         // Arrange
-         Long userId = 1L;
-         User existingUser = new User();
-         existingUser.setId(userId);
-         existingUser.setUsername("user1");
-         existingUser.setFullName("User 1");
-         existingUser.setEmail("");
-         existingUser.setRole(Role.ADMIN);
+    @Test
+    void testUpdateUser_InvalidUser_EmailBlank() {
+        // Arrange
+        Long userId = 1L;
+        User existingUser = new User();
+        existingUser.setId(userId);
+        existingUser.setUsername("user1");
+        existingUser.setFullName("User 1");
+        existingUser.setPassword("passs");
+        existingUser.setEmail("");
+        existingUser.setRole(Role.ADMIN);
 
-         UserDTO userDTO = new UserDTO();
-         userDTO.setUsername("user1");
-         userDTO.setUsername("user user 1 ");
-         userDTO.setEmail(""); // Празно потребителско име
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("user1");
+        userDTO.setFullName("user user 1 ");
+        userDTO.setEmail(""); // Празно потребителско име
+        userDTO.setRole(Role.ADMIN);
+        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
 
-         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
-
-         // Act and Assert
-         assertThrows(jakarta.validation.ValidationException.class, () -> {
-             userService.updateUser(userId, userDTO);
-         });
-     }
-
-
-
+        // Act and Assert
+        assertThrows(jakarta.validation.ValidationException.class, () -> {
+            userService.updateUser(userId, userDTO);
+        });
+    }
 
 
     @Test
