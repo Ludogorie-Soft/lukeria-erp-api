@@ -60,16 +60,16 @@ public class PackageService {
     public PackageDTO updatePackage(Long id, PackageDTO packageDTO) throws ChangeSetPersister.NotFoundException {
         Package existingPackage = packageRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         if (StringUtils.isBlank(packageDTO.getName())) {
-            throw new ValidationException("Name is required");
+            throw new ValidationException("Name is required!");
         }
         if (packageDTO.getPiecesCarton() <= 0) {
-            throw new ValidationException("Pieces of carton must be greater than zero");
-        }
-        if (packageDTO.getAvailableQuantity() <= 0) {
-            throw new ValidationException("Available quantity be greater than zero");
+            throw new ValidationException("This field must be greater than zero!");
         }
         if (packageDTO.getPrice() <= 0) {
-            throw new ValidationException("Price must be greater than zero");
+            throw new ValidationException("Price must be greater than zero!");
+        }
+        if (packageDTO.getAvailableQuantity() <= 0) {
+            throw new ValidationException("Available quantity be greater than zero!");
         }
         if (packageDTO.getCartonId() != null) {
             boolean cartonExists = cartonRepository.existsById(packageDTO.getCartonId());
