@@ -14,7 +14,7 @@ public class Carton {
     private String name;
     private String size;
     private Integer availableQuantity;
-    private double price;
+    private Double price;
     @Column(name = "is_deleted")
     private boolean deleted;
 }
