@@ -27,7 +27,7 @@ public class User {
     private String fullName;
     @Email
     private String email;
-    @NotNull(message = "Моля въведете парола с поне 5 символа")
+    @NotNull(message = "Моля въведете парола")
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
