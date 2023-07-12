@@ -22,8 +22,8 @@ public class PackageService {
     private final ModelMapper modelMapper;
 
     public List<PackageDTO> getAllPackages() {
-        List<Package> laptops = packageRepository.findByDeletedFalse();
-        return laptops.stream().map(package1 -> modelMapper.map(package1, PackageDTO.class)).toList();
+        List<Package> packages = packageRepository.findByDeletedFalse();
+        return packages.stream().map(package1 -> modelMapper.map(package1, PackageDTO.class)).toList();
     }
 
     public PackageDTO getPackageById(Long id) throws ChangeSetPersister.NotFoundException {
