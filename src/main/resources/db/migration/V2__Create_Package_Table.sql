@@ -6,5 +6,6 @@ CREATE TABLE package (
   pieces_carton INT,
   photo VARCHAR(255),
   price DOUBLE,
-  FOREIGN KEY (carton_id) REFERENCES carton(id)
+  FOREIGN KEY (carton_id) REFERENCES carton(id),
+  is_deleted TINYINT(1) DEFAULT FALSE
 );

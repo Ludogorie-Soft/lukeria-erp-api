@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.services.PackageService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class PackageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PackageDTO> getPackageById(@PathVariable(name = "id")Long id) {
+    public ResponseEntity<PackageDTO> getPackageById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(packageService.getPackageById(id));
     }
 
@@ -33,16 +34,13 @@ public class PackageController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PackageDTO> updatePackage(@PathVariable("id") Long id, @Valid @RequestBody PackageDTO packageDTO) {
+    public ResponseEntity<PackageDTO> updatePackage(@PathVariable("id") Long id, @Valid @RequestBody PackageDTO packageDTO) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(packageService.updatePackage(id, packageDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePackageById(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deletePackageById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
         packageService.deletePackage(id);
         return ResponseEntity.ok("Package with id: " + id + " has been deleted successfully!");
     }
 }
-
-
-
