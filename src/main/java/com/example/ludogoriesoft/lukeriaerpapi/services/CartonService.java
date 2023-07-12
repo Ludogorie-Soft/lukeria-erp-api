@@ -38,8 +38,8 @@ public class CartonService {
         if (cartonDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (cartonDTO.getPrice() == null) {
-           cartonDTO.setPrice(0.0);
+        if (cartonDTO.getPrice() <= 0.0) {
+            throw new ValidationException("Price must be greater than zero");
         }
 
         Carton cartonEntity = cartonRepository.save(modelMapper.map(cartonDTO, Carton.class));
