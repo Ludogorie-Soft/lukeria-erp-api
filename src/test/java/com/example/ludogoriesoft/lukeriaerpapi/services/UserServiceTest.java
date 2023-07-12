@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -334,6 +335,17 @@ class UserServiceTest {
 
         // Act and Assert
         assertThrows(jakarta.validation.ValidationException.class, () -> {
+            userService.createUser(user);
+        });
+    }
+
+    @Test
+     void testCreateUser_WithInvalidUsernameLength() {
+
+        User user = new User();
+        user.setUsername("abc"); // Подаваме потребителско име с по-малка дължина от 4 символа
+
+        Assertions.assertThrows(jakarta.validation.ValidationException.class, () -> {
             userService.createUser(user);
         });
     }
