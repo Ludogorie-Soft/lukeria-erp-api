@@ -36,13 +36,13 @@ public class PackageService {
             throw new ValidationException("Name is required");
         }
 
-        if (packageDTO.getPiecesCarton() <= 0) {
+        if (packageDTO.getPiecesCarton() == 0) {
             throw new ValidationException("Pieces of carton must be greater than zero");
         }
-        if (packageDTO.getAvailableQuantity() <= 0) {
+        if (packageDTO.getAvailableQuantity() == 0) {
             throw new ValidationException("Available quantity be greater than zero");
         }
-        if (packageDTO.getPrice() <= 0) {
+        if (packageDTO.getPrice() == 0) {
             throw new ValidationException("Price must be greater than zero");
         }
         if (packageDTO.getCartonId() != null) {
@@ -65,7 +65,7 @@ public class PackageService {
         if (packageDTO.getPiecesCarton() <= 0) {
             throw new ValidationException("This field must be greater than zero!");
         }
-        if (packageDTO.getPrice() <= 0) {
+        if (packageDTO.getPrice() == 0) {
             throw new ValidationException("Price must be greater than zero!");
         }
         if (packageDTO.getAvailableQuantity() <= 0) {
@@ -80,7 +80,7 @@ public class PackageService {
             throw new ValidationException("Carton ID cannot be null!");
         }
         existingPackage.setName(packageDTO.getName());
-        existingPackage.setCartonId(cartonRepository.findByIdAndDeletedFalse(packageDTO.getCartonId()).get());
+        cartonRepository.findByIdAndDeletedFalse(packageDTO.getCartonId()).get();
         existingPackage.setAvailableQuantity(packageDTO.getAvailableQuantity());
         existingPackage.setPrice(packageDTO.getPrice());
         existingPackage.setPhoto(packageDTO.getPhoto());
