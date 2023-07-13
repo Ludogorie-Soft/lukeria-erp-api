@@ -1,84 +1,74 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiRequestException;
-import com.example.ludogoriesoft.lukeriaerpapi.mappers.ProductMapper;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
-import io.micrometer.common.util.StringUtils;
+import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 
 public class ProductService {
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
-
-    public ProductDTO toDTO(Product product) {
-        return productMapper.toDto(product);
-    }
-
-    public Product toEntity(ProductDTO productDTO) {
-        return productMapper.toEntity(productDTO);
-    }
-
+    private final ModelMapper modelMapper;
 
     public List<ProductDTO> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        return products
-                .stream()
-                .map(this::toDTO)
+        List<Product> products = productRepository.findByDeletedFalse();
+        return products.stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
                 .toList();
     }
 
-    public ProductDTO getProductById(Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        if (optionalProduct.isEmpty()) {
-            throw new ApiRequestException("Plate with id: " + id + " Not Found");
-        }
-        return toDTO(optionalProduct.get());
+    public ProductDTO getProductById(Long id) throws ChangeSetPersister.NotFoundException {
+        Product product = productRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return modelMapper.map(product, ProductDTO.class);
     }
 
     public ProductDTO createProduct(ProductDTO productDTO) {
-        if (StringUtils.isBlank(productDTO.getPlateId().getName())) {
-            throw new ApiRequestException("Plate is blank");
+        if (productDTO.getPrice() <= 0) {
+            throw new ValidationException("Price must be greater than zero");
         }
-        Product product = productRepository.save(toEntity(productDTO));
-        return toDTO(product);
+        if (productDTO.getAvailableQuantity() <= 0) {
+            throw new ValidationException("Available quantity must be greater than zero");
+        }
+        if (productDTO.getPlateId().getId() == null) {
+            throw new ValidationException("Plate is required");
+        }
+        Product product = productRepository.save(modelMapper.map(productDTO, Product.class));
+        return modelMapper.map(product, ProductDTO.class);
     }
 
-    public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        if (optionalProduct.isEmpty()) {
-            throw new ApiRequestException("Carton with id: " + id + " Not Found");
+    public ProductDTO updateProduct(Long id, ProductDTO productDTO) throws ChangeSetPersister.NotFoundException {
+        Product existingProduct = productRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        if (productDTO.getPrice() <= 0) {
+            throw new ValidationException("Price must be greater than zero");
         }
-
-        Product existingProduct = optionalProduct.get();
-
-        if (productDTO == null || productDTO.getPlateId() == null || productDTO.getPrice() == 0
-                || productDTO.getAvailableQuantity() == 0) {
-            throw new ApiRequestException("Invalid Product data!");
+        if (productDTO.getAvailableQuantity() <= 0) {
+            throw new ValidationException("Available quantity must be greater than zero");
+        }
+        if (productDTO.getPlateId().getId() == null) {
+            throw new ValidationException("Plate id is required");
         }
         existingProduct.setPrice(productDTO.getPrice());
         existingProduct.setPlateId(productDTO.getPlateId());
         existingProduct.setAvailableQuantity(productDTO.getAvailableQuantity());
         Product updatedProduct = productRepository.save(existingProduct);
         updatedProduct.setId(id);
-        return toDTO(updatedProduct);
+        return modelMapper.map(updatedProduct, ProductDTO.class);
     }
 
-    public void deleteProduct(Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        if (optionalProduct.isEmpty()) {
-            throw new ApiRequestException("Product not found for id " + id);
-        }
-        productRepository.delete(optionalProduct.get());
+    public void deleteProduct(Long id) throws ChangeSetPersister.NotFoundException {
+        Product product = productRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        product.setDeleted(true);
+        productRepository.save(product);
     }
+
 
 
 }

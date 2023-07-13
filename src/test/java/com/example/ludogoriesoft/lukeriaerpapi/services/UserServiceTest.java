@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -109,9 +110,7 @@ class UserServiceTest {
 
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.empty());
 
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            userService.getUserById(userId);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.getUserById(userId));
     }
 
     @Test
@@ -173,9 +172,7 @@ class UserServiceTest {
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            userService.deleteUser(userId);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.deleteUser(userId));
     }
 
     @Test
@@ -215,9 +212,7 @@ class UserServiceTest {
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            userService.restoreUser(userId);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.restoreUser(userId));
     }
 
 
@@ -268,9 +263,7 @@ class UserServiceTest {
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            userService.updateUser(userId, userDTO);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> userService.updateUser(userId, userDTO));
     }
 
     @Test
@@ -291,9 +284,7 @@ class UserServiceTest {
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            userService.updateUser(userId, userDTO);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> userService.updateUser(userId, userDTO));
     }
 
     @Test
@@ -316,9 +307,7 @@ class UserServiceTest {
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            userService.updateUser(userId, userDTO);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> userService.updateUser(userId, userDTO));
     }
 
 
@@ -333,9 +322,16 @@ class UserServiceTest {
         user.setRole(Role.ADMIN);
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            userService.createUser(user);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
+    }
+
+    @Test
+     void testCreateUser_WithInvalidUsernameLength() {
+
+        User user = new User();
+        user.setUsername("abc"); // Подаваме потребителско име с по-малка дължина от 4 символа
+
+        Assertions.assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
     }
 
     @Test
@@ -349,9 +345,7 @@ class UserServiceTest {
         user.setRole(Role.ADMIN);
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            userService.createUser(user);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
     }
 
     @Test
@@ -365,9 +359,7 @@ class UserServiceTest {
         user.setRole(Role.ADMIN);
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            userService.createUser(user);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
     }
 
     @Test
@@ -381,9 +373,7 @@ class UserServiceTest {
         user.setRole(Role.ADMIN);
 
         // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> {
-            userService.createUser(user);
-        });
+        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
     }
 
 

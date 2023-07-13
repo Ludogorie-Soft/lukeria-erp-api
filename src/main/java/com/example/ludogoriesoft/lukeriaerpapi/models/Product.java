@@ -21,6 +21,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "plate_id")
     private Plate plateId;
+    @Column(name = "is_deleted")
+    private boolean deleted;
 
 }
 

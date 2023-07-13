@@ -3,5 +3,6 @@ CREATE TABLE product (
   price DOUBLE NOT NULL,
   available_quantity INT NOT NULL,
   plate_id BIGINT,
-  FOREIGN KEY (plate_id) REFERENCES plate(id)
+  FOREIGN KEY (plate_id) REFERENCES plate(id),
+  is_deleted TINYINT(1) DEFAULT FALSE
 );
