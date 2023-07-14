@@ -17,6 +17,7 @@ public class PackageDTO {
     @Min(value = 1, message = "Наличните бройки трябва да бъдат по-големи от 0!")
     private int availableQuantity;
     private Long cartonId;
+    private Long plateId;
     @Min(value = 1, message = "Брой картони трябда да бъде по-голямо от 0!")
     private int piecesCarton;
     private String photo;

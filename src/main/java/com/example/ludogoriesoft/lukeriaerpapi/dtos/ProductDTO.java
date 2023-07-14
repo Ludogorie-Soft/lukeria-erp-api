@@ -1,6 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.dtos;
 
-import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +14,6 @@ public class ProductDTO {
     private double price;
     @Min(value = 1, message = "Наличните бройки не могат да бъдат отрицателно число!")
     private int availableQuantity;
-    private Plate plateId;
+
 
 }
