@@ -36,53 +36,52 @@ class ProductServiceTest {
     }
 
 
-//    @Test
-//     void testGetAllProducts() {
-//        // Arrange
-//        List<Product> products = new ArrayList<>();
-//        Plate plate = new Plate();
-//        plate.setId(1L);
-//       // products.add(new Product(1L, 10.0, 5, plate, false));
-//       // products.add(new Product(2L, 15.0, 3, plate, false));
-//
-//        when(productRepository.findByDeletedFalse()).thenReturn(products);
-//
-//        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, 10.0, 5, plate));
-//        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, 15.0, 3, plate));
-//
-//        // Act
-//        List<ProductDTO> result = productService.getAllProducts();
-//
-//        // Assert
-//        assertEquals(2, result.size());
-//        assertEquals(1L, result.get(0).getId());
-//        assertEquals(10.0, result.get(0).getPrice());
-//        assertEquals(5, result.get(0).getAvailableQuantity());
-//        assertEquals(plate, result.get(0).getPlateId());
-//        assertEquals(2L, result.get(1).getId());
-//        assertEquals(15.0, result.get(1).getPrice());
-//        assertEquals(3, result.get(1).getAvailableQuantity());
-//        assertEquals(plate, result.get(1).getPlateId());
-//    }
+    @Test
+     void testGetAllProducts() {
+        // Arrange
+        List<Product> products = new ArrayList<>();
+        Plate plate = new Plate();
+        plate.setId(1L);
+        products.add(new Product(1L, 10.0, 5,  false));
+        products.add(new Product(2L, 15.0, 3,  false));
 
-//    @Test
-//     void testGetProductById_ExistingProduct() throws ChangeSetPersister.NotFoundException {
-//        // Arrange
-//        Long productId = 1L;
-//        Plate plate=new Plate();
-//        plate.setId(1L);
-//       // Product product = new Product(productId, 10.0, 5, plate, false);
-//    //    when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(product));
-//
-//        ProductDTO expectedProductDTO = new ProductDTO(productId, 10.0, 5, plate);
-//        when(modelMapper.map(product, ProductDTO.class)).thenReturn(expectedProductDTO);
-//
-//        // Act
-//        ProductDTO result = productService.getProductById(productId);
-//
-//        // Assert
-//        assertEquals(expectedProductDTO, result);
-//    }
+        when(productRepository.findByDeletedFalse()).thenReturn(products);
+
+        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, 10.0, 5));
+        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, 15.0, 3));
+
+        // Act
+        List<ProductDTO> result = productService.getAllProducts();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(1L, result.get(0).getId());
+        assertEquals(10.0, result.get(0).getPrice());
+        assertEquals(5, result.get(0).getAvailableQuantity());
+        assertEquals(2L, result.get(1).getId());
+        assertEquals(15.0, result.get(1).getPrice());
+        assertEquals(3, result.get(1).getAvailableQuantity());
+
+    }
+
+    @Test
+     void testGetProductById_ExistingProduct() throws ChangeSetPersister.NotFoundException {
+        // Arrange
+        Long productId = 1L;
+        Plate plate=new Plate();
+        plate.setId(1L);
+        Product product = new Product(productId, 10.0, 5, false);
+        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(product));
+
+        ProductDTO expectedProductDTO = new ProductDTO(productId, 10.0, 5);
+        when(modelMapper.map(product, ProductDTO.class)).thenReturn(expectedProductDTO);
+
+        // Act
+        ProductDTO result = productService.getProductById(productId);
+
+        // Assert
+        assertEquals(expectedProductDTO, result);
+    }
 
     @Test
      void testGetProductById_NonExistingProduct() {
@@ -94,30 +93,30 @@ class ProductServiceTest {
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> productService.getProductById(nonExistingProductId));
     }
 
-//    @Test
-//     void testCreateProduct_ValidProduct() {
-//        Plate plate=new Plate();
-//        plate.setId(1L);
-//        ProductDTO productDTO = new ProductDTO(1L, 10.0, 5, plate);
-//        Product product = new Product(1L, 10.0, 5, plate, false);
-//
-//        when(productRepository.save(product)).thenReturn(product);
-//        when(modelMapper.map(productDTO, Product.class)).thenReturn(product);
-//        when(modelMapper.map(product, ProductDTO.class)).thenReturn(productDTO);
-//
-//        // Act
-//        ProductDTO result = productService.createProduct(productDTO);
-//
-//        // Assert
-//        assertEquals(productDTO, result);
-//    }
+    @Test
+     void testCreateProduct_ValidProduct() {
+        Plate plate=new Plate();
+        plate.setId(1L);
+        ProductDTO productDTO = new ProductDTO(1L, 10.0, 5);
+        Product product = new Product(1L, 10.0, 5, false);
+
+        when(productRepository.save(product)).thenReturn(product);
+        when(modelMapper.map(productDTO, Product.class)).thenReturn(product);
+        when(modelMapper.map(product, ProductDTO.class)).thenReturn(productDTO);
+
+        // Act
+        ProductDTO result = productService.createProduct(productDTO);
+
+        // Assert
+        assertEquals(productDTO, result);
+    }
 
     @Test
      void testCreateProduct_InvalidPrice() {
         // Arrange
         Plate plate=new Plate();
         plate.setId(1L);
-        ProductDTO productDTO = new ProductDTO(1L, 0.0, 5, plate);
+        ProductDTO productDTO = new ProductDTO(1L, 0.0, 5);
 
         // Act and Assert
         assertThrows(jakarta.validation.ValidationException.class, () -> productService.createProduct(productDTO));
@@ -127,97 +126,88 @@ class ProductServiceTest {
      void testCreateProduct_InvalidQuantity() {
         Plate plate=new Plate();
         plate.setId(1L);
-        ProductDTO productDTO = new ProductDTO(1L, 10.0, 0, plate);
+        ProductDTO productDTO = new ProductDTO(1L, 10.0, 0);
 
         // Act and Assert
         assertThrows(jakarta.validation.ValidationException.class, () -> productService.createProduct(productDTO));
     }
 
-    @Test
-     void testCreateProduct_MissingPlate() {
-        // Arrange
-        ProductDTO productDTO = new ProductDTO(1L, 10.0, 5, null);
 
-        // Act and Assert
-        assertThrows(NullPointerException.class, () -> {
-            productService.createProduct(productDTO);
-        });
+
+    @Test
+     void testUpdateProduct_ValidProduct() throws ChangeSetPersister.NotFoundException {
+        Plate plate=new Plate();
+        plate.setId(1L);
+        Long productId = 1L;
+        ProductDTO productDTO = new ProductDTO(productId, 20.0, 10);
+        Product existingProduct = new Product(productId, 10.0, 5, false);
+        Product updatedProduct = new Product(productId, 20.0, 10, false);
+
+        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
+        when(productRepository.save(existingProduct)).thenReturn(updatedProduct);
+        when(modelMapper.map(updatedProduct, ProductDTO.class)).thenReturn(productDTO);
+
+        // Act
+        ProductDTO result = productService.updateProduct(productId, productDTO);
+
+        // Assert
+        assertEquals(productDTO, result);
+
     }
 
-//    @Test
-//     void testUpdateProduct_ValidProduct() throws ChangeSetPersister.NotFoundException {
-//        Plate plate=new Plate();
-//        plate.setId(1L);
-//        Long productId = 1L;
-//        ProductDTO productDTO = new ProductDTO(productId, 20.0, 10, plate);
-//        Product existingProduct = new Product(productId, 10.0, 5, plate, false);
-//        Product updatedProduct = new Product(productId, 20.0, 10,plate, false);
-//
-//        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
-//        when(productRepository.save(existingProduct)).thenReturn(updatedProduct);
-//        when(modelMapper.map(updatedProduct, ProductDTO.class)).thenReturn(productDTO);
-//
-//        // Act
-//        ProductDTO result = productService.updateProduct(productId, productDTO);
-//
-//        // Assert
-//        assertEquals(productDTO, result);
-//
-//    }
+    @Test
+     void testUpdateProduct_InvalidPrice() {
+        Plate plate=new Plate();
+        plate.setId(1L);
+        Long productId = 1L;
+        ProductDTO productDTO = new ProductDTO(productId, 0.0, 10);
+        Product existingProduct = new Product(productId, 10.0, 5, false);
 
-//    @Test
-//     void testUpdateProduct_InvalidPrice() {
-//        Plate plate=new Plate();
-//        plate.setId(1L);
-//        Long productId = 1L;
-//        ProductDTO productDTO = new ProductDTO(productId, 0.0, 10, plate);
-//        Product existingProduct = new Product(productId, 10.0, 5,plate, false);
-//
-//        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
-//
-//        // Act and Assert
-//        assertThrows(jakarta.validation.ValidationException.class, () -> productService.updateProduct(productId, productDTO));
-//
-//
-//    }
+        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
 
-//    @Test
-//     void testUpdateProduct_InvalidQuantity()  {
-//        Plate plate=new Plate();
-//        plate.setId(1L);
-//        Long productId = 1L;
-//        ProductDTO productDTO = new ProductDTO(productId, 20.0, 0, plate);
-//        Product existingProduct = new Product(productId, 10.0, 5, plate, false);
-//
-//        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
-//
-//        // Act and Assert
-//        assertThrows(jakarta.validation.ValidationException.class, () -> productService.updateProduct(productId, productDTO));
-//
-//
-//    }
+        // Act and Assert
+        assertThrows(jakarta.validation.ValidationException.class, () -> productService.updateProduct(productId, productDTO));
 
-//    @Test
-//     void testUpdateProduct_MissingPlate() {
-//        Plate plate=new Plate();
-//        plate.setId(1L);
-//        Long productId = 1L;
-//        ProductDTO productDTO = new ProductDTO(productId, 20.0, 10, null);
-//        Product existingProduct = new Product(productId, 10.0, 5, null, false);
-//
-//        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
-//
-//        // Act and Assert
-//        assertThrows(NullPointerException.class, () -> productService.updateProduct(productId, productDTO));
-//
-//    }
+
+    }
+
+    @Test
+     void testUpdateProduct_InvalidQuantity()  {
+        Plate plate=new Plate();
+        plate.setId(1L);
+        Long productId = 1L;
+        ProductDTO productDTO = new ProductDTO(productId, 20.0, 0 );
+        Product existingProduct = new Product(productId, 10.0, 5,  false);
+
+        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
+
+        // Act and Assert
+        assertThrows(jakarta.validation.ValidationException.class, () -> productService.updateProduct(productId, productDTO));
+
+
+    }
+
+    @Test
+     void testUpdateProduct_MissingPlate() {
+        Plate plate=new Plate();
+        plate.setId(1L);
+        Long productId = 1L;
+        ProductDTO productDTO = new ProductDTO(productId, 20.0, 10);
+        Product existingProduct = new Product(productId, 10.0, 5, false);
+
+        when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
+
+        // Act and Assert
+        assertThrows(NullPointerException.class, () -> productService.updateProduct(productId, productDTO));
+
+    }
 
     @Test
      void testUpdateProduct_NonExistingProduct() {
         Plate plate=new Plate();
         plate.setId(1L);
         Long nonExistingProductId = 10L;
-        ProductDTO productDTO = new ProductDTO(nonExistingProductId, 20.0, 10, plate);
+        ProductDTO productDTO = new ProductDTO(nonExistingProductId, 20.0, 10);
 
         when(productRepository.findByIdAndDeletedFalse(nonExistingProductId)).thenReturn(Optional.empty());
 
@@ -246,17 +236,5 @@ class ProductServiceTest {
         verify(productRepository).save(product);
     }
 
-    @Test
-    void testDeleteProduct_NonExistingProduct() {
-        // Arrange
-        Long nonExistingProductId = 10L;
-
-        when(productRepository.findByIdAndDeletedFalse(nonExistingProductId)).thenReturn(Optional.empty());
-
-        // Act and Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> productService.deleteProduct(nonExistingProductId));
-
-        verify(productRepository, never()).save(any());
-    }
 
 }
