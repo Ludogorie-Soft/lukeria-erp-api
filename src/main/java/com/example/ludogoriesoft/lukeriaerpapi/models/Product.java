@@ -18,9 +18,6 @@ public class Product {
     @Column(name = "available_quantity")
     @Min(value = 1, message = "Наличните бройки не могат да бъдат отрицателно число!")
     private int availableQuantity;
-    @ManyToOne
-    @JoinColumn(name = "plate_id")
-    private Plate plateId;
     @Column(name = "is_deleted")
     private boolean deleted;
 
