@@ -128,10 +128,10 @@ class PackageServiceTest {
     void testCreatePackage_InvalidPackageDTO_InvalidPiecesCarton() {
         PackageDTO packageDTO = new PackageDTO();
         packageDTO.setName("name");
-        packageDTO.setPiecesCarton(-11);
-        packageDTO.setAvailableQuantity(10);
+        packageDTO.setPiecesCarton(0);
+        packageDTO.setAvailableQuantity(0);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
+        packageDTO.setPrice(0);
         packageDTO.setCartonId(1L);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
@@ -212,12 +212,13 @@ class PackageServiceTest {
     @Test
     void testCreatePackage_InvalidPackageDTO_PriceIsNegative() {
         PackageDTO packageDTO = new PackageDTO();
+        Carton carton=new Carton();
+        carton.setId(1L);
         packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
+        packageDTO.setPiecesCarton(1);
+        packageDTO.setAvailableQuantity(1);
         packageDTO.setPrice(0);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(-100);
         packageDTO.setCartonId(1L);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
