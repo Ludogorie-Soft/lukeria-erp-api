@@ -56,6 +56,7 @@ public class PackageService {
         } else {
             throw new ValidationException("Carton ID cannot be null!");
         }
+
         if (packageDTO.getPlateId() != null) {
             boolean plateExists = plateRepository.existsById(packageDTO.getPlateId());
             if (!plateExists) {
@@ -65,6 +66,7 @@ public class PackageService {
             throw new ValidationException("Plate ID cannot be null!");
         }
         Package packageEntity = packageRepository.save(modelMapper.map(packageDTO, Package.class));
+
         return modelMapper.map(packageEntity, PackageDTO.class);
     }
 
