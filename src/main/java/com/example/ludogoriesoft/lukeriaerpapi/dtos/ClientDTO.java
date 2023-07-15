@@ -19,5 +19,5 @@ public class ClientDTO {
     @NotNull(message = "Моля въведете адреса!")
     private String address;
     private boolean isBulgarianClient = false;
-    private String MOL;
+    private String mol;
 }

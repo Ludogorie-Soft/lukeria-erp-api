@@ -58,6 +58,7 @@ public class ClientService {
         existingClient.setHasIdNumDDS(clientDTO.isHasIdNumDDS());
         existingClient.setAddress(clientDTO.getAddress());
         existingClient.setBulgarianClient(clientDTO.isBulgarianClient());
+        existingClient.setMol(clientDTO.getMol());
         Client updatedClient = clientRepository.save(existingClient);
         updatedClient.setId(id);
         return modelMapper.map(updatedClient, ClientDTO.class);

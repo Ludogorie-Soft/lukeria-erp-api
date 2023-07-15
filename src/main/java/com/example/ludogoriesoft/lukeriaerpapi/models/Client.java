@@ -18,7 +18,7 @@ public class Client {
     private boolean hasIdNumDDS;
     private String address;
     private boolean isBulgarianClient;
-    private String MOL;
+    private String mol;
     @Column(name = "is_deleted")
     private boolean deleted;
 }
