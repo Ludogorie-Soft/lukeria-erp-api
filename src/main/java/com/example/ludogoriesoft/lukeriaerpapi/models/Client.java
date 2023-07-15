@@ -15,7 +15,7 @@ public class Client {
     private Long id;
     private String businessName;
     private String idNumEIK;
-    private boolean idNumDDS;
+    private boolean hasIdNumDDS;
     private String address;
     private boolean isBulgarianClient;
     private String MOL;

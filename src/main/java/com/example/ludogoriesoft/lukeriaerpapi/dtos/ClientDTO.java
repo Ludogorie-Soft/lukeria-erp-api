@@ -15,7 +15,7 @@ public class ClientDTO {
     private String businessName;
     @Pattern(regexp = "\\d{5,}", message = "Моля въведете поне 5 цифри за Ид.Номер - ЕИК!")
     private String idNumEIK;
-    private boolean idNumDDS = false;
+    private boolean hasIdNumDDS = false;
     @NotNull(message = "Моля въведете адреса!")
     private String address;
     private boolean isBulgarianClient = false;
