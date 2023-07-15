@@ -1,0 +1,10 @@
+CREATE TABLE client (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  business_name VARCHAR(255) NOT NULL,
+  id_numeik VARCHAR(255) NOT NULL,
+  id_numdds TINYINT(1) DEFAULT FALSE,
+  address VARCHAR(255) NOT NULL,
+  is_bulgarian_client TINYINT(1) DEFAULT FALSE,
+  MOL VARCHAR(255),
+  is_deleted TINYINT(1) DEFAULT FALSE
+);
