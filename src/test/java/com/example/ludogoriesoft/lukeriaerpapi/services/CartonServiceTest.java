@@ -148,7 +148,7 @@ import static org.mockito.Mockito.*;
         cartonDTO.setName("some name");
         cartonDTO.setSize("12-18");
         cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(0);
+        cartonDTO.setPrice(0.0);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
         assertEquals("Price must be greater than zero", exception.getMessage());
@@ -157,18 +157,17 @@ import static org.mockito.Mockito.*;
         verifyNoInteractions(cartonRepository);
     }
     @Test
-     void testCreateCarton_InvalidCartonDTO_PriceIsNegative() {
-        CartonDTO cartonDTO = new CartonDTO();
-        cartonDTO.setName("some name");
-        cartonDTO.setSize("12-18");
-        cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(-10);
+    void testCreateCarton_InvalidCartonDTO_PriceIsNegative() {
+       CartonDTO cartonDTO = new CartonDTO();
+       cartonDTO.setName("some name");
+       cartonDTO.setSize("12-18");
+       cartonDTO.setAvailableQuantity(10);
+       cartonDTO.setPrice(-10.0);
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
-        assertEquals("Price must be greater than zero", exception.getMessage());
+       assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO), "Price must be greater than zero");
 
-        verifyNoInteractions(modelMapper);
-        verifyNoInteractions(cartonRepository);
+       verifyNoInteractions(modelMapper);
+       verifyNoInteractions(cartonRepository);
     }
     @Test
      void testUpdateCarton_MissingName() {

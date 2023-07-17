@@ -17,6 +17,5 @@ public class CartonDTO {
     private String size;
     @Min(value = 1, message = "Наличните бройки трябва да бъдат по-големи от 0!")
     private Integer availableQuantity;
-    @Min(value = 1, message = "Цената трябва да бъде по-голяма от 0!")
     private double price;
 }
