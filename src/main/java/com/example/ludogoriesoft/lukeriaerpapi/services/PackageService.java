@@ -34,15 +34,32 @@ public class PackageService {
     }
 
     public PackageDTO createPackage(PackageDTO packageDTO) {
+        validatePackageDTO(packageDTO);
+
+        Package packageEntity = packageRepository.save(modelMapper.map(packageDTO, Package.class));
+        return modelMapper.map(packageEntity, PackageDTO.class);
+    }
+
+    public PackageDTO updatePackage(Long id, PackageDTO packageDTO) throws ChangeSetPersister.NotFoundException {
+        validatePackageDTO(packageDTO);
+
+        Package existingPackage = packageRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+
+        Package updatedPackage = modelMapper.map(packageDTO, Package.class);
+        updatedPackage.setId(existingPackage.getId());
+        return modelMapper.map(updatedPackage, PackageDTO.class);
+    }
+
+    private void validatePackageDTO(PackageDTO packageDTO) {
         if (StringUtils.isBlank(packageDTO.getName())) {
             throw new ValidationException("Name is required");
         }
-
         if (packageDTO.getPiecesCarton() == 0) {
             throw new ValidationException("Pieces of carton must be greater than zero");
         }
         if (packageDTO.getAvailableQuantity() == 0) {
-            throw new ValidationException("Available quantity be greater than zero");
+            throw new ValidationException("Available quantity must be greater than zero");
         }
         if (packageDTO.getPrice() == 0) {
             throw new ValidationException("Price must be greater than zero");
@@ -53,44 +70,7 @@ public class PackageService {
                 throw new ValidationException("Carton does not exist with ID: " + packageDTO.getCartonId());
             }
         } else {
-            throw new ValidationException("Carton ID cannot be null!");
-        }
-
-        if (packageDTO.getPlateId() != null) {
-            boolean plateExists = plateRepository.existsById(packageDTO.getPlateId());
-            if (!plateExists) {
-                throw new ValidationException("Plate does not exist with ID: " + packageDTO.getPlateId());
-            }
-        } else {
-            throw new ValidationException("Plate ID cannot be null!");
-        }
-        Package packageEntity = packageRepository.save(modelMapper.map(packageDTO, Package.class));
-
-        return modelMapper.map(packageEntity, PackageDTO.class);
-    }
-
-    public PackageDTO updatePackage(Long id, PackageDTO packageDTO) throws ChangeSetPersister.NotFoundException {
-        Package existingPackage = packageRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-
-        if (StringUtils.isBlank(packageDTO.getName())) {
-            throw new ValidationException("Name is required!");
-        }
-        if (packageDTO.getPiecesCarton() < 0) {
-            throw new ValidationException("This field must be greater than zero!");
-        }
-        if (packageDTO.getPrice() < 0) {
-            throw new ValidationException("Price must be greater than zero!");
-        }
-        if (packageDTO.getAvailableQuantity() <= 0) {
-            throw new ValidationException("Available quantity must be greater than zero!");
-        }
-        if (packageDTO.getCartonId() != null) {
-            boolean cartonExists = cartonRepository.existsById(packageDTO.getCartonId());
-            if (!cartonExists) {
-                throw new ValidationException("Carton does not exist with ID: " + packageDTO.getCartonId());
-            }
-        } else {
-            throw new ValidationException("Carton ID cannot be null!");
+            throw new ValidationException("Carton ID cannot be null");
         }
         if (packageDTO.getPlateId() != null) {
             boolean plateExists = plateRepository.existsById(packageDTO.getPlateId());
@@ -98,12 +78,10 @@ public class PackageService {
                 throw new ValidationException("Plate does not exist with ID: " + packageDTO.getPlateId());
             }
         } else {
-            throw new ValidationException("Plate ID cannot be null!");
+            throw new ValidationException("Plate ID cannot be null");
         }
-        Package updatedPackage =modelMapper.map(packageDTO, Package.class);
-        updatedPackage.setId(existingPackage.getId());
-        return modelMapper.map(updatedPackage, PackageDTO.class);
     }
+
 
     public void deletePackage(Long id) throws ChangeSetPersister.NotFoundException {
         Package package1 = packageRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
