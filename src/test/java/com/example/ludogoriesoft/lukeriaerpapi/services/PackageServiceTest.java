@@ -3,7 +3,6 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
@@ -131,7 +130,7 @@ class PackageServiceTest {
 
 
     @Test
-    void testUpdatePackage_ThrowsValidationException_WhenPlateDoesNotExist() throws ChangeSetPersister.NotFoundException {
+    void testUpdatePackage_ThrowsValidationException_WhenPlateDoesNotExist() {
         // Arrange
         Long packageId = 1L;
         Package existingPackage = new Package();
@@ -155,7 +154,7 @@ class PackageServiceTest {
         assertThrows(ValidationException.class, () -> packageService.updatePackage(packageId, packageDTO));
     }
     @Test
-    void testUpdatePackage_ThrowsValidationException_WhenPlateNull() throws ChangeSetPersister.NotFoundException {
+    void testUpdatePackage_ThrowsValidationException_WhenPlateNull() {
         // Arrange
         Long packageId = 1L;
         Package existingPackage = new Package();
