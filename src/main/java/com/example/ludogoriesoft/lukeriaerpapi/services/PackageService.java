@@ -35,7 +35,6 @@ public class PackageService {
 
     public PackageDTO createPackage(PackageDTO packageDTO) {
         validatePackageDTO(packageDTO);
-
         Package packageEntity = packageRepository.save(modelMapper.map(packageDTO, Package.class));
         return modelMapper.map(packageEntity, PackageDTO.class);
     }
@@ -48,6 +47,7 @@ public class PackageService {
 
         Package updatedPackage = modelMapper.map(packageDTO, Package.class);
         updatedPackage.setId(existingPackage.getId());
+        packageRepository.save(updatedPackage);
         return modelMapper.map(updatedPackage, PackageDTO.class);
     }
 
