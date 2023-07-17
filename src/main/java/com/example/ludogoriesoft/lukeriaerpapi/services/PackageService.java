@@ -3,7 +3,6 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
@@ -72,17 +71,18 @@ public class PackageService {
 
     public PackageDTO updatePackage(Long id, PackageDTO packageDTO) throws ChangeSetPersister.NotFoundException {
         Package existingPackage = packageRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+
         if (StringUtils.isBlank(packageDTO.getName())) {
             throw new ValidationException("Name is required!");
         }
-        if (packageDTO.getPiecesCarton() <= 0) {
+        if (packageDTO.getPiecesCarton() < 0) {
             throw new ValidationException("This field must be greater than zero!");
         }
-        if (packageDTO.getPrice() == 0) {
+        if (packageDTO.getPrice() < 0) {
             throw new ValidationException("Price must be greater than zero!");
         }
         if (packageDTO.getAvailableQuantity() <= 0) {
-            throw new ValidationException("Available quantity be greater than zero!");
+            throw new ValidationException("Available quantity must be greater than zero!");
         }
         if (packageDTO.getCartonId() != null) {
             boolean cartonExists = cartonRepository.existsById(packageDTO.getCartonId());
@@ -93,23 +93,15 @@ public class PackageService {
             throw new ValidationException("Carton ID cannot be null!");
         }
         if (packageDTO.getPlateId() != null) {
-            boolean plateExists = plateRepository.existsById(packageDTO.getCartonId());
+            boolean plateExists = plateRepository.existsById(packageDTO.getPlateId());
             if (!plateExists) {
-                throw new ValidationException("Plate does not exist with ID: " + packageDTO.getCartonId());
+                throw new ValidationException("Plate does not exist with ID: " + packageDTO.getPlateId());
             }
         } else {
             throw new ValidationException("Plate ID cannot be null!");
         }
-        existingPackage.setName(packageDTO.getName());
-        existingPackage.setAvailableQuantity(packageDTO.getAvailableQuantity());
-        existingPackage.setPrice(packageDTO.getPrice());
-        existingPackage.setPhoto(packageDTO.getPhoto());
-        existingPackage.setPiecesCarton(packageDTO.getPiecesCarton());
-        Plate plate = plateRepository.findByIdAndDeletedFalse(packageDTO.getPlateId())
-                .orElseThrow(ChangeSetPersister.NotFoundException::new);
-        existingPackage.setPlateId(plate);
-        Package updatedPackage = packageRepository.save(existingPackage);
-        updatedPackage.setId(id);
+        Package updatedPackage =modelMapper.map(packageDTO, Package.class);
+        updatedPackage.setId(existingPackage.getId());
         return modelMapper.map(updatedPackage, PackageDTO.class);
     }
 
