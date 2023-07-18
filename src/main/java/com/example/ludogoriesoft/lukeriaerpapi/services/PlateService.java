@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -37,7 +38,7 @@ public class PlateService {
         if (plateDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (plateDTO.getPrice() <= 0) {
+        if (plateDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
         Plate plateEntity = plateRepository.save(modelMapper.map(plateDTO, Plate.class));
@@ -52,7 +53,7 @@ public class PlateService {
         if (plateDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (plateDTO.getPrice() <= 0) {
+        if (plateDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
         existingPlate.setName(plateDTO.getName());

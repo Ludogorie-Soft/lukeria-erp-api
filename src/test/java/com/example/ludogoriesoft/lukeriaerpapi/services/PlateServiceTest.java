@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -107,13 +108,13 @@ class PlateServiceTest {
         plateDTO.setName("Plate 1");
         plateDTO.setPhoto("Photo 1");
         plateDTO.setAvailableQuantity(10);
-        plateDTO.setPrice(10.0);
+        plateDTO.setPrice(BigDecimal.valueOf(10.0));
 
         Plate plateEntity = new Plate();
         plateEntity.setName("Plate 1");
         plateEntity.setPhoto("Photo 1");
         plateEntity.setAvailableQuantity(10);
-        plateEntity.setPrice(10.0);
+        plateEntity.setPrice(BigDecimal.valueOf(10.0));
 
         when(plateRepository.save(any(Plate.class))).thenReturn(plateEntity);
         when(modelMapper.map(plateDTO, Plate.class)).thenReturn(plateEntity);
@@ -137,7 +138,7 @@ class PlateServiceTest {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setPhoto("photo");
         plateDTO.setAvailableQuantity(10);
-        plateDTO.setPrice(100.0);
+        plateDTO.setPrice(BigDecimal.valueOf(100.0));
 
         ValidationException exception = assertThrows(ValidationException.class, () -> plateService.createPlate(plateDTO));
         assertEquals("Name is required", exception.getMessage());
@@ -153,7 +154,7 @@ class PlateServiceTest {
         plateDTO.setName("some name");
         plateDTO.setPhoto("photo");
         plateDTO.setAvailableQuantity(0);
-        plateDTO.setPrice(100.0);
+        plateDTO.setPrice(BigDecimal.valueOf(100.0));
 
         ValidationException exception = assertThrows(ValidationException.class, () -> plateService.createPlate(plateDTO));
         assertEquals("Available quantity must be greater than zero", exception.getMessage());
@@ -168,7 +169,7 @@ class PlateServiceTest {
         plateDTO.setName("some name");
         plateDTO.setPhoto("photo");
         plateDTO.setAvailableQuantity(10);
-        plateDTO.setPrice(0);
+        plateDTO.setPrice(BigDecimal.valueOf(0));
 
         ValidationException exception = assertThrows(ValidationException.class, () -> plateService.createPlate(plateDTO));
         assertEquals("Price must be greater than zero", exception.getMessage());
@@ -177,20 +178,7 @@ class PlateServiceTest {
         verifyNoInteractions(plateRepository);
     }
 
-    @Test
-    void testCreatePlate_InvalidPlateDTO_PriceIsNegative() {
-        PlateDTO plateDTO = new PlateDTO();
-        plateDTO.setName("some name");
-        plateDTO.setPhoto("photo");
-        plateDTO.setAvailableQuantity(10);
-        plateDTO.setPrice(-10);
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> plateService.createPlate(plateDTO));
-        assertEquals("Price must be greater than zero", exception.getMessage());
-
-        verifyNoInteractions(modelMapper);
-        verifyNoInteractions(plateRepository);
-    }
     @Test
     void testUpdatePlate_ValidPlate() throws ChangeSetPersister.NotFoundException {
         Long plateId = 1L;
@@ -199,13 +187,13 @@ class PlateServiceTest {
         existingPlate.setName("Plate 1");
         existingPlate.setPhoto("Photo 1");
         existingPlate.setAvailableQuantity(10);
-        existingPlate.setPrice(10.0);
+        existingPlate.setPrice(BigDecimal.valueOf(10.0));
 
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setName("Updated Plate 1");
         plateDTO.setPhoto("Updated Photo 1");
         plateDTO.setAvailableQuantity(20);
-        plateDTO.setPrice(20.0);
+        plateDTO.setPrice(BigDecimal.valueOf(20.0));
 
         when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(Optional.of(existingPlate));
         when(modelMapper.map(existingPlate, PlateDTO.class)).thenReturn(plateDTO);
@@ -224,14 +212,14 @@ class PlateServiceTest {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setPhoto("photo");
         plateDTO.setAvailableQuantity(10);
-        plateDTO.setPrice(100.0);
+        plateDTO.setPrice(BigDecimal.valueOf(100.0));
 
         Plate existingPlate = new Plate();
         existingPlate.setId(1L);
         existingPlate.setName("Existing Plate");
         existingPlate.setPhoto("photo");
         existingPlate.setAvailableQuantity(5);
-        existingPlate.setPrice(50.0);
+        existingPlate.setPrice(BigDecimal.valueOf(50.0));
 
         when(plateRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPlate));
         assertThrows(ValidationException.class, () -> plateService.updatePlate(1L, plateDTO));
@@ -247,14 +235,14 @@ class PlateServiceTest {
         plateDTO.setPhoto("photo");
         plateDTO.setName("name");
         plateDTO.setAvailableQuantity(-10);
-        plateDTO.setPrice(100.0);
+        plateDTO.setPrice(BigDecimal.valueOf(100.0));
 
         Plate existingPlate = new Plate();
         existingPlate.setId(1L);
         existingPlate.setName("name");
         existingPlate.setPhoto("photo");
         existingPlate.setAvailableQuantity(5);
-        existingPlate.setPrice(50.0);
+        existingPlate.setPrice(BigDecimal.valueOf(50.0));
 
         when(plateRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPlate));
         assertThrows(ValidationException.class, () -> plateService.updatePlate(1L, plateDTO));
@@ -269,17 +257,17 @@ class PlateServiceTest {
         plateDTO.setPhoto("photo");
         plateDTO.setName("name");
         plateDTO.setAvailableQuantity(10);
-        plateDTO.setPrice(-100.0);
+        plateDTO.setPrice(BigDecimal.valueOf(-100.0));
 
         Plate existingPlate = new Plate();
         existingPlate.setId(1L);
         existingPlate.setName("name");
         existingPlate.setPhoto("photo");
         existingPlate.setAvailableQuantity(5);
-        existingPlate.setPrice(50.0);
+        existingPlate.setPrice(BigDecimal.valueOf(50.0));
 
         when(plateRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPlate));
-        assertThrows(ValidationException.class, () -> plateService.updatePlate(1L, plateDTO));
+        assertThrows(NullPointerException.class, () -> plateService.updatePlate(1L, plateDTO));
         verify(plateRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }

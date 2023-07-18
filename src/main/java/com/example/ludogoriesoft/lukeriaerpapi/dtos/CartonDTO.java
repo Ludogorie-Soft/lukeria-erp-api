@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,5 +19,5 @@ public class CartonDTO {
     private String size;
     @Min(value = 1, message = "Наличните бройки трябва да бъдат по-големи от 0!")
     private Integer availableQuantity;
-    private double price;
+    private BigDecimal price;
 }

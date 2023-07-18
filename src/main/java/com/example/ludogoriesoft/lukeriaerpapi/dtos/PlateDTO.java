@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,5 +19,5 @@ public class PlateDTO {
     private Integer availableQuantity;
     private String photo;
     @Min(value = 1, message = "Цената трябва да бъде по-голяма от 0!")
-    private double price;
+    private BigDecimal price;
 }
