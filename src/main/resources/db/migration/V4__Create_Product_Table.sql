@@ -1,7 +1,7 @@
 CREATE TABLE product (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
-  price DOUBLE NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
   available_quantity INT NOT NULL,
   is_deleted TINYINT(1) DEFAULT FALSE
 );

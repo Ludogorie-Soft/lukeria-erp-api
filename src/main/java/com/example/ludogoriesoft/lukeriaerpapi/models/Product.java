@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -14,7 +16,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Min(value = 1, message = "Цената не може да бъде отрицателно число!")
-    private double price;
+    private BigDecimal price;
     @Column(name = "available_quantity")
     @Min(value = 1, message = "Наличните бройки не могат да бъдат отрицателно число!")
     private int availableQuantity;

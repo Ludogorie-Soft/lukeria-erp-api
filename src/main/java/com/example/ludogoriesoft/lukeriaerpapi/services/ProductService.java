@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -31,7 +32,7 @@ public class ProductService {
     }
 
     public ProductDTO createProduct(ProductDTO productDTO) {
-        if (productDTO.getPrice() <= 0) {
+        if (productDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
         if (productDTO.getAvailableQuantity() <= 0) {
@@ -43,7 +44,7 @@ public class ProductService {
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) throws ChangeSetPersister.NotFoundException {
         Product existingProduct = productRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        if (productDTO.getPrice() <= 0) {
+        if (productDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
         if (productDTO.getAvailableQuantity() <= 0) {
