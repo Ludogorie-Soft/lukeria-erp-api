@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -133,9 +132,7 @@ class OrderServiceTest {
         when(orderRepository.findByIdAndDeletedFalse(orderId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            orderService.getOrderById(orderId);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> orderService.getOrderById(orderId));
 
         verify(orderRepository, times(1)).findByIdAndDeletedFalse(orderId);
         verify(modelMapper, never()).map(any(), eq(OrderDTO.class));
@@ -149,9 +146,7 @@ class OrderServiceTest {
         when(clientRepository.existsById(orderDTO.getClientId())).thenReturn(true);
 
         // Act & Assert
-        assertDoesNotThrow(() -> {
-            orderService.validateOrderDTO(orderDTO);
-        });
+        assertDoesNotThrow(() -> orderService.validateOrderDTO(orderDTO));
 
         verify(clientRepository, times(1)).existsById(orderDTO.getClientId());
     }
@@ -163,9 +158,7 @@ class OrderServiceTest {
         orderDTO.setClientId(null);
 
         // Act & Assert
-        assertThrows(ValidationException.class, () -> {
-            orderService.validateOrderDTO(orderDTO);
-        });
+        assertThrows(ValidationException.class, () -> orderService.validateOrderDTO(orderDTO));
 
         verify(clientRepository, never()).existsById(any());
     }
@@ -179,14 +172,12 @@ class OrderServiceTest {
         when(clientRepository.existsById(orderDTO.getClientId())).thenReturn(false);
 
         // Act & Assert
-        assertThrows(ValidationException.class, () -> {
-            orderService.validateOrderDTO(orderDTO);
-        });
+        assertThrows(ValidationException.class, () -> orderService.validateOrderDTO(orderDTO));
 
         verify(clientRepository, times(1)).existsById(orderDTO.getClientId());
     }
     @Test
-    void testUpdateOrder_NullClientId_ThrowsValidationException() throws ChangeSetPersister.NotFoundException {
+    void testUpdateOrder_NullClientId_ThrowsValidationException() {
         // Arrange
         Long orderId = 1L;
         OrderDTO orderDTO = new OrderDTO();
@@ -195,7 +186,7 @@ class OrderServiceTest {
         // Act & Assert
         assertThrows(ValidationException.class, () -> orderService.updateOrder(orderId, orderDTO));
     }
-    
+
 
     @Test
     void testDeleteOrder_ExistingOrderId_OrderDeletedSuccessfully() {
@@ -208,9 +199,7 @@ class OrderServiceTest {
         when(orderRepository.save(order)).thenReturn(order);
 
         // Act
-        assertDoesNotThrow(() -> {
-            orderService.deleteOrder(orderId);
-        });
+        assertDoesNotThrow(() -> orderService.deleteOrder(orderId));
 
         // Assert
         assertTrue(order.isDeleted());
@@ -227,9 +216,7 @@ class OrderServiceTest {
         when(orderRepository.findByIdAndDeletedFalse(orderId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
-            orderService.deleteOrder(orderId);
-        });
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> orderService.deleteOrder(orderId));
 
         verify(orderRepository, times(1)).findByIdAndDeletedFalse(orderId);
         verify(orderRepository, never()).save(any(Order.class));
@@ -246,7 +233,6 @@ class OrderServiceTest {
 
         Order updatedOrder = new Order();
         updatedOrder.setId(orderId);
-        LocalDate currentDate = LocalDate.now();
 
         when(orderRepository.findByIdAndDeletedFalse(orderId)).thenReturn(Optional.of(existingOrder));
         when(modelMapper.map(orderDTO, Order.class)).thenReturn(updatedOrder);
