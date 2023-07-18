@@ -37,9 +37,6 @@ public class ProductService {
         if (productDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (productDTO.getPlateId().getId() == null) {
-            throw new ValidationException("Plate is required");
-        }
         Product product = productRepository.save(modelMapper.map(productDTO, Product.class));
         return modelMapper.map(product, ProductDTO.class);
     }
@@ -52,11 +49,7 @@ public class ProductService {
         if (productDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (productDTO.getPlateId().getId() == null) {
-            throw new ValidationException("Plate id is required");
-        }
         existingProduct.setPrice(productDTO.getPrice());
-        existingProduct.setPlateId(productDTO.getPlateId());
         existingProduct.setAvailableQuantity(productDTO.getAvailableQuantity());
         Product updatedProduct = productRepository.save(existingProduct);
         updatedProduct.setId(id);

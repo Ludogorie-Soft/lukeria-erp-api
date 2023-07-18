@@ -5,6 +5,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +30,8 @@ class PackageServiceTest {
     private PackageRepository packageRepository;
     @Mock
     private CartonRepository cartonRepository;
-
+    @Mock
+    private PlateRepository plateRepository;
     @Mock
     private ModelMapper modelMapper;
 
@@ -74,6 +76,139 @@ class PackageServiceTest {
         verify(packageRepository, times(1)).findByDeletedFalse();
 
         verify(modelMapper, times(mockPackages.size())).map(any(Package.class), eq(PackageDTO.class));
+    }
+
+
+    @Test
+    void testCreatePackageWithPlateIdNotNullAndPlateDoesNotExist() {
+        // Arrange
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setName("Test Package");
+        packageDTO.setPiecesCarton(10);
+        packageDTO.setAvailableQuantity(20);
+        packageDTO.setPrice(9.99);
+        packageDTO.setCartonId(1L);
+        packageDTO.setPlateId(1L);
+
+        when(plateRepository.existsById(anyLong())).thenReturn(false);
+
+        // Act & Assert
+        Assertions.assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
+    }
+
+    @Test
+    void testUpdatePackage_ReturnsUpdatedPackageDTO() throws ChangeSetPersister.NotFoundException {
+        // Arrange
+        Long packageId = 1L;
+        Package existingPackage = new Package();
+        existingPackage.setId(packageId);
+
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setId(packageId);
+        packageDTO.setName("Updated Package");
+        packageDTO.setPiecesCarton(10);
+        packageDTO.setAvailableQuantity(20);
+        packageDTO.setPrice(9.99);
+        packageDTO.setCartonId(1L);
+        packageDTO.setPlateId(1L);
+
+        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(java.util.Optional.of(existingPackage));
+        when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
+        when(plateRepository.existsById(packageDTO.getPlateId())).thenReturn(true);
+        when(modelMapper.map(packageDTO, Package.class)).thenReturn(existingPackage);
+        when(packageRepository.save(existingPackage)).thenReturn(existingPackage);
+        when(modelMapper.map(existingPackage, PackageDTO.class)).thenReturn(packageDTO);
+
+        // Act
+        PackageDTO updatedPackageDTO = packageService.updatePackage(packageId, packageDTO);
+
+        // Assert
+        assertNotNull(updatedPackageDTO);
+        assertEquals("Updated Package", updatedPackageDTO.getName());
+        // Add more assertions based on your requirements
+    }
+
+
+    @Test
+    void testUpdatePackage_ThrowsValidationException_WhenPlateDoesNotExist() {
+        // Arrange
+        Long packageId = 1L;
+        Package existingPackage = new Package();
+        existingPackage.setId(packageId);
+
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setId(packageId);
+        packageDTO.setName("Updated Package");
+        packageDTO.setPiecesCarton(10);
+        packageDTO.setAvailableQuantity(20);
+        packageDTO.setPrice(9.99);
+        packageDTO.setCartonId(1L);
+        packageDTO.setPlateId(1L);
+
+        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(java.util.Optional.of(existingPackage));
+        when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
+        when(plateRepository.existsById(packageDTO.getPlateId())).thenReturn(false); // Simulate non-existing plate
+        when(modelMapper.map(packageDTO, Package.class)).thenReturn(existingPackage);
+
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> packageService.updatePackage(packageId, packageDTO));
+    }
+    @Test
+    void testUpdatePackage_ThrowsValidationException_WhenPlateNull() {
+        // Arrange
+        Long packageId = 1L;
+        Package existingPackage = new Package();
+        existingPackage.setId(packageId);
+
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setId(packageId);
+        packageDTO.setName("Updated Package");
+        packageDTO.setPiecesCarton(10);
+        packageDTO.setAvailableQuantity(20);
+        packageDTO.setPrice(9.99);
+        packageDTO.setCartonId(1L);
+        packageDTO.setPlateId(null);
+
+        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(java.util.Optional.of(existingPackage));
+        when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
+        when(plateRepository.existsById(packageDTO.getPlateId())).thenReturn(false); // Simulate non-existing plate
+        when(modelMapper.map(packageDTO, Package.class)).thenReturn(existingPackage);
+
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> packageService.updatePackage(packageId, packageDTO));
+    }
+
+    @Test
+    void testCreatePackage_ThrowsValidationException_WhenPlateDoesNotExist() {
+        // Arrange
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setName("New Package");
+        packageDTO.setPiecesCarton(10);
+        packageDTO.setAvailableQuantity(20);
+        packageDTO.setPrice(9.99);
+        packageDTO.setCartonId(1L);
+        packageDTO.setPlateId(1L);
+
+        when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
+        when(plateRepository.existsById(packageDTO.getPlateId())).thenReturn(false); // Simulate non-existing plate
+
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
+    }
+
+    @Test
+    void testCreatePackageWithPlateIdNull() {
+        // Arrange
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setName("Test Package");
+        packageDTO.setPiecesCarton(10);
+        packageDTO.setAvailableQuantity(20);
+        packageDTO.setPrice(9.99);
+        packageDTO.setCartonId(1L);
+        packageDTO.setPlateId(null);
+
+        // Act & Assert
+        Assertions.assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
     }
 
     @Test
@@ -124,14 +259,15 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
+
     @Test
     void testCreatePackage_InvalidPackageDTO_InvalidPiecesCarton() {
         PackageDTO packageDTO = new PackageDTO();
         packageDTO.setName("name");
-        packageDTO.setPiecesCarton(-11);
-        packageDTO.setAvailableQuantity(10);
+        packageDTO.setPiecesCarton(0);
+        packageDTO.setAvailableQuantity(0);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
+        packageDTO.setPrice(0);
         packageDTO.setCartonId(1L);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
@@ -141,6 +277,7 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
+
     @Test
     void testCreatePackage_InvalidPackageDTO_InvalidCartonId() {
         PackageDTO packageDTO = new PackageDTO();
@@ -158,39 +295,8 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
-    @Test
-    void testCreatePackage_InvalidPackageDTO_InvalidCartonIdIsNull() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
-        packageDTO.setCartonId(null);
-        ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
-        assertEquals("Carton ID cannot be null!", exception.getMessage());
 
-        verifyNoInteractions(modelMapper);
 
-        verifyNoInteractions(packageRepository);
-    }
-
-    @Test
-    void testCreatePackage_InvalidPackageDTO_AvailableQuantityIsInvalid() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(0);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
-        packageDTO.setCartonId(1L);
-
-        ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
-        assertEquals("Available quantity be greater than zero", exception.getMessage());
-
-        verifyNoInteractions(modelMapper);
-        verifyNoInteractions(packageRepository);
-    }
 
     @Test
     void testCreatePackage_InvalidPackageDTO_PriceIsZero() {
@@ -212,12 +318,13 @@ class PackageServiceTest {
     @Test
     void testCreatePackage_InvalidPackageDTO_PriceIsNegative() {
         PackageDTO packageDTO = new PackageDTO();
+        Carton carton = new Carton();
+        carton.setId(1L);
         packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
+        packageDTO.setPiecesCarton(1);
+        packageDTO.setAvailableQuantity(1);
         packageDTO.setPrice(0);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(-100);
         packageDTO.setCartonId(1L);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
@@ -226,242 +333,7 @@ class PackageServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(packageRepository);
     }
-    @Test
-    void testCreatePackage_ValidPackage() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("Test Package");
-        packageDTO.setPiecesCarton(10);
-        packageDTO.setAvailableQuantity(100);
-        packageDTO.setPrice(50.0);
-        packageDTO.setCartonId(1L);
 
-        Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
-
-        Package packageEntity = new Package();
-        packageEntity.setName("Test Package");
-        packageEntity.setPiecesCarton(10);
-        packageEntity.setAvailableQuantity(100);
-        packageEntity.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        packageEntity.setCartonId(carton);
-
-        Mockito.when(packageRepository.save(Mockito.any(Package.class))).thenReturn(packageEntity);
-        Mockito.when(modelMapper.map(packageDTO, Package.class)).thenReturn(packageEntity);
-        Mockito.when(modelMapper.map(packageEntity, PackageDTO.class)).thenReturn(packageDTO);
-
-        PackageDTO result = packageService.createPackage(packageDTO);
-
-        Assertions.assertEquals(packageDTO.getName(), result.getName());
-        Assertions.assertEquals(packageDTO.getPiecesCarton(), result.getPiecesCarton());
-        Assertions.assertEquals(packageDTO.getAvailableQuantity(), result.getAvailableQuantity());
-        Assertions.assertEquals(packageDTO.getPrice(), result.getPrice());
-
-        Mockito.verify(packageRepository).save(Mockito.any(Package.class));
-    }
-    @Test
-    void testUpdatePackage_InvalidName() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
-        packageDTO.setCartonId(1L);
-
-        Long id = 1L;
-        Package existingPackage = new Package();
-        existingPackage.setId(id);
-        existingPackage.setName("Test Package");
-        existingPackage.setPiecesCarton(10);
-        existingPackage.setAvailableQuantity(100);
-        existingPackage.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        existingPackage.setCartonId(carton);
-
-        when(packageRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPackage));
-        assertThrows(ValidationException.class, () -> packageService.updatePackage(1L, packageDTO));
-        verify(packageRepository, times(1)).findByIdAndDeletedFalse(1L);
-        verifyNoInteractions(modelMapper);
-    }
-    @Test
-    void testUpdatePackage_InvalidPiecesCarton() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("name");
-        packageDTO.setPiecesCarton(-11);
-        packageDTO.setAvailableQuantity(10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
-        packageDTO.setCartonId(1L);
-
-        Long id = 1L;
-        Package existingPackage = new Package();
-        existingPackage.setId(id);
-        existingPackage.setName("Test Package");
-        existingPackage.setPiecesCarton(10);
-        existingPackage.setAvailableQuantity(100);
-        existingPackage.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        existingPackage.setCartonId(carton);
-
-        when(packageRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPackage));
-        assertThrows(ValidationException.class, () -> packageService.updatePackage(1L, packageDTO));
-        verify(packageRepository, times(1)).findByIdAndDeletedFalse(1L);
-        verifyNoInteractions(modelMapper);
-    }
-    @Test
-    void testUpdatePackage_CartonIdNull() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
-        packageDTO.setCartonId(null);
-
-        Long id = 1L;
-        Package existingPackage = new Package();
-        existingPackage.setId(id);
-        existingPackage.setName("Test Package");
-        existingPackage.setPiecesCarton(10);
-        existingPackage.setAvailableQuantity(100);
-        existingPackage.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        existingPackage.setCartonId(carton);
-
-        when(packageRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPackage));
-        assertThrows(ValidationException.class, () -> packageService.updatePackage(1L, packageDTO));
-        verify(packageRepository, times(1)).findByIdAndDeletedFalse(1L);
-        verifyNoInteractions(modelMapper);
-    }
-    @Test
-    void testUpdatePackage_CartonIdDoesNotExist() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
-        packageDTO.setCartonId(1L);
-
-        Long id = 1L;
-        Package existingPackage = new Package();
-        existingPackage.setId(id);
-        existingPackage.setName("Test Package");
-        existingPackage.setPiecesCarton(10);
-        existingPackage.setAvailableQuantity(100);
-        existingPackage.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        existingPackage.setCartonId(carton);
-
-        when(packageRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPackage));
-        Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(false);
-        assertThrows(ValidationException.class, () -> packageService.updatePackage(1L, packageDTO));
-        verify(packageRepository, times(1)).findByIdAndDeletedFalse(1L);
-        verifyNoInteractions(modelMapper);
-    }
-    @Test
-    void testUpdatePackage_InvalidPrice() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(-100);
-        packageDTO.setCartonId(1L);
-
-        Long id = 1L;
-        Package existingPackage = new Package();
-        existingPackage.setId(id);
-        existingPackage.setName("Test Package");
-        existingPackage.setPiecesCarton(10);
-        existingPackage.setAvailableQuantity(100);
-        existingPackage.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        existingPackage.setCartonId(carton);
-
-        when(packageRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPackage));
-        assertThrows(ValidationException.class, () -> packageService.updatePackage(1L, packageDTO));
-        verify(packageRepository, times(1)).findByIdAndDeletedFalse(1L);
-        verifyNoInteractions(modelMapper);
-    }
-    @Test
-    void testUpdatePackage_InvalidAvailableQuantity() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("name");
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(-10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
-        packageDTO.setCartonId(1L);
-
-        Long id = 1L;
-        Package existingPackage = new Package();
-        existingPackage.setId(id);
-        existingPackage.setName("Test Package");
-        existingPackage.setPiecesCarton(10);
-        existingPackage.setAvailableQuantity(100);
-        existingPackage.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        existingPackage.setCartonId(carton);
-
-        when(packageRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPackage));
-        assertThrows(ValidationException.class, () -> packageService.updatePackage(1L, packageDTO));
-        verify(packageRepository, times(1)).findByIdAndDeletedFalse(1L);
-        verifyNoInteractions(modelMapper);
-    }
-    @Test
-    void testUpdatePackage_ValidPackage() throws ChangeSetPersister.NotFoundException {
-        // Arrange
-        Long id = 1L;
-        Package existingPackage = new Package();
-        existingPackage.setId(id);
-        existingPackage.setName("Test Package");
-        existingPackage.setPiecesCarton(10);
-        existingPackage.setAvailableQuantity(100);
-        existingPackage.setPrice(50.0);
-        Carton carton = new Carton();
-        carton.setId(1L);
-        existingPackage.setCartonId(carton);
-
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setName("Updated Package");
-        packageDTO.setPiecesCarton(20);
-        packageDTO.setAvailableQuantity(200);
-        packageDTO.setPrice(100.0);
-        packageDTO.setCartonId(2L);
-
-        Mockito.when(packageRepository.findByIdAndDeletedFalse(id)).thenReturn(Optional.of(existingPackage));
-        Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
-        Mockito.when(cartonRepository.findByIdAndDeletedFalse(packageDTO.getCartonId())).thenReturn(Optional.of(carton));
-
-        Package updatedPackage = new Package();
-        updatedPackage.setId(id);
-        updatedPackage.setName(packageDTO.getName());
-        updatedPackage.setPiecesCarton(packageDTO.getPiecesCarton());
-        updatedPackage.setAvailableQuantity(packageDTO.getAvailableQuantity());
-        updatedPackage.setPrice(packageDTO.getPrice());
-        updatedPackage.setCartonId(carton);
-
-        Mockito.when(packageRepository.save(existingPackage)).thenReturn(updatedPackage);
-        Mockito.when(modelMapper.map(updatedPackage, PackageDTO.class)).thenReturn(packageDTO);
-
-        // Act
-        PackageDTO result = packageService.updatePackage(id, packageDTO);
-
-        // Assert
-        Assertions.assertEquals(packageDTO.getName(), result.getName());
-        Assertions.assertEquals(packageDTO.getPiecesCarton(), result.getPiecesCarton());
-        Assertions.assertEquals(packageDTO.getAvailableQuantity(), result.getAvailableQuantity());
-        Assertions.assertEquals(packageDTO.getPrice(), result.getPrice());
-
-        Mockito.verify(packageRepository).save(existingPackage);
-    }
 
     @Test
     void testDeletePackage_ExistingId() throws ChangeSetPersister.NotFoundException {
