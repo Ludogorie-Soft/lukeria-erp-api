@@ -3,6 +3,8 @@ package com.example.ludogoriesoft.lukeriaerpapi.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -23,7 +25,7 @@ public class Package {
     @Column(name = "pieces_carton")
     private int piecesCarton;
     private String photo;
-    private double price;
+    private BigDecimal price;
     @Column(name = "is_deleted")
     private boolean deleted;
 }
