@@ -139,7 +139,7 @@ class ProductServiceTest {
         ProductDTO updatedProductDTO = productService.updateProduct(productId, productDTO);
 
 
-        assertNotNull(updatedProductDTO);
+        Assertions.assertNotNull(updatedProductDTO);
 
     }
 
@@ -175,12 +175,12 @@ class ProductServiceTest {
         ProductDTO createdProductDTO = productService.createProduct(productDTO);
 
         // Assert
-        assertNotNull(createdProductDTO);
+        Assertions.assertNotNull(createdProductDTO);
 
     }
 
     @Test
-     void testUpdateProduct_ProductNotFound_ChangeSetPersisterNotFoundException() throws ChangeSetPersister.NotFoundException {
+     void testUpdateProduct_ProductNotFound_ChangeSetPersisterNotFoundException() {
         // Arrange
         Long productId = 1L;
         ProductDTO productDTO = new ProductDTO();
