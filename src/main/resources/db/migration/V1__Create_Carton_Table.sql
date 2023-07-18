@@ -3,6 +3,6 @@ CREATE TABLE carton (
   name VARCHAR(255) NOT NULL,
   size VARCHAR(255) NOT NULL,
   available_quantity INT,
-  price DOUBLE,
+   price DECIMAL(10, 2),
   is_deleted TINYINT(1) DEFAULT FALSE
 );

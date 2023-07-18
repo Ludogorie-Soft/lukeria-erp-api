@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -38,7 +39,7 @@ public class CartonService {
         if (cartonDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (cartonDTO.getPrice() <= 0.0) {
+        if (cartonDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
 
@@ -57,7 +58,7 @@ public class CartonService {
         if (cartonDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (cartonDTO.getPrice() <= 0) {
+        if (cartonDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
         existingCarton.setName(cartonDTO.getName());
