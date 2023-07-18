@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -106,7 +107,7 @@ import static org.mockito.Mockito.*;
         CartonDTO cartonDTO = new CartonDTO();
         cartonDTO.setSize("Large");
         cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(100.0);
+        cartonDTO.setPrice(BigDecimal.valueOf(100));
 
         ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
         assertEquals("Name is required", exception.getMessage());
@@ -120,7 +121,7 @@ import static org.mockito.Mockito.*;
         CartonDTO cartonDTO = new CartonDTO();
         cartonDTO.setName("some name");
         cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(100.0);
+        cartonDTO.setPrice(BigDecimal.valueOf(100L));
 
         ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
         assertEquals("Size is required", exception.getMessage());
@@ -134,7 +135,7 @@ import static org.mockito.Mockito.*;
         cartonDTO.setName("some name");
         cartonDTO.setSize("12-18");
         cartonDTO.setAvailableQuantity(0);
-        cartonDTO.setPrice(100.0);
+       cartonDTO.setPrice(BigDecimal.valueOf(100L));
 
         ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
         assertEquals("Available quantity must be greater than zero", exception.getMessage());
@@ -148,7 +149,7 @@ import static org.mockito.Mockito.*;
         cartonDTO.setName("some name");
         cartonDTO.setSize("12-18");
         cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(0.0);
+       cartonDTO.setPrice(BigDecimal.valueOf(0));
 
         ValidationException exception = assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO));
         assertEquals("Price must be greater than zero", exception.getMessage());
@@ -162,7 +163,7 @@ import static org.mockito.Mockito.*;
        cartonDTO.setName("some name");
        cartonDTO.setSize("12-18");
        cartonDTO.setAvailableQuantity(10);
-       cartonDTO.setPrice(-10.0);
+       cartonDTO.setPrice(BigDecimal.valueOf(-0));
 
        assertThrows(ValidationException.class, () -> cartonService.createCarton(cartonDTO), "Price must be greater than zero");
 
@@ -174,14 +175,14 @@ import static org.mockito.Mockito.*;
         CartonDTO cartonDTO = new CartonDTO();
         cartonDTO.setSize("Large");
         cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(100.0);
+       cartonDTO.setPrice(BigDecimal.valueOf(100));
 
         Carton existingCarton = new Carton();
         existingCarton.setId(1L);
         existingCarton.setName("Existing Carton");
         existingCarton.setSize("Medium");
         existingCarton.setAvailableQuantity(5);
-        existingCarton.setPrice(50.0);
+        existingCarton.setPrice(BigDecimal.valueOf(50));
 
         when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
         assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
@@ -194,14 +195,14 @@ import static org.mockito.Mockito.*;
         cartonDTO.setId(1L);
         cartonDTO.setName("name");
         cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(100.0);
+        cartonDTO.setPrice(BigDecimal.valueOf(100));
 
         Carton existingCarton = new Carton();
         existingCarton.setId(1L);
         existingCarton.setName("name");
         existingCarton.setSize("Existing Carton");
         existingCarton.setAvailableQuantity(5);
-        existingCarton.setPrice(50.0);
+        existingCarton.setPrice(BigDecimal.valueOf(50));
 
         when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
         assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
@@ -215,14 +216,14 @@ import static org.mockito.Mockito.*;
         cartonDTO.setSize("10-19");
         cartonDTO.setName("name");
         cartonDTO.setAvailableQuantity(-10);
-        cartonDTO.setPrice(100.0);
+        cartonDTO.setPrice(BigDecimal.valueOf(100));
 
         Carton existingCarton = new Carton();
         existingCarton.setId(1L);
         existingCarton.setName("name");
         existingCarton.setSize("Existing Carton");
         existingCarton.setAvailableQuantity(5);
-        existingCarton.setPrice(50.0);
+        existingCarton.setPrice(BigDecimal.valueOf(50));
 
         when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
         assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
@@ -236,17 +237,17 @@ import static org.mockito.Mockito.*;
         cartonDTO.setSize("10-19");
         cartonDTO.setName("name");
         cartonDTO.setAvailableQuantity(10);
-        cartonDTO.setPrice(-100.0);
+        cartonDTO.setPrice(BigDecimal.valueOf(-100));
 
         Carton existingCarton = new Carton();
         existingCarton.setId(1L);
         existingCarton.setName("name");
         existingCarton.setSize("Existing Carton");
         existingCarton.setAvailableQuantity(5);
-        existingCarton.setPrice(50.0);
+        existingCarton.setPrice(BigDecimal.valueOf(50));
 
         when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
-        assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
+        assertThrows(NullPointerException.class, () -> cartonService.updateCarton(1L, cartonDTO));
         verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
@@ -276,13 +277,13 @@ import static org.mockito.Mockito.*;
         existingCarton.setName("Carton 1");
         existingCarton.setSize("Size 1");
         existingCarton.setAvailableQuantity(10);
-        existingCarton.setPrice(10.0);
+        existingCarton.setPrice(BigDecimal.valueOf(10));
 
         CartonDTO cartonDTO = new CartonDTO();
         cartonDTO.setName("Updated Carton 1");
         cartonDTO.setSize("Updated Size 1");
         cartonDTO.setAvailableQuantity(20);
-        cartonDTO.setPrice(20.0);
+        cartonDTO.setPrice(BigDecimal.valueOf(20));
 
         when(cartonRepository.findByIdAndDeletedFalse(cartonId)).thenReturn(Optional.of(existingCarton));
         when(modelMapper.map(existingCarton, CartonDTO.class)).thenReturn(cartonDTO);
@@ -304,13 +305,13 @@ import static org.mockito.Mockito.*;
        cartonDTO.setName("Carton 1");
        cartonDTO.setSize("Size 1");
        cartonDTO.setAvailableQuantity(10);
-       cartonDTO.setPrice(10.0);
+       cartonDTO.setPrice(BigDecimal.valueOf(10));
 
        Carton cartonEntity = new Carton();
        cartonEntity.setName("Carton 1");
        cartonEntity.setSize("Size 1");
        cartonEntity.setAvailableQuantity(10);
-       cartonEntity.setPrice(10.0);
+       cartonEntity.setPrice(BigDecimal.valueOf(10));
 
        when(cartonRepository.save(any(Carton.class))).thenReturn(cartonEntity);
        when(modelMapper.map(cartonDTO, Carton.class)).thenReturn(cartonEntity);

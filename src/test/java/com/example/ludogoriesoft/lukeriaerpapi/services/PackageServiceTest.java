@@ -17,6 +17,7 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -86,7 +87,7 @@ class PackageServiceTest {
         packageDTO.setName("Test Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
-        packageDTO.setPrice(9.99);
+        packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(1L);
 
@@ -108,7 +109,7 @@ class PackageServiceTest {
         packageDTO.setName("Updated Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
-        packageDTO.setPrice(9.99);
+        packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(1L);
 
@@ -141,7 +142,7 @@ class PackageServiceTest {
         packageDTO.setName("Updated Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
-        packageDTO.setPrice(9.99);
+        packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(1L);
 
@@ -165,7 +166,7 @@ class PackageServiceTest {
         packageDTO.setName("Updated Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
-        packageDTO.setPrice(9.99);
+        packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(null);
 
@@ -185,7 +186,7 @@ class PackageServiceTest {
         packageDTO.setName("New Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
-        packageDTO.setPrice(9.99);
+        packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(1L);
 
@@ -203,7 +204,7 @@ class PackageServiceTest {
         packageDTO.setName("Test Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
-        packageDTO.setPrice(9.99);
+        packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(null);
 
@@ -249,7 +250,7 @@ class PackageServiceTest {
         packageDTO.setPiecesCarton(11);
         packageDTO.setAvailableQuantity(10);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
+        packageDTO.setPrice(BigDecimal.valueOf(100));
         packageDTO.setCartonId(1L);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
@@ -267,7 +268,7 @@ class PackageServiceTest {
         packageDTO.setPiecesCarton(0);
         packageDTO.setAvailableQuantity(0);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(0);
+        packageDTO.setPrice(BigDecimal.valueOf(0));
         packageDTO.setCartonId(1L);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
@@ -285,7 +286,7 @@ class PackageServiceTest {
         packageDTO.setPiecesCarton(11);
         packageDTO.setAvailableQuantity(10);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(100);
+        packageDTO.setPrice(BigDecimal.valueOf(100));
         packageDTO.setCartonId(1L);
         Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(false);
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
@@ -305,7 +306,7 @@ class PackageServiceTest {
         packageDTO.setPiecesCarton(11);
         packageDTO.setAvailableQuantity(10);
         packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(0);
+        packageDTO.setPrice(BigDecimal.valueOf(0));
         packageDTO.setCartonId(1L);
 
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
@@ -323,7 +324,7 @@ class PackageServiceTest {
         packageDTO.setName("name");
         packageDTO.setPiecesCarton(1);
         packageDTO.setAvailableQuantity(1);
-        packageDTO.setPrice(0);
+        packageDTO.setPrice(BigDecimal.valueOf(0));
         packageDTO.setPhoto("Photo");
         packageDTO.setCartonId(1L);
 
