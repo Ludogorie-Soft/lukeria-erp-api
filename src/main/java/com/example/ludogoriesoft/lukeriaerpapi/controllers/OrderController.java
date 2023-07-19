@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+
     @GetMapping
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
