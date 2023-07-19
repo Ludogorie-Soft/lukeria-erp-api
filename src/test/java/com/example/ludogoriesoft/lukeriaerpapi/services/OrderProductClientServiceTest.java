@@ -46,7 +46,7 @@ class OrderProductClientServiceTest {
         MockitoAnnotations.openMocks(this);
     }
     @Test
-    public void testValidateOrderProductClientDTO_ValidOrder() {
+    void testValidateOrderProductClientDTO_ValidOrder() {
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Order order = new Order();
         order.setId(1L);
@@ -61,7 +61,7 @@ class OrderProductClientServiceTest {
         orderProductClientService.validateOrderProductClientDTO(orderDTO);
     }
     @Test
-    public void testCreateOrderProductClient_ValidInput() {
+    void testCreateOrderProductClient_ValidInput() {
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Order order1 = new Order();
         order1.setId(1L);
@@ -89,13 +89,13 @@ class OrderProductClientServiceTest {
     }
 
     @Test
-    public void testValidateOrderProductClientDTO_NullOrderId() {
+    void testValidateOrderProductClientDTO_NullOrderId() {
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
 
         assertThrows(ValidationException.class, () -> orderProductClientService.validateOrderProductClientDTO(orderDTO));
     }
     @Test
-    public void testValidateOrderProductClientDTO_NullProductId() {
+    void testValidateOrderProductClientDTO_NullProductId() {
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Order order = new Order();
         order.setId(1L);
@@ -105,7 +105,7 @@ class OrderProductClientServiceTest {
         assertThrows(ValidationException.class, () -> orderProductClientService.validateOrderProductClientDTO(orderDTO));
     }
     @Test
-    public void testValidateOrderProductClientDTO_InvalidOrder() {
+    void testValidateOrderProductClientDTO_InvalidOrder() {
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Order order = new Order();
         order.setId(1L);
@@ -117,7 +117,7 @@ class OrderProductClientServiceTest {
     }
 
     @Test
-    public void testUpdateOrderProductClient_InvalidPackageId() {
+    void testUpdateOrderProductClient_InvalidPackageId() {
         // Arrange
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Package aPackage = new Package();
@@ -140,7 +140,7 @@ class OrderProductClientServiceTest {
     }
 
     @Test
-    public void testValidateOrderProductClientDTO_ValidPackage() {
+    void testValidateOrderProductClientDTO_ValidPackage() {
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Package aPackage = new Package();
         aPackage.setId(1L);
@@ -234,12 +234,12 @@ class OrderProductClientServiceTest {
     }
 
     @Test
-    public void testCreateOrderProductClient_InvalidInput() {
+    void testCreateOrderProductClient_InvalidInput() {
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         assertThrows(ValidationException.class, () -> orderProductClientService.createOrderProductClient(orderDTO));
     }
     @Test
-    public void testUpdateOrderProductClient_ValidInput() throws ChangeSetPersister.NotFoundException {
+    void testUpdateOrderProductClient_ValidInput() throws ChangeSetPersister.NotFoundException {
         Long id = 1L;
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Order order = new Order();
@@ -274,7 +274,7 @@ class OrderProductClientServiceTest {
         assertEquals(expectedDTO, updatedOrderDTO);
     }
     @Test
-    public void testUpdateOrderProductClient_EntityNotFound() {
+    void testUpdateOrderProductClient_EntityNotFound() {
         Long id = 1L;
         OrderProductClientDTO orderDTO = new OrderProductClientDTO();
         Order order = new Order();
@@ -292,7 +292,7 @@ class OrderProductClientServiceTest {
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> orderProductClientService.updateOrderProductClient(id, orderDTO));
     }
     @Test
-    public void testDeleteOrderProductClient_ValidId() throws ChangeSetPersister.NotFoundException {
+    void testDeleteOrderProductClient_ValidId() throws ChangeSetPersister.NotFoundException {
         Long orderId = 1L;
         OrderProductClient order = new OrderProductClient();
         order.setId(orderId);
@@ -305,7 +305,7 @@ class OrderProductClientServiceTest {
     }
 
     @Test
-    public void testDeleteOrderProductClient_InvalidId() {
+    void testDeleteOrderProductClient_InvalidId() {
         Long orderId = 1L;
         when(orderProductClientRepository.findByIdAndDeletedFalse(orderId)).thenReturn(Optional.empty());
 
