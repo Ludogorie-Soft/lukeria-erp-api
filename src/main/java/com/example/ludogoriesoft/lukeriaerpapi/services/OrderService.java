@@ -22,9 +22,7 @@ public class OrderService {
 
     public List<OrderDTO> getAllOrders() {
         List<Order> orders = orderRepository.findByDeletedFalse();
-        return orders.stream()
-                .map(order -> modelMapper.map(order, OrderDTO.class))
-                .toList();
+        return orders.stream().map(order -> modelMapper.map(order, OrderDTO.class)).toList();
     }
 
     public OrderDTO getOrderById(Long id) throws ChangeSetPersister.NotFoundException {
@@ -42,6 +40,7 @@ public class OrderService {
             throw new ValidationException("Client ID cannot be null");
         }
     }
+
     public OrderDTO createOrder(OrderDTO orderDTO) {
         validateOrderDTO(orderDTO);
         orderDTO.setOrderDate(LocalDate.now());
@@ -51,10 +50,7 @@ public class OrderService {
 
     public OrderDTO updateOrder(Long id, OrderDTO orderDTO) throws ChangeSetPersister.NotFoundException {
         validateOrderDTO(orderDTO);
-
-        Order existingOrder= orderRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(ChangeSetPersister.NotFoundException::new);
-
+        Order existingOrder = orderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         Order updatedOrder = modelMapper.map(orderDTO, Order.class);
         updatedOrder.setId(existingOrder.getId());
         updatedOrder.setOrderDate(LocalDate.now());
@@ -67,5 +63,4 @@ public class OrderService {
         order.setDeleted(true);
         orderRepository.save(order);
     }
-
 }
