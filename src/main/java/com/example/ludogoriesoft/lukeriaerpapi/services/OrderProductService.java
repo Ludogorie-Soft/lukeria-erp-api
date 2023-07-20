@@ -35,17 +35,17 @@ public class OrderProductService {
 
     void validateOrderProductDTO(OrderProductDTO orderDTO) {
         if (orderDTO.getOrderId() != null) {
-            boolean orderExists = orderRepository.existsById(orderDTO.getOrderId().getId());
+            boolean orderExists = orderRepository.existsById(orderDTO.getOrderId());
             if (!orderExists) {
-                throw new ValidationException("Order does not exist with ID: " + orderDTO.getOrderId().getId());
+                throw new ValidationException("Order does not exist with ID: " + orderDTO.getOrderId());
             }
         } else {
             throw new ValidationException("Order ID cannot be null!");
         }
         if (orderDTO.getPackageId() != null) {
-            boolean orderExists = packageRepository.existsById(orderDTO.getPackageId().getId());
+            boolean orderExists = packageRepository.existsById(orderDTO.getPackageId());
             if (!orderExists) {
-                throw new ValidationException("Package does not exist with ID: " + orderDTO.getPackageId().getId());
+                throw new ValidationException("Package does not exist with ID: " + orderDTO.getPackageId());
             }
         } else {
             throw new ValidationException("Package ID cannot be null!");

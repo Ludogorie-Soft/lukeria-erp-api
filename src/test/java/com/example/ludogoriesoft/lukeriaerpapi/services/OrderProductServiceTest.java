@@ -50,10 +50,10 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         Order order = new Order();
         order.setId(1L);
-        orderDTO.setOrderId(order);
+        orderDTO.setOrderId(1L);
         Package aPackage = new Package();
         aPackage.setId(1L);
-        orderDTO.setPackageId(aPackage);
+        orderDTO.setPackageId(1L);
 
         when(orderRepository.existsById(order.getId())).thenReturn(true);
         when(packageRepository.existsById(order.getId())).thenReturn(true);
@@ -67,8 +67,8 @@ class OrderProductServiceTest {
         order1.setId(1L);
         Package aPackage = new Package();
         aPackage.setId(1L);
-        orderDTO.setOrderId(order1);
-        orderDTO.setPackageId(aPackage);
+        orderDTO.setOrderId(1L);
+        orderDTO.setPackageId(1L);
 
         when(orderRepository.existsById(order1.getId())).thenReturn(true);
         when(packageRepository.existsById(aPackage.getId())).thenReturn(true);
@@ -99,7 +99,7 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         Order order = new Order();
         order.setId(1L);
-        orderDTO.setOrderId(order);
+        orderDTO.setOrderId(1L);
         when(orderRepository.existsById(order.getId())).thenReturn(true);
 
         assertThrows(ValidationException.class, () -> orderProductService.validateOrderProductDTO(orderDTO));
@@ -109,7 +109,7 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         Order order = new Order();
         order.setId(1L);
-        orderDTO.setOrderId(order);
+        orderDTO.setOrderId(1L);
 
         when(orderRepository.existsById(order.getId())).thenReturn(false);
 
@@ -122,10 +122,10 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         Package aPackage = new Package();
         aPackage.setId(1L);
-        orderDTO.setPackageId(aPackage);
+        orderDTO.setPackageId(1L);
         Order order = new Order();
         order.setId(1L);
-        orderDTO.setOrderId(order);
+        orderDTO.setOrderId(1L);
         when(orderRepository.existsById(order.getId())).thenReturn(true);
         when(packageRepository.existsById(aPackage.getId())).thenReturn(false);
 
@@ -133,7 +133,7 @@ class OrderProductServiceTest {
         existingOrderProduct.setId(1L);
         when(orderProductRepository.findByIdAndDeletedFalse(1L)).thenReturn(java.util.Optional.of(existingOrderProduct));
 
-        when(packageRepository.existsById(orderDTO.getPackageId().getId())).thenReturn(false);
+        when(packageRepository.existsById(orderDTO.getPackageId())).thenReturn(false);
 
         // Act & Assert
         assertThrows(ValidationException.class, () -> orderProductService.updateOrderProduct(1L, orderDTO));
@@ -144,10 +144,10 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         Package aPackage = new Package();
         aPackage.setId(1L);
-        orderDTO.setPackageId(aPackage);
+        orderDTO.setPackageId(1L);
         Order order = new Order();
         order.setId(1L);
-        orderDTO.setOrderId(order);
+        orderDTO.setOrderId(1L);
         when(orderRepository.existsById(order.getId())).thenReturn(true);
         when(packageRepository.existsById(aPackage.getId())).thenReturn(true);
 
@@ -244,10 +244,10 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         Order order = new Order();
         order.setId(1L);
-        orderDTO.setOrderId(order);
+        orderDTO.setOrderId(1L);
         Package aPackage = new Package();
         aPackage.setId(1L);
-        orderDTO.setPackageId(aPackage);
+        orderDTO.setPackageId(1L);
 
         when(orderRepository.existsById(order.getId())).thenReturn(true);
         when(packageRepository.existsById(aPackage.getId())).thenReturn(true);
@@ -279,10 +279,10 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         Order order = new Order();
         order.setId(1L);
-        orderDTO.setOrderId(order);
+        orderDTO.setOrderId(1L);
         Package aPackage = new Package();
         aPackage.setId(1L);
-        orderDTO.setPackageId(aPackage);
+        orderDTO.setPackageId(1L);
 
         when(orderRepository.existsById(order.getId())).thenReturn(true);
         when(packageRepository.existsById(aPackage.getId())).thenReturn(true);

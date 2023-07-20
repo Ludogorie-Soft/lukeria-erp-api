@@ -16,6 +16,6 @@ public class OrderProductDTO {
     @NotNull
     @Min(value = 1, message = "Моля въведете поне 1 брой!")
     private Integer number;
-    private Order orderId;
-    private Package packageId;
+    private Long orderId;
+    private Long packageId;
 }
