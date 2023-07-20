@@ -1,4 +1,4 @@
-CREATE TABLE order_product_client_table (
+CREATE TABLE order_product (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     number INT NOT NULL,
     order_id BIGINT,

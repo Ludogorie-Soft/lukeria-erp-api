@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderProductClientDTO {
+public class OrderProductDTO {
     private Long id;
     @NotNull
     @Min(value = 1, message = "Моля въведете поне 1 брой!")
