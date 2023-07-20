@@ -17,27 +17,27 @@ import java.util.List;
 public class OrderProductController {
     private final OrderProductService orderProductService;
     @GetMapping
-    public ResponseEntity<List<OrderProductDTO>> getAllOrders() {
+    public ResponseEntity<List<OrderProductDTO>> getAllOrderProducts() {
         return ResponseEntity.ok(orderProductService.getAllOrderProducts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderProductDTO> getOrderById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<OrderProductDTO> getOrderProductById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(orderProductService.getOrderProductById(id));
     }
 
     @PostMapping
-    public ResponseEntity<OrderProductDTO> createOrder(@Valid @RequestBody OrderProductDTO orderDTO) {
+    public ResponseEntity<OrderProductDTO> createOrderProduct(@Valid @RequestBody OrderProductDTO orderDTO) {
         return new ResponseEntity<>(orderProductService.createOrderProduct(orderDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderProductDTO> updateOrder(@PathVariable("id") Long id, @Valid @RequestBody OrderProductDTO orderDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<OrderProductDTO> updateOrderProduct(@PathVariable("id") Long id, @Valid @RequestBody OrderProductDTO orderDTO) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(orderProductService.updateOrderProduct(id, orderDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteOrderById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteOrderProductById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
         orderProductService.deleteOrderProduct(id);
         return ResponseEntity.ok("Order with id: " + id + " has been deleted successfully!");
     }
