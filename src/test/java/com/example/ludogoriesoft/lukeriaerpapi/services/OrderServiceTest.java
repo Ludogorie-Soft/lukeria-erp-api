@@ -217,4 +217,19 @@ class OrderServiceTest {
 
         assertEquals(orderId, updatedOrder.getId());
     }
+    @Test
+    public void testFindFirstOrderDTOByOrderByIdDesc() {
+        Order order = new Order();
+        order.setId(1L);
+
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(1L);
+
+        when(orderRepository.findFirstByDeletedFalseOrderByIdDesc()).thenReturn(order);
+        when(modelMapper.map(order, OrderDTO.class)).thenReturn(orderDTO);
+
+        OrderDTO result = orderService.findFirstByOrderByIdDesc();
+
+        assertEquals(orderDTO.getId(), result.getId());
+    }
 }

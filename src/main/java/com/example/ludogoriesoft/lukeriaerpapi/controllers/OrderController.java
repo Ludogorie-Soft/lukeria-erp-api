@@ -42,5 +42,8 @@ public class OrderController {
         orderService.deleteOrder(id);
         return ResponseEntity.ok("Order with id: " + id + " has been deleted successfully!");
     }
-
+    @GetMapping("/findLastOrder")
+    public ResponseEntity<OrderDTO> findFirstByOrderByIdDesc(){
+        return ResponseEntity.ok(orderService.findFirstByOrderByIdDesc());
+    }
 }

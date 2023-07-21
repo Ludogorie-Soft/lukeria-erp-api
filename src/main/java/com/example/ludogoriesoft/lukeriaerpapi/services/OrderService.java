@@ -63,4 +63,7 @@ public class OrderService {
         order.setDeleted(true);
         orderRepository.save(order);
     }
+    public OrderDTO findFirstByOrderByIdDesc(){
+        return modelMapper.map(orderRepository.findFirstByDeletedFalseOrderByIdDesc(), OrderDTO.class);
+    }
 }
