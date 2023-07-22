@@ -2,6 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.models;
 
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "material_order")
 public class MaterialOrder {
     @Id
