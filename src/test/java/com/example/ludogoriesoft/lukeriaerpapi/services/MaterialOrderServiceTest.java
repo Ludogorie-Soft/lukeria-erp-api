@@ -2,11 +2,9 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
-import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrder;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.MaterialOrderRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +16,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -27,19 +26,28 @@ import static org.mockito.Mockito.*;
 
 class MaterialOrderServiceTest {
 
+    @InjectMocks
+    private MaterialOrderService materialOrderService;
+
+    @Mock
+    private OrderProductRepository orderProductRepository;
+    @Mock
+    private OrderProductService orderProductService;
+
+    @Mock
+    private PackageRepository packageRepository;
+
     @Mock
     private MaterialOrderRepository materialOrderRepository;
     @Mock
     private CartonRepository cartonRepository;
-    @Mock
-    private PackageRepository packageRepository;
+
     @Mock
     private PlateRepository plateRepository;
+
     @Mock
     private ModelMapper modelMapper;
 
-    @InjectMocks
-    private MaterialOrderService materialOrderService;
 
     @BeforeEach
     public void setUp() {
@@ -442,6 +450,52 @@ class MaterialOrderServiceTest {
         // Call the validate method and expect ValidationException with specific message
         ValidationException exception = assertThrows(ValidationException.class, () -> materialOrderService.validate(materialOrderDTO));
         assertEquals("Invalid Material Type", exception.getMessage());
+    }
+
+    @Test
+    void testCalculateCartonInsufficientNumbers() {
+        // Създайте обект от класа Package, който да бъде подаден на тествания метод
+        Package packageEntity = new Package();
+        packageEntity.setAvailableQuantity(10); // Поставете желаната стойност за тестване
+        packageEntity.setPiecesCarton(2); // Поставете желаната стойност за тестване
+
+        // Създайте обект от класа Carton и го свържете с packageEntity
+        Carton carton = new Carton();
+        carton.setAvailableQuantity(5); // Поставете желаната стойност за тестване
+        packageEntity.setCartonId(carton);
+
+        // Извикайте тествания метод
+        int result = materialOrderService.calculateCartonInsufficientNumbers(packageEntity);
+
+        // Проверете резултата
+        assertEquals(10, result); // Очакваме резултатът да е 20
+    }
+
+    @Test
+    void testCalculatePlateInsufficientNumbers() {
+        // Създайте обект от класа Package, който да бъде подаден на тествания метод
+        Package packageEntity = new Package();
+        packageEntity.setPlateId(new Plate()); // Поставете желаната стойност за тестване
+        packageEntity.getPlateId().setAvailableQuantity(5); // Поставете желаната стойност за тестване
+
+        // Извикайте тествания метод
+        int result = materialOrderService.calculatePlateInsufficientNumbers(packageEntity);
+
+        // Проверете резултата
+        assertEquals(5, result); // Очакваме резултатът да е 5
+    }
+
+    @Test
+    void testCalculatePackageInsufficientNumbers() {
+        // Създайте обект от класа Package, който да бъде подаден на тествания метод
+        Package packageEntity = new Package();
+        packageEntity.setAvailableQuantity(100); // Поставете желаната стойност за тестване
+
+        // Извикайте тествания метод
+        int result = materialOrderService.calculatePackageInsufficientNumbers(packageEntity);
+
+        // Проверете резултата
+        assertEquals(100, result); // Очакваме резултатът да е 100
     }
 
 }

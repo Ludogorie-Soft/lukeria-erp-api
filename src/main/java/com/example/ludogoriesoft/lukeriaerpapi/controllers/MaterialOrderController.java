@@ -42,4 +42,9 @@ public class MaterialOrderController {
         return ResponseEntity.ok("Material Order with id: " + id + " has been deleted successfully!");
     }
 
+    @GetMapping("products/{id}")
+    public void getAllProductsByOrderId(@PathVariable(name = "id") Long id) {
+         materialOrderService.getAllOrderProductsByOrderId(id);
+    }
+
 }

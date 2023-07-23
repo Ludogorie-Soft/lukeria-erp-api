@@ -1,12 +1,14 @@
 package com.example.ludogoriesoft.lukeriaerpapi.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "order_product ")
 public class OrderProduct {
     @Id
