@@ -2,8 +2,10 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
-import com.example.ludogoriesoft.lukeriaerpapi.models.*;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
+import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrder;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +18,6 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +29,6 @@ class MaterialOrderServiceTest {
 
     @InjectMocks
     private MaterialOrderService materialOrderService;
-
-    @Mock
-    private OrderProductRepository orderProductRepository;
-    @Mock
-    private OrderProductService orderProductService;
 
     @Mock
     private PackageRepository packageRepository;
