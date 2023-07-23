@@ -39,7 +39,7 @@ class OrderControllerTest {
     }
 
     @Test
-    public void findLastOrder() throws Exception {
+    void findLastOrder() throws Exception {
         OrderDTO orderDTO = new OrderDTO();
         when(orderService.findFirstByOrderByIdDesc()).thenReturn(orderDTO);
         mockMvc.perform(get("/api/v1/order/findLastOrder"))
