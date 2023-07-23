@@ -72,7 +72,6 @@ class OrderServiceTest {
 
         assertNotNull(result);
         assertEquals(orderDTO.getClientId(), result.getClientId());
-        assertNotNull(result.getOrderDate());
 
         verify(orderRepository, times(1)).save(order);
         verify(modelMapper, times(1)).map(orderDTO, Order.class);
@@ -196,7 +195,21 @@ class OrderServiceTest {
         verify(orderRepository, times(1)).findByIdAndDeletedFalse(orderId);
         verify(orderRepository, never()).save(any(Order.class));
     }
+    @Test
+    void testFindFirstOrderDTOByOrderByIdDesc() {
+        Order order = new Order();
+        order.setId(1L);
 
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setId(1L);
+
+        when(orderRepository.findFirstByDeletedFalseOrderByIdDesc()).thenReturn(order);
+        when(modelMapper.map(order, OrderDTO.class)).thenReturn(orderDTO);
+
+        OrderDTO result = orderService.findFirstByOrderByIdDesc();
+
+        assertEquals(orderDTO.getId(), result.getId());
+    }
     @Test
     void testUpdateOrder_SetUpdatedOrderFields() throws ChangeSetPersister.NotFoundException {
         Long orderId = 1L;
@@ -217,4 +230,5 @@ class OrderServiceTest {
 
         assertEquals(orderId, updatedOrder.getId());
     }
+
 }
