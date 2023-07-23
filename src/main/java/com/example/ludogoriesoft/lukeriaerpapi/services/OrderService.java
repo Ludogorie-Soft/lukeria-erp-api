@@ -43,7 +43,7 @@ public class OrderService {
 
     public OrderDTO createOrder(OrderDTO orderDTO) {
         validateOrderDTO(orderDTO);
-        orderDTO.setOrderDate(LocalDate.now());
+        orderDTO.setOrderDate(orderDTO.getOrderDate());
         Order order = orderRepository.save(modelMapper.map(orderDTO, Order.class));
         return modelMapper.map(order, OrderDTO.class);
     }
@@ -53,7 +53,7 @@ public class OrderService {
         Order existingOrder = orderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         Order updatedOrder = modelMapper.map(orderDTO, Order.class);
         updatedOrder.setId(existingOrder.getId());
-        updatedOrder.setOrderDate(LocalDate.now());
+        updatedOrder.setOrderDate(orderDTO.getOrderDate());
         orderRepository.save(updatedOrder);
         return modelMapper.map(updatedOrder, OrderDTO.class);
     }

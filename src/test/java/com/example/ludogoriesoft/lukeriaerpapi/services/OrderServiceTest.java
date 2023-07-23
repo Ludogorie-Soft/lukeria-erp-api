@@ -72,7 +72,6 @@ class OrderServiceTest {
 
         assertNotNull(result);
         assertEquals(orderDTO.getClientId(), result.getClientId());
-        assertNotNull(result.getOrderDate());
 
         verify(orderRepository, times(1)).save(order);
         verify(modelMapper, times(1)).map(orderDTO, Order.class);

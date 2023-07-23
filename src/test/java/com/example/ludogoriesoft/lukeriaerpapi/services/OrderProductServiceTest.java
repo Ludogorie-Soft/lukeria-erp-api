@@ -26,7 +26,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
-
 class OrderProductServiceTest {
     @Mock
     private OrderProductRepository orderProductRepository;
@@ -39,6 +38,10 @@ class OrderProductServiceTest {
 
     @InjectMocks
     private OrderProductService orderProductService;
+    @InjectMocks
+    private PackageService packageService;
+    @InjectMocks
+    private OrderService orderService;
 
 
     @BeforeEach
