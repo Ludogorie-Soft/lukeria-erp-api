@@ -22,8 +22,6 @@ public class MaterialOrderService {
     private final PackageRepository packageRepository;
     private final PlateRepository plateRepository;
     private final OrderProductRepository orderProductRepository;
-
-
     private final ModelMapper modelMapper;
 
     public List<MaterialOrderDTO> getAllMaterialOrders() {
@@ -34,6 +32,24 @@ public class MaterialOrderService {
     public MaterialOrderDTO getMaterialOrderById(Long id) throws ChangeSetPersister.NotFoundException {
         MaterialOrder materialOrder = materialOrderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         return modelMapper.map(materialOrder, MaterialOrderDTO.class);
+    }
+    public MaterialOrderDTO updateMaterialOrder(Long id, MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
+        validate(materialOrderDTO);
+
+        MaterialOrder existingMaterialOrder = materialOrderRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+
+        MaterialOrder updatedMaterialOrder = modelMapper.map(materialOrderDTO, MaterialOrder.class);
+        updatedMaterialOrder.setId(existingMaterialOrder.getId());
+        materialOrderRepository.save(updatedMaterialOrder);
+        return modelMapper.map(updatedMaterialOrder, MaterialOrderDTO.class);
+    }
+
+
+    public void deleteMaterialOrder(Long id) throws ChangeSetPersister.NotFoundException {
+        MaterialOrder materialOrder = materialOrderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        materialOrder.setDeleted(true);
+        materialOrderRepository.save(materialOrder);
     }
 
     public MaterialOrderDTO createMaterialOrder(MaterialOrderDTO materialOrderDTO) {
@@ -74,25 +90,6 @@ public class MaterialOrderService {
         }
     }
 
-    public MaterialOrderDTO updateMaterialOrder(Long id, MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
-        validate(materialOrderDTO);
-
-        MaterialOrder existingMaterialOrder = materialOrderRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(ChangeSetPersister.NotFoundException::new);
-
-        MaterialOrder updatedMaterialOrder = modelMapper.map(materialOrderDTO, MaterialOrder.class);
-        updatedMaterialOrder.setId(existingMaterialOrder.getId());
-        materialOrderRepository.save(updatedMaterialOrder);
-        return modelMapper.map(updatedMaterialOrder, MaterialOrderDTO.class);
-    }
-
-
-    public void deleteMaterialOrder(Long id) throws ChangeSetPersister.NotFoundException {
-        MaterialOrder materialOrder = materialOrderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        materialOrder.setDeleted(true);
-        materialOrderRepository.save(materialOrder);
-    }
-
     public void getAllOrderProductsByOrderId(Long orderId) {
         List<OrderProduct> orderProducts = orderProductRepository.findAll();
         List<OrderProduct> filteredOrderProducts = orderProducts.stream()
@@ -106,14 +103,6 @@ public class MaterialOrderService {
             int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
             int plateInsufficientNumbers = calculatePlateInsufficientNumbers(packageEntity);
             int packageInsufficientNumbers = calculatePackageInsufficientNumbers(packageEntity);
-
-            System.err.println("брой поръчани-" + orderProduct.getNumber());
-            System.err.println("тарелки -" + plateInsufficientNumbers);
-            System.err.println("кашони-" + cartonInsufficientNumbers / packageEntity.getPiecesCarton());
-            System.err.println("брой в кашон кутиия-" + packageEntity.getPiecesCarton());
-            System.err.println("кутиия-" + packageInsufficientNumbers);
-            System.err.println("                             ");
-
             if (plateInsufficientNumbers <= orderProduct.getNumber()) {
                 int orderedQuantity = plateInsufficientNumbers - orderProduct.getNumber();
                 createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity);
@@ -128,8 +117,6 @@ public class MaterialOrderService {
                 int orderedQuantity = packageInsufficientNumbers - orderProduct.getNumber();
                 createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity);
             }
-
-            System.err.println("                             ");
         }
     }
 

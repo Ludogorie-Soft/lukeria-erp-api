@@ -2,10 +2,8 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
-import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrder;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +27,8 @@ class MaterialOrderServiceTest {
 
     @InjectMocks
     private MaterialOrderService materialOrderService;
+    @Mock
+    private OrderProductRepository orderProductRepository;
 
     @Mock
     private PackageRepository packageRepository;
@@ -494,4 +494,31 @@ class MaterialOrderServiceTest {
         assertEquals(100, result); // Очакваме резултатът да е 100
     }
 
+    @Test
+    void testGetAllOrderProductsByOrderId() {
+        // Подгответе мокнати данни, които ще върне orderProductRepository.findAll()
+        Order order = new Order();
+        order.setId(1L);
+
+        Package packageEntity = new Package();
+        packageEntity.setPiecesCarton(10); // Настройте стойността на piecesCarton на 10
+
+        Carton carton = mock(Carton.class);
+        when(carton.getAvailableQuantity()).thenReturn(100); // Примерно връща 100 налични кашони
+        packageEntity.setCartonId(carton);
+
+        Plate plate = mock(Plate.class);
+        when(plate.getAvailableQuantity()).thenReturn(50); // Примерно връща 50 налични тарелки
+        packageEntity.setPlateId(plate);
+
+        List<OrderProduct> orderProducts = Arrays.asList(
+                new OrderProduct(1L, 10, order, packageEntity, false),
+                new OrderProduct(2L, 10, order, packageEntity, false),
+                new OrderProduct(1L, 10, order, packageEntity, false)
+        );
+        when(orderProductRepository.findAll()).thenReturn(orderProducts);
+
+        // Проверка за хвърляне на изключение
+        assertThrows(ValidationException.class, () -> materialOrderService.getAllOrderProductsByOrderId(1L), "Invalid Package ID");
+    }
 }
