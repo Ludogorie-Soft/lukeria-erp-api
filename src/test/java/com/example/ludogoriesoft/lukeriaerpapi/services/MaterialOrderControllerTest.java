@@ -47,8 +47,6 @@ public class MaterialOrderControllerTest {
         mockMaterialOrderList.add(materialOrder3);
 
         when(materialOrderRepository.findByDeletedFalse()).thenReturn(mockMaterialOrderList);
-        when(materialOrderRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(materialOrder1));
-
         materialOrderController = new MaterialOrderController(materialOrderService);
 
     }
