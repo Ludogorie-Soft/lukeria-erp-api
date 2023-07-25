@@ -508,7 +508,7 @@ class MaterialOrderServiceTest {
         packageEntity.setCartonId(carton);
 
         Plate plate = mock(Plate.class);
-        when(plate.getAvailableQuantity()).thenReturn(50); // Примерно връща 50 налични тарелки
+        when(plate.getAvailableQuantity()).thenReturn(1); // Примерно връща 50 налични тарелки
         packageEntity.setPlateId(plate);
 
         List<OrderProduct> orderProducts = Arrays.asList(
@@ -549,5 +549,33 @@ class MaterialOrderServiceTest {
 
         // Проверка за хвърляне на изключение
         assertThrows(NullPointerException.class, () -> materialOrderService.getAllOrderProductsByOrderId(1L), "Invalid Package ID");
+    }
+
+    @Test
+    void testGetAllOrderProducts23ByOrderId() {
+        // Подгответе мокнати данни, които ще върне orderProductRepository.findAll()
+        Order order = new Order();
+        order.setId(1L);
+
+        Package packageEntity = new Package();
+        packageEntity.setPiecesCarton(10); // Настройте стойността на piecesCarton на 10
+
+        Carton carton = mock(Carton.class);
+        when(carton.getAvailableQuantity()).thenReturn(1); // Примерно връща 100 налични кашони
+        packageEntity.setCartonId(carton);
+
+        Plate plate = mock(Plate.class);
+        when(plate.getAvailableQuantity()).thenReturn(100); // Примерно връща 50 налични тарелки
+        packageEntity.setPlateId(plate);
+
+        List<OrderProduct> orderProducts = Arrays.asList(
+                new OrderProduct(1L, 10, order, packageEntity, false),
+                new OrderProduct(2L, 10, order, packageEntity, false),
+                new OrderProduct(1L, 10, order, packageEntity, false)
+        );
+        when(orderProductRepository.findAll()).thenReturn(orderProducts);
+
+        // Проверка за хвърляне на изключение
+        assertThrows(ValidationException.class, () -> materialOrderService.getAllOrderProductsByOrderId(1L), "Invalid Package ID");
     }
 }
