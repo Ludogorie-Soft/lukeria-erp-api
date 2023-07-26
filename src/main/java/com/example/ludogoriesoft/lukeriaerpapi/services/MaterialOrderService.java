@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,6 +24,7 @@ public class MaterialOrderService {
     private final PlateRepository plateRepository;
     private final OrderProductRepository orderProductRepository;
     private final ModelMapper modelMapper;
+
 
     public List<MaterialOrderDTO> getAllMaterialOrders() {
         List<MaterialOrder> materialOrders = materialOrderRepository.findByDeletedFalse();
@@ -90,34 +92,38 @@ public class MaterialOrderService {
         }
     }
 
-    public void getAllOrderProductsByOrderId(Long orderId) {
+    public List<MaterialOrder> getAllOrderProductsByOrderId(Long orderId) {
         List<OrderProduct> orderProducts = orderProductRepository.findAll();
         List<OrderProduct> filteredOrderProducts = orderProducts.stream()
                 .filter(orderProduct -> orderProduct.getOrderId().getId().equals(orderId)).toList();
-        getProductsByPackageId( filteredOrderProducts);
+       return getProductsByPackageId( filteredOrderProducts);
     }
 
-    public void getProductsByPackageId( List<OrderProduct> orderProducts) {
+    public List<MaterialOrder> getProductsByPackageId(List<OrderProduct> orderProducts) {
+       List<MaterialOrder>materialsForOrder=new ArrayList<>();
         for (OrderProduct orderProduct : orderProducts) {
             Package packageEntity = orderProduct.getPackageId();
             int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
             int plateInsufficientNumbers = calculatePlateInsufficientNumbers(packageEntity);
             int packageInsufficientNumbers = calculatePackageInsufficientNumbers(packageEntity);
-            if (plateInsufficientNumbers <= orderProduct.getNumber()) {
+            if (plateInsufficientNumbers < orderProduct.getNumber()) {
                 int orderedQuantity = plateInsufficientNumbers - orderProduct.getNumber();
-                createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity);
+                createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity,materialsForOrder);
+
             }
 
-            if (cartonInsufficientNumbers <= orderProduct.getNumber()) {
+            if (cartonInsufficientNumbers < orderProduct.getNumber()) {
                 int orderedQuantity = (cartonInsufficientNumbers / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton());
-                createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity);
+                createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity,materialsForOrder);
             }
 
-            if (packageInsufficientNumbers <= orderProduct.getNumber()) {
+            if (packageInsufficientNumbers < orderProduct.getNumber()) {
                 int orderedQuantity = packageInsufficientNumbers - orderProduct.getNumber();
-                createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity);
+                createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity,materialsForOrder);
             }
+
         }
+        return materialsForOrder;
     }
 
     public int calculateCartonInsufficientNumbers(Package packageEntity) {
@@ -132,13 +138,13 @@ public class MaterialOrderService {
         return packageEntity.getAvailableQuantity();
     }
 
-    public void createMaterialOrder(MaterialType materialType, Long materialId, int orderedQuantity) {
+    public void createMaterialOrder(MaterialType materialType, Long materialId, int orderedQuantity,List<MaterialOrder>materialsForOrder) {
 
         MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
         materialOrderDTO.setMaterialId(materialId);
         materialOrderDTO.setMaterialType(materialType.toString());
         materialOrderDTO.setOrderedQuantity(-1 * orderedQuantity);
-
-        createMaterialOrder(materialOrderDTO);
+        materialsForOrder.add(modelMapper.map(materialOrderDTO,MaterialOrder.class));
+      //  createMaterialOrder(materialOrderDTO);
     }
 }

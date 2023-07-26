@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrder;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MaterialOrderService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -43,8 +44,8 @@ public class MaterialOrderController {
     }
 
     @GetMapping("products/{id}")
-    public void getAllProductsByOrderId(@PathVariable(name = "id") Long id) {
-         materialOrderService.getAllOrderProductsByOrderId(id);
+    public List<MaterialOrder> getAllProductsByOrderId(@PathVariable(name = "id") Long id) {
+        return materialOrderService.getAllOrderProductsByOrderId(id);
     }
 
 }
