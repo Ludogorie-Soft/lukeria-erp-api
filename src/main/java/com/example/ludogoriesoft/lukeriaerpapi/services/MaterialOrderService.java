@@ -92,15 +92,15 @@ public class MaterialOrderService {
         }
     }
 
-    public List<MaterialOrder> getAllOrderProductsByOrderId(Long orderId) {
+    public List<MaterialOrderDTO> getAllOrderProductsByOrderId(Long orderId) {
         List<OrderProduct> orderProducts = orderProductRepository.findAll();
         List<OrderProduct> filteredOrderProducts = orderProducts.stream()
                 .filter(orderProduct -> orderProduct.getOrderId().getId().equals(orderId)).toList();
        return getProductsByPackageId( filteredOrderProducts);
     }
 
-    public List<MaterialOrder> getProductsByPackageId(List<OrderProduct> orderProducts) {
-       List<MaterialOrder>materialsForOrder=new ArrayList<>();
+    public List<MaterialOrderDTO> getProductsByPackageId(List<OrderProduct> orderProducts) {
+       List<MaterialOrderDTO>materialsForOrder=new ArrayList<>();
         for (OrderProduct orderProduct : orderProducts) {
             Package packageEntity = orderProduct.getPackageId();
             int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
@@ -138,13 +138,12 @@ public class MaterialOrderService {
         return packageEntity.getAvailableQuantity();
     }
 
-    public void createMaterialOrder(MaterialType materialType, Long materialId, int orderedQuantity,List<MaterialOrder>materialsForOrder) {
+    public void createMaterialOrder(MaterialType materialType, Long materialId, int orderedQuantity,List<MaterialOrderDTO>materialsForOrder) {
 
         MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
         materialOrderDTO.setMaterialId(materialId);
         materialOrderDTO.setMaterialType(materialType.toString());
         materialOrderDTO.setOrderedQuantity(-1 * orderedQuantity);
-        materialsForOrder.add(modelMapper.map(materialOrderDTO,MaterialOrder.class));
-      //  createMaterialOrder(materialOrderDTO);
+        materialsForOrder.add(materialOrderDTO);
     }
 }
