@@ -2,10 +2,8 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
-import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrder;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +16,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +36,8 @@ class MaterialOrderServiceTest {
     private MaterialOrderRepository materialOrderRepository;
     @Mock
     private CartonRepository cartonRepository;
+    @Mock
+    private OrderProductRepository orderProductRepository;
 
     @Mock
     private PlateRepository plateRepository;
@@ -492,6 +493,23 @@ class MaterialOrderServiceTest {
 
         // Проверете резултата
         assertEquals(100, result); // Очакваме резултатът да е 100
+    }
+    @Test
+    void validate_InvalidMaterialType_ThrowsValidationException_DefaultCase() {
+        // Given
+        MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
+        materialOrderDTO.setMaterialId(1L);
+        materialOrderDTO.setMaterialType("INVALID");
+        materialOrderDTO.setOrderedQuantity(10);
+
+        // When & Then
+        assertThrows(ValidationException.class, () -> materialOrderService.validate(materialOrderDTO));
+
+        // Verify that neither cartonRepository.existsById nor packageRepository.existsById nor plateRepository.existsById
+        // was called for the default case in the switch statement
+        verify(cartonRepository, never()).existsById(anyLong());
+        verify(packageRepository, never()).existsById(anyLong());
+        verify(plateRepository, never()).existsById(anyLong());
     }
 
 }

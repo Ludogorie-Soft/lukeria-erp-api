@@ -47,11 +47,10 @@ public class MaterialOrderService {
         if (materialOrderDTO.getMaterialId() == null) {
             throw new ValidationException("Material ID cannot be null");
         }
-        String materialTypeStr = materialOrderDTO.getMaterialType();
-        if (!materialTypeStr.equals("CARTON") && !materialTypeStr.equals("PACKAGE") && !materialTypeStr.equals("PLATE")) {
+        if (! materialOrderDTO.getMaterialType().equals("CARTON") && ! materialOrderDTO.getMaterialType().equals("PACKAGE") && ! materialOrderDTO.getMaterialType().equals("PLATE")) {
             throw new ValidationException("Invalid Material Type");
         }
-        switch (materialTypeStr) {
+        switch (materialOrderDTO.getMaterialType()) {
             case "CARTON" -> {
                 if (!cartonRepository.existsById(materialOrderDTO.getMaterialId())) {
                     throw new ValidationException("Invalid Carton ID");
@@ -67,7 +66,6 @@ public class MaterialOrderService {
                     throw new ValidationException("Invalid Plate ID");
                 }
             }
-            default -> throw new ValidationException("Invalid Material Type");
         }
         if (materialOrderDTO.getOrderedQuantity() <= 0) {
             throw new ValidationException("Ordered Quantity must be greater than zero");
@@ -100,36 +98,23 @@ public class MaterialOrderService {
         getProductsByPackageId( filteredOrderProducts);
     }
 
-    public void getProductsByPackageId( List<OrderProduct> orderProducts) {
+    public void getProductsByPackageId(List<OrderProduct> orderProducts) {
         for (OrderProduct orderProduct : orderProducts) {
-            Package packageEntity = orderProduct.getPackageId();
-            int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
-            int plateInsufficientNumbers = calculatePlateInsufficientNumbers(packageEntity);
-            int packageInsufficientNumbers = calculatePackageInsufficientNumbers(packageEntity);
-
-            System.err.println("брой поръчани-" + orderProduct.getNumber());
-            System.err.println("тарелки -" + plateInsufficientNumbers);
-            System.err.println("кашони-" + cartonInsufficientNumbers / packageEntity.getPiecesCarton());
-            System.err.println("брой в кашон кутиия-" + packageEntity.getPiecesCarton());
-            System.err.println("кутиия-" + packageInsufficientNumbers);
-            System.err.println("                             ");
+            int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(orderProduct.getPackageId());
+            int plateInsufficientNumbers = calculatePlateInsufficientNumbers(orderProduct.getPackageId());
+            int packageInsufficientNumbers = calculatePackageInsufficientNumbers(orderProduct.getPackageId());
 
             if (plateInsufficientNumbers <= orderProduct.getNumber()) {
-                int orderedQuantity = plateInsufficientNumbers - orderProduct.getNumber();
-                createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity);
+                createMaterialOrder(MaterialType.PLATE, orderProduct.getPackageId().getPlateId().getId(), plateInsufficientNumbers - orderProduct.getNumber());
             }
 
             if (cartonInsufficientNumbers <= orderProduct.getNumber()) {
-                int orderedQuantity = (cartonInsufficientNumbers / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton());
-                createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity);
+                createMaterialOrder(MaterialType.CARTON, orderProduct.getPackageId().getCartonId().getId(),  (cartonInsufficientNumbers / orderProduct.getPackageId().getPiecesCarton()) - (orderProduct.getNumber() / orderProduct.getPackageId().getPiecesCarton()));
             }
 
             if (packageInsufficientNumbers <= orderProduct.getNumber()) {
-                int orderedQuantity = packageInsufficientNumbers - orderProduct.getNumber();
-                createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity);
+                createMaterialOrder(MaterialType.PACKAGE, orderProduct.getPackageId().getId(), packageInsufficientNumbers - orderProduct.getNumber());
             }
-
-            System.err.println("                             ");
         }
     }
 
@@ -154,6 +139,7 @@ public class MaterialOrderService {
 
         createMaterialOrder(materialOrderDTO);
     }
+
 
 
 }
