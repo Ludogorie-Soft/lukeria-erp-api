@@ -22,8 +22,6 @@ public class MaterialOrderService {
     private final PackageRepository packageRepository;
     private final PlateRepository plateRepository;
     private final OrderProductRepository orderProductRepository;
-
-
     private final ModelMapper modelMapper;
 
     public List<MaterialOrderDTO> getAllMaterialOrders() {
@@ -35,43 +33,6 @@ public class MaterialOrderService {
         MaterialOrder materialOrder = materialOrderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         return modelMapper.map(materialOrder, MaterialOrderDTO.class);
     }
-
-    public MaterialOrderDTO createMaterialOrder(MaterialOrderDTO materialOrderDTO) {
-        validate(materialOrderDTO);
-        MaterialOrder createdMaterialOrder = materialOrderRepository.save(modelMapper.map(materialOrderDTO, MaterialOrder.class));
-        materialOrderDTO.setId(createdMaterialOrder.getId());
-        return materialOrderDTO;
-    }
-
-    public void validate(MaterialOrderDTO materialOrderDTO) {
-        if (materialOrderDTO.getMaterialId() == null) {
-            throw new ValidationException("Material ID cannot be null");
-        }
-        if (! materialOrderDTO.getMaterialType().equals("CARTON") && ! materialOrderDTO.getMaterialType().equals("PACKAGE") && ! materialOrderDTO.getMaterialType().equals("PLATE")) {
-            throw new ValidationException("Invalid Material Type");
-        }
-        switch (materialOrderDTO.getMaterialType()) {
-            case "CARTON" -> {
-                if (!cartonRepository.existsById(materialOrderDTO.getMaterialId())) {
-                    throw new ValidationException("Invalid Carton ID");
-                }
-            }
-            case "PACKAGE" -> {
-                if (!packageRepository.existsById(materialOrderDTO.getMaterialId())) {
-                    throw new ValidationException("Invalid Package ID");
-                }
-            }
-            case "PLATE" -> {
-                if (!plateRepository.existsById(materialOrderDTO.getMaterialId())) {
-                    throw new ValidationException("Invalid Plate ID");
-                }
-            }
-        }
-        if (materialOrderDTO.getOrderedQuantity() <= 0) {
-            throw new ValidationException("Ordered Quantity must be greater than zero");
-        }
-    }
-
     public MaterialOrderDTO updateMaterialOrder(Long id, MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
         validate(materialOrderDTO);
 
@@ -91,6 +52,44 @@ public class MaterialOrderService {
         materialOrderRepository.save(materialOrder);
     }
 
+    public MaterialOrderDTO createMaterialOrder(MaterialOrderDTO materialOrderDTO) {
+        validate(materialOrderDTO);
+        MaterialOrder createdMaterialOrder = materialOrderRepository.save(modelMapper.map(materialOrderDTO, MaterialOrder.class));
+        materialOrderDTO.setId(createdMaterialOrder.getId());
+        return materialOrderDTO;
+    }
+
+    public void validate(MaterialOrderDTO materialOrderDTO) {
+        if (materialOrderDTO.getMaterialId() == null) {
+            throw new ValidationException("Material ID cannot be null");
+        }
+        String materialTypeStr = materialOrderDTO.getMaterialType();
+        if (!materialTypeStr.equals("CARTON") && !materialTypeStr.equals("PACKAGE") && !materialTypeStr.equals("PLATE")) {
+            throw new ValidationException("Invalid Material Type");
+        }
+        switch (materialTypeStr) {
+            case "CARTON" -> {
+                if (!cartonRepository.existsById(materialOrderDTO.getMaterialId())) {
+                    throw new ValidationException("Invalid Carton ID");
+                }
+            }
+            case "PACKAGE" -> {
+                if (!packageRepository.existsById(materialOrderDTO.getMaterialId())) {
+                    throw new ValidationException("Invalid Package ID");
+                }
+            }
+            case "PLATE" -> {
+                if (!plateRepository.existsById(materialOrderDTO.getMaterialId())) {
+                    throw new ValidationException("Invalid Plate ID");
+                }
+            }
+            default -> throw new ValidationException("Invalid Material Type");
+        }
+        if (materialOrderDTO.getOrderedQuantity() <= 0) {
+            throw new ValidationException("Ordered Quantity must be greater than zero");
+        }
+    }
+
     public void getAllOrderProductsByOrderId(Long orderId) {
         List<OrderProduct> orderProducts = orderProductRepository.findAll();
         List<OrderProduct> filteredOrderProducts = orderProducts.stream()
@@ -98,22 +97,25 @@ public class MaterialOrderService {
         getProductsByPackageId( filteredOrderProducts);
     }
 
-    public void getProductsByPackageId(List<OrderProduct> orderProducts) {
+    public void getProductsByPackageId( List<OrderProduct> orderProducts) {
         for (OrderProduct orderProduct : orderProducts) {
-            int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(orderProduct.getPackageId());
-            int plateInsufficientNumbers = calculatePlateInsufficientNumbers(orderProduct.getPackageId());
-            int packageInsufficientNumbers = calculatePackageInsufficientNumbers(orderProduct.getPackageId());
-
+            Package packageEntity = orderProduct.getPackageId();
+            int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
+            int plateInsufficientNumbers = calculatePlateInsufficientNumbers(packageEntity);
+            int packageInsufficientNumbers = calculatePackageInsufficientNumbers(packageEntity);
             if (plateInsufficientNumbers <= orderProduct.getNumber()) {
-                createMaterialOrder(MaterialType.PLATE, orderProduct.getPackageId().getPlateId().getId(), plateInsufficientNumbers - orderProduct.getNumber());
+                int orderedQuantity = plateInsufficientNumbers - orderProduct.getNumber();
+                createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity);
             }
 
             if (cartonInsufficientNumbers <= orderProduct.getNumber()) {
-                createMaterialOrder(MaterialType.CARTON, orderProduct.getPackageId().getCartonId().getId(),  (cartonInsufficientNumbers / orderProduct.getPackageId().getPiecesCarton()) - (orderProduct.getNumber() / orderProduct.getPackageId().getPiecesCarton()));
+                int orderedQuantity = (cartonInsufficientNumbers / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton());
+                createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity);
             }
 
             if (packageInsufficientNumbers <= orderProduct.getNumber()) {
-                createMaterialOrder(MaterialType.PACKAGE, orderProduct.getPackageId().getId(), packageInsufficientNumbers - orderProduct.getNumber());
+                int orderedQuantity = packageInsufficientNumbers - orderProduct.getNumber();
+                createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity);
             }
         }
     }
@@ -139,7 +141,4 @@ public class MaterialOrderService {
 
         createMaterialOrder(materialOrderDTO);
     }
-
-
-
 }
