@@ -2,10 +2,11 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
-import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrder;
-import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -35,6 +36,7 @@ public class MaterialOrderService {
         MaterialOrder materialOrder = materialOrderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         return modelMapper.map(materialOrder, MaterialOrderDTO.class);
     }
+
     public MaterialOrderDTO updateMaterialOrder(Long id, MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
         validate(materialOrderDTO);
 
@@ -44,7 +46,25 @@ public class MaterialOrderService {
         MaterialOrder updatedMaterialOrder = modelMapper.map(materialOrderDTO, MaterialOrder.class);
         updatedMaterialOrder.setId(existingMaterialOrder.getId());
         materialOrderRepository.save(updatedMaterialOrder);
+        increaseProductsQuantity(updatedMaterialOrder);
         return modelMapper.map(updatedMaterialOrder, MaterialOrderDTO.class);
+    }
+
+    @Transactional
+    public void increaseProductsQuantity(MaterialOrder updatedMaterialOrder) {
+        if (updatedMaterialOrder.getMaterialType().equals(MaterialType.CARTON)) {
+            Carton carton = cartonRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
+            carton.setAvailableQuantity(carton.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
+            cartonRepository.save(carton);
+        } else if (updatedMaterialOrder.getMaterialType().equals(MaterialType.PLATE)) {
+            Plate plate = plateRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
+            plate.setAvailableQuantity(plate.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
+            plateRepository.save(plate);
+        } else {
+            Package aPackage = packageRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
+            aPackage.setAvailableQuantity(aPackage.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
+            packageRepository.save(aPackage);
+        }
     }
 
 
@@ -96,11 +116,11 @@ public class MaterialOrderService {
         List<OrderProduct> orderProducts = orderProductRepository.findAll();
         List<OrderProduct> filteredOrderProducts = orderProducts.stream()
                 .filter(orderProduct -> orderProduct.getOrderId().getId().equals(orderId)).toList();
-       return getProductsByPackageId( filteredOrderProducts);
+        return getProductsByPackageId(filteredOrderProducts);
     }
 
     public List<MaterialOrder> getProductsByPackageId(List<OrderProduct> orderProducts) {
-       List<MaterialOrder>materialsForOrder=new ArrayList<>();
+        List<MaterialOrder> materialsForOrder = new ArrayList<>();
         for (OrderProduct orderProduct : orderProducts) {
             Package packageEntity = orderProduct.getPackageId();
             int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
@@ -108,18 +128,18 @@ public class MaterialOrderService {
             int packageInsufficientNumbers = calculatePackageInsufficientNumbers(packageEntity);
             if (plateInsufficientNumbers < orderProduct.getNumber()) {
                 int orderedQuantity = plateInsufficientNumbers - orderProduct.getNumber();
-                createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity,materialsForOrder);
+                createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity, materialsForOrder);
 
             }
 
             if (cartonInsufficientNumbers < orderProduct.getNumber()) {
                 int orderedQuantity = (cartonInsufficientNumbers / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton());
-                createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity,materialsForOrder);
+                createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity, materialsForOrder);
             }
 
             if (packageInsufficientNumbers < orderProduct.getNumber()) {
                 int orderedQuantity = packageInsufficientNumbers - orderProduct.getNumber();
-                createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity,materialsForOrder);
+                createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, materialsForOrder);
             }
 
         }
@@ -138,13 +158,13 @@ public class MaterialOrderService {
         return packageEntity.getAvailableQuantity();
     }
 
-    public void createMaterialOrder(MaterialType materialType, Long materialId, int orderedQuantity,List<MaterialOrder>materialsForOrder) {
+    public void createMaterialOrder(MaterialType materialType, Long materialId, int orderedQuantity, List<MaterialOrder> materialsForOrder) {
 
         MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
         materialOrderDTO.setMaterialId(materialId);
         materialOrderDTO.setMaterialType(materialType.toString());
         materialOrderDTO.setOrderedQuantity(-1 * orderedQuantity);
-        materialsForOrder.add(modelMapper.map(materialOrderDTO,MaterialOrder.class));
-      //  createMaterialOrder(materialOrderDTO);
+        materialsForOrder.add(modelMapper.map(materialOrderDTO, MaterialOrder.class));
+        //  createMaterialOrder(materialOrderDTO);
     }
 }
