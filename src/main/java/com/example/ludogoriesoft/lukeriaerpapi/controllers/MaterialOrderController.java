@@ -47,4 +47,15 @@ public class MaterialOrderController {
         return materialOrderService.getAllOrderProductsByOrderId(id);
     }
 
+    @GetMapping("/all-ordered-products")
+    public List<MaterialOrderDTO> allOrderedProducts() {
+        return  materialOrderService.allOrderedProducts();
+
+    }
+    @GetMapping("/all-missing-materials")
+    public List<MaterialOrderDTO>  allAvailableProducts() {
+        List<MaterialOrderDTO> allOrderedProducts= materialOrderService.allOrderedProducts();
+        return materialOrderService.allMissingMaterials(allOrderedProducts);
+    }
+
 }
