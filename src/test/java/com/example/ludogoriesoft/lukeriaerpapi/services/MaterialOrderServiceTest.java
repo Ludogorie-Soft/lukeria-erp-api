@@ -16,6 +16,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -306,7 +307,6 @@ class MaterialOrderServiceTest {
         verify(materialOrderRepository, never()).save(any(MaterialOrder.class));
     }
 
-
     @Test
     void testUpdateMaterialOrder_ValidMaterialOrderDTO_UpdatesAndReturnsUpdatedMaterialOrderDTO() throws ChangeSetPersister.NotFoundException {
         // Create a valid MaterialOrderDTO for updating
@@ -314,32 +314,39 @@ class MaterialOrderServiceTest {
         MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
         materialOrderDTO.setMaterialId(2L); // Assuming we are updating the material ID to 2
         materialOrderDTO.setMaterialType("CARTON");
-        materialOrderDTO.setOrderedQuantity(15); // Assuming we are updating the ordered quantity to 15
+        materialOrderDTO.setOrderedQuantity(5);
+        materialOrderDTO.setReceivedQuantity(5); // Assuming we are updating the received quantity to 5
 
         // Mock the behavior of the materialOrderRepository.findByIdAndDeletedFalse method to return the existing material order
         MaterialOrder existingMaterialOrder = new MaterialOrder();
         existingMaterialOrder.setId(existingMaterialOrderId);
         existingMaterialOrder.setMaterialId(1L); // Assuming the original material ID was 1
         existingMaterialOrder.setMaterialType(MaterialType.CARTON);
-        existingMaterialOrder.setOrderedQuantity(10); // Assuming the original ordered quantity was 10
+        existingMaterialOrder.setReceivedQuantity(2); // Assuming the original received quantity was 2
         when(materialOrderRepository.findByIdAndDeletedFalse(existingMaterialOrderId)).thenReturn(Optional.of(existingMaterialOrder));
 
         // Mock the behavior of the cartonRepository.existsById method to return true for the valid Carton ID
         when(cartonRepository.existsById(materialOrderDTO.getMaterialId())).thenReturn(true);
+
+        // Mock the behavior of the cartonRepository.findById method to return a carton object
+        Carton carton = new Carton();
+        carton.setId(materialOrderDTO.getMaterialId());
+        carton.setAvailableQuantity(10); // Set an initial available quantity for the carton
+        when(cartonRepository.findById(materialOrderDTO.getMaterialId())).thenReturn(Optional.of(carton));
 
         // Mock the behavior of the modelMapper to return the updated MaterialOrder when mapping from DTO to entity
         MaterialOrder updatedMaterialOrder = new MaterialOrder();
         updatedMaterialOrder.setId(existingMaterialOrderId);
         updatedMaterialOrder.setMaterialId(materialOrderDTO.getMaterialId());
         updatedMaterialOrder.setMaterialType(MaterialType.CARTON);
-        updatedMaterialOrder.setOrderedQuantity(materialOrderDTO.getOrderedQuantity());
+        updatedMaterialOrder.setReceivedQuantity(materialOrderDTO.getReceivedQuantity());
         when(modelMapper.map(materialOrderDTO, MaterialOrder.class)).thenReturn(updatedMaterialOrder);
 
         // Mock the behavior of the modelMapper to return the updated MaterialOrderDTO when mapping from entity to DTO
         MaterialOrderDTO updatedMaterialOrderDTO = new MaterialOrderDTO();
         updatedMaterialOrderDTO.setMaterialId(materialOrderDTO.getMaterialId());
         updatedMaterialOrderDTO.setMaterialType(MaterialType.CARTON.name());
-        updatedMaterialOrderDTO.setOrderedQuantity(materialOrderDTO.getOrderedQuantity());
+        updatedMaterialOrderDTO.setReceivedQuantity(materialOrderDTO.getReceivedQuantity());
         when(modelMapper.map(updatedMaterialOrder, MaterialOrderDTO.class)).thenReturn(updatedMaterialOrderDTO);
 
         // Call the updateMaterialOrder method
@@ -351,6 +358,9 @@ class MaterialOrderServiceTest {
         // Verify that the cartonRepository.existsById method is called with the updated material ID
         verify(cartonRepository).existsById(materialOrderDTO.getMaterialId());
 
+        // Verify that the cartonRepository.findById method is called with the updated material ID
+        verify(cartonRepository).findById(materialOrderDTO.getMaterialId());
+
         // Verify that the materialOrderRepository.save method is called with the updated entity
         verify(materialOrderRepository).save(updatedMaterialOrder);
 
@@ -360,9 +370,12 @@ class MaterialOrderServiceTest {
         // Verify that the modelMapper.map method is called with the updated MaterialOrderDTO
         verify(modelMapper).map(updatedMaterialOrder, MaterialOrderDTO.class);
 
-        // Verify that the returned MaterialOrderDTO contains the updated material ID and ordered quantity
+        // Verify that the carton's available quantity is updated correctly
+        assertEquals(10 + materialOrderDTO.getReceivedQuantity(), carton.getAvailableQuantity());
+
+        // Verify that the returned MaterialOrderDTO contains the updated material ID and received quantity
         assertEquals(materialOrderDTO.getMaterialId(), result.getMaterialId());
-        assertEquals(materialOrderDTO.getOrderedQuantity(), result.getOrderedQuantity());
+        assertEquals(materialOrderDTO.getReceivedQuantity(), result.getReceivedQuantity());
     }
 
     @Test
@@ -494,6 +507,24 @@ class MaterialOrderServiceTest {
         assertEquals(100, result); // Очакваме резултатът да е 100
     }
 
+    @Test
+    void validate_InvalidMaterialType_ThrowsValidationException_DefaultCase() {
+        // Given
+        MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
+        materialOrderDTO.setMaterialId(1L);
+        materialOrderDTO.setMaterialType("INVALID");
+        materialOrderDTO.setOrderedQuantity(10);
+
+        // When & Then
+        assertThrows(ValidationException.class, () -> materialOrderService.validate(materialOrderDTO));
+
+        // Verify that neither cartonRepository.existsById nor packageRepository.existsById nor plateRepository.existsById
+        // was called for the default case in the switch statement
+        verify(cartonRepository, never()).existsById(anyLong());
+        verify(packageRepository, never()).existsById(anyLong());
+        verify(plateRepository, never()).existsById(anyLong());
+    }
+
 
     @Test
     void testGetAllOrderProducts2ByOrderId() {
@@ -501,7 +532,7 @@ class MaterialOrderServiceTest {
         Order order = new Order();
         order.setId(1L);
 
-        Package packageEntity =  mock(Package.class);
+        Package packageEntity = mock(Package.class);
         when(packageEntity.getAvailableQuantity()).thenReturn(100); // Примерно връща 100 налични кашони
         packageEntity.setPiecesCarton(10); // Настройте стойността на piecesCarton на 10
 
@@ -524,6 +555,60 @@ class MaterialOrderServiceTest {
         assertThrows(NullPointerException.class, () -> materialOrderService.getAllOrderProductsByOrderId(1L), "Invalid Package ID");
     }
 
+    @Test
+    void testIncreaseProductsQuantityForCarton() {
+        // Create a test MaterialOrder for a CARTON
+        MaterialOrder cartonOrder = new MaterialOrder();
+        cartonOrder.setMaterialType(MaterialType.CARTON);
+        cartonOrder.setMaterialId(1L); // Replace with the appropriate ID
+        cartonOrder.setReceivedQuantity(10);
+
+        // Mock the Carton object that will be returned by the repository
+        Carton carton = new Carton();
+        carton.setAvailableQuantity(5); // Set the initial available quantity
+
+        // Mock the repository's findById method to return the mocked Carton
+        when(cartonRepository.findById(cartonOrder.getMaterialId())).thenReturn(Optional.of(carton));
+
+        // Call the method to be tested
+        materialOrderService.increaseProductsQuantity(cartonOrder);
+
+        // Verify that the available quantity is increased as expected
+        assertEquals(15, carton.getAvailableQuantity());
+    }
+
+    @Test
+    void testIncreaseProductsQuantityForPlate() {
+        MaterialOrder plateOrder = new MaterialOrder();
+        plateOrder.setMaterialType(MaterialType.PLATE);
+        plateOrder.setMaterialId(1L);
+        plateOrder.setReceivedQuantity(10);
+
+        Plate plate = new Plate();
+        plate.setAvailableQuantity(5);
+
+        when(plateRepository.findById(plateOrder.getMaterialId())).thenReturn(Optional.of(plate));
+
+        materialOrderService.increaseProductsQuantity(plateOrder);
+
+        assertEquals(15, plate.getAvailableQuantity());
+    }
+    @Test
+    void testIncreaseProductsQuantityForPackage() {
+        MaterialOrder packageOrder = new MaterialOrder();
+        packageOrder.setMaterialType(MaterialType.PACKAGE);
+        packageOrder.setMaterialId(1L);
+        packageOrder.setReceivedQuantity(10);
+
+        Package aPackage = new Package();
+        aPackage.setAvailableQuantity(5);
+
+        when(packageRepository.findById(packageOrder.getMaterialId())).thenReturn(Optional.of(aPackage));
+
+        materialOrderService.increaseProductsQuantity(packageOrder);
+
+        assertEquals(15, aPackage.getAvailableQuantity());
+    }
 
 
 }
