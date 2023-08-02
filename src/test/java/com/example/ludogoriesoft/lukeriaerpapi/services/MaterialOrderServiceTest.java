@@ -30,6 +30,8 @@ class MaterialOrderServiceTest {
 
     @Mock
     private PackageRepository packageRepository;
+    @Mock
+    private ProductRepository productRepository;
 
     @Mock
     private MaterialOrderRepository materialOrderRepository;
@@ -606,6 +608,99 @@ class MaterialOrderServiceTest {
 
         assertEquals(15, aPackage.getAvailableQuantity());
     }
+
+    @Test
+     void testAllOrderedProducts() {
+        Package entityPackage= new Package();
+        entityPackage.setId(1L);
+
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        OrderProduct orderProduct1 = new OrderProduct();
+        orderProduct1.setPackageId(entityPackage);
+        orderProduct1.setNumber(5);
+
+
+        orderProducts.add(orderProduct1);
+
+
+        when(orderProductRepository.findAll()).thenReturn(orderProducts);
+
+        List<MaterialOrderDTO> result = materialOrderService.allOrderedProducts();
+
+        assertEquals(1, result.size());
+
+        assertEquals(1L, result.get(0).getMaterialId());
+        assertEquals(5, result.get(0).getOrderedQuantity());
+
+    }
+
+    @Test
+     void testCreateMaterialOrder() {
+        // Arrange
+        MaterialType materialType = MaterialType.PACKAGE;
+        Long materialId = 123L;
+        int orderedQuantity = 10;
+        List<MaterialOrderDTO> materialsForOrder=new ArrayList<>();
+
+        // Act
+        materialOrderService.createMaterialOrder(materialType, materialId, orderedQuantity, materialsForOrder);
+
+        // Assert
+        assertEquals(1, materialsForOrder.size());
+
+        MaterialOrderDTO materialOrderDTO = materialsForOrder.get(0);
+        assertEquals(materialId, materialOrderDTO.getMaterialId());
+        assertEquals(materialType.toString(), materialOrderDTO.getMaterialType());
+        assertEquals(-1 * orderedQuantity, materialOrderDTO.getOrderedQuantity());
+    }
+
+    @Test
+     void testCreateMaterialOrder2() {
+        // Arrange
+        MaterialType materialType = MaterialType.PACKAGE;
+        Long materialId = 123L;
+        int orderedQuantity = 10;
+        List<MaterialOrderDTO> materialsForOrder = new ArrayList<>();
+
+        // Act
+        materialOrderService.createMaterialOrder(materialType, materialId, orderedQuantity, materialsForOrder);
+
+        // Assert
+        assertEquals(1, materialsForOrder.size());
+
+        MaterialOrderDTO materialOrderDTO = materialsForOrder.get(0);
+        assertEquals(materialId, materialOrderDTO.getMaterialId());
+        assertEquals(materialType.toString(), materialOrderDTO.getMaterialType());
+        assertEquals(-1 * orderedQuantity, materialOrderDTO.getOrderedQuantity());
+    }
+
+    @Test
+     void testAllMissingMaterials() {
+        // Arrange
+        List<MaterialOrderDTO> allNeedsMaterialOrders = new ArrayList<>();
+        // Add MaterialOrderDTO objects to allNeedsMaterialOrders as needed for the test
+
+        // Prepare mock data
+        Long materialId = 123L;
+        int orderedQuantity = 10;
+        Package packageEntity = new Package();
+        packageEntity.setPlateId(new Plate());
+        packageEntity.setCartonId(new Carton());
+        packageEntity.setPiecesCarton(5);
+        Product product = new Product();
+        product.setAvailableQuantity(5);
+
+        when(packageRepository.findByIdAndDeletedFalse(materialId)).thenReturn(Optional.of(packageEntity));
+        when(productRepository.findByIdAndDeletedFalse(packageEntity.getId())).thenReturn(Optional.of(product));
+
+        // Act
+        List<MaterialOrderDTO> result = materialOrderService.allMissingMaterials(allNeedsMaterialOrders);
+
+        assertEquals(0, result.size());
+    }
+
+
+
 
 
 }
