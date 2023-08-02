@@ -1,8 +1,9 @@
-package com.example.ludogoriesoft.lukeriaerpapi.services;
+package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.OrderController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
+import com.example.ludogoriesoft.lukeriaerpapi.services.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
