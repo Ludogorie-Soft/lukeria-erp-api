@@ -1,9 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
-import com.example.ludogoriesoft.lukeriaerpapi.controllers.PlateController;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.controllers.ClientController;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
-import com.example.ludogoriesoft.lukeriaerpapi.services.PlateService;
+import com.example.ludogoriesoft.lukeriaerpapi.services.ClientService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -34,24 +34,24 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc(addFilters = false)
-@WebMvcTest(value = PlateController.class,
+@WebMvcTest(value = ClientController.class,
         useDefaultFilters = false,
         includeFilters = {
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = PlateController.class),
+                        value = ClientController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
                         value = ApiExceptionHandler.class
                 )
         }
 )
-class PlateControllerIntegrationTest {
+class ClientControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private PlateService plateService;
+    private ClientService clientService;
 
     @BeforeEach
     public void setup() {
@@ -59,25 +59,25 @@ class PlateControllerIntegrationTest {
     }
 
     @Test
-    void testGetAllPlates() throws Exception {
-        PlateDTO plateDTO1 = new PlateDTO();
-        plateDTO1.setId(1L);
-        plateDTO1.setName("Plate 1");
-        PlateDTO plateDTO2 = new PlateDTO();
-        plateDTO2.setId(2L);
-        plateDTO2.setName("Plate 2");
-        List<PlateDTO> plateDTOList = Arrays.asList(plateDTO1, plateDTO2);
+    void testGetAllClients() throws Exception {
+        ClientDTO clientDTO1 = new ClientDTO();
+        clientDTO1.setId(1L);
+        clientDTO1.setBusinessName("Client 1");
+        ClientDTO clientDTO2 = new ClientDTO();
+        clientDTO2.setId(2L);
+        clientDTO2.setBusinessName("Client 2");
+        List<ClientDTO> clientDTOList = Arrays.asList(clientDTO1, clientDTO2);
 
-        when(plateService.getAllPlates()).thenReturn(plateDTOList);
+        when(clientService.getAllClients()).thenReturn(clientDTOList);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Plate 1"))
+                .andExpect(jsonPath("$[0].businessName").value("Client 1"))
                 .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("Plate 2"))
+                .andExpect(jsonPath("$[1].businessName").value("Client 2"))
                 .andReturn();
 
         String response = mvcResult.getResponse().getContentAsString();
@@ -85,18 +85,18 @@ class PlateControllerIntegrationTest {
     }
 
     @Test
-    void testGetPlateById() throws Exception {
-        PlateDTO plateDTO = new PlateDTO();
-        plateDTO.setId(1L);
-        plateDTO.setName("Plate 1");
+    void testGetClientById() throws Exception {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(1L);
+        clientDTO.setBusinessName("Client 1");
 
-        when(plateService.getPlateById(anyLong())).thenReturn(plateDTO);
+        when(clientService.getClientById(anyLong())).thenReturn(clientDTO);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", 1)
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Plate 1"))
+                .andExpect(jsonPath("$.businessName").value("Client 1"))
                 .andReturn();
 
         String response = mvcResult.getResponse().getContentAsString();
@@ -104,19 +104,19 @@ class PlateControllerIntegrationTest {
     }
 
     @Test
-    void testCreatePlate() throws Exception {
-        PlateDTO plateDTO = new PlateDTO();
-        plateDTO.setId(1L);
-        plateDTO.setName("New Plate");
+    void testCreateClient() throws Exception {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(1L);
+        clientDTO.setBusinessName("New Client");
 
-        when(plateService.createPlate(any(PlateDTO.class))).thenReturn(plateDTO);
+        when(clientService.createClient(any(ClientDTO.class))).thenReturn(clientDTO);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/plate")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/client")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\": 1, \"name\": \"New Plate\"}"))
+                        .content("{\"id\": 1, \"businessName\": \"New Client\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("New Plate"))
+                .andExpect(jsonPath("$.businessName").value("New Client"))
                 .andReturn();
 
         String response = mvcResult.getResponse().getContentAsString();
@@ -124,19 +124,19 @@ class PlateControllerIntegrationTest {
     }
 
     @Test
-    void testUpdatePlate() throws Exception {
-        PlateDTO plateDTO = new PlateDTO();
-        plateDTO.setId(1L);
-        plateDTO.setName("Updated Plate");
+    void testUpdateClient() throws Exception {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(1L);
+        clientDTO.setBusinessName("Updated Client");
 
-        when(plateService.updatePlate(anyLong(), any(PlateDTO.class))).thenReturn(plateDTO);
+        when(clientService.updateClient(anyLong(), any(ClientDTO.class))).thenReturn(clientDTO);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/plate/{id}", 1)
-                        .content("{\"id\": 1, \"name\": \"Updated Plate\"}")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/client/{id}", 1)
+                        .content("{\"id\": 1, \"businessName\": \"Updated Client\"}")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Updated Plate"))
+                .andExpect(jsonPath("$.businessName").value("Updated Client"))
                 .andReturn();
 
         String response = mvcResult.getResponse().getContentAsString();
@@ -144,17 +144,17 @@ class PlateControllerIntegrationTest {
     }
 
     @Test
-    void testDeletePlateById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/plate/{id}", 1))
+    void testDeleteClientById() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/client/{id}", 1))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Plate with id: 1 has been deleted successfully!"));
+                .andExpect(content().string("Client with id: 1 has been deleted successfully!"));
     }
 
     @Test
-    void testGetAllPlatesWhenNoPlateExist() throws Exception {
-        when(plateService.getAllPlates()).thenReturn(Collections.emptyList());
+    void testGetAllClientsWhenNoClientExist() throws Exception {
+        when(clientService.getAllClients()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate")
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
@@ -164,65 +164,65 @@ class PlateControllerIntegrationTest {
     }
 
     @Test
-    void testGetPlateByIdWhenPlateDoesNotExist() throws Exception {
-        long plateId = 1L;
-        when(plateService.getPlateById(plateId)).thenThrow(new ChangeSetPersister.NotFoundException());
+    void testGetClientByIdWhenClientDoesNotExist() throws Exception {
+        long clientId = 1L;
+        when(clientService.getClientById(clientId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", plateId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client/{id}", clientId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }
 
     @Test
-    void testShouldNotCreatePlateWithBlankPlateName() throws Exception {
-        String blankPlateName = "";
+    void testShouldNotCreateClientWithBlankClientName() throws Exception {
+        String blankClientName = "";
 
         doThrow(new ValidationException())
-                .when(plateService).createPlate(any(PlateDTO.class));
+                .when(clientService).createClient(any(ClientDTO.class));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/plate")
-                        .content("{\"id\": 1, \"name\": \"" + blankPlateName + "\"}")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/client")
+                        .content("{\"id\": 1, \"businessName\": \"" + blankClientName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andReturn();
     }
 
     @Test
-    void testGetPlateWithInvalidId() throws Exception {
+    void testGetClientWithInvalidId() throws Exception {
         Long invalidId = 100000L;
 
-        when(plateService.getPlateById(invalidId))
+        when(clientService.getClientById(invalidId))
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", invalidId)
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client/{id}", invalidId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }
 
     @Test
-    void testUpdatePlateWithInvalidData() throws Exception {
+    void testUpdateClientWithInvalidData() throws Exception {
         String invalidData = "";
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/plate/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/client/{id}", 1)
                         .content("{\"id\": 1, \"businessName\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testUpdatePlateWithInvalidIdShouldReturnNotFound() throws Exception {
+    void testUpdateClientWithInvalidIdShouldReturnNotFound() throws Exception {
         Long id = 1L;
 
-        PlateDTO updatedPlate = new PlateDTO();
+        ClientDTO updatedClient = new ClientDTO();
 
-        when(plateService.updatePlate(eq(id), any(PlateDTO.class)))
+        when(clientService.updateClient(eq(id), any(ClientDTO.class)))
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/plate/{id}", id)
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/client/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(updatedPlate)))
+                        .content(asJsonString(updatedClient)))
                 .andExpect(status().isNotFound());
     }
 
@@ -235,12 +235,12 @@ class PlateControllerIntegrationTest {
     }
 
     @Test
-    void testDeletePlateByIdWhenPlateDoesNotExist() throws Exception {
-        long plateId = 1L;
+    void testDeleteClientByIdWhenClientDoesNotExist() throws Exception {
+        long clientId = 1L;
         doThrow(new ChangeSetPersister.NotFoundException())
-                .when(plateService).deletePlate(plateId);
+                .when(clientService).deleteClient(clientId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/plate/{id}", plateId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/client/{id}", clientId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }
