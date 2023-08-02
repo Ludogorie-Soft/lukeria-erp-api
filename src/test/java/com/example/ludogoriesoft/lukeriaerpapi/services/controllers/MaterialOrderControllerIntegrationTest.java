@@ -3,8 +3,6 @@ package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.MaterialOrderController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
-import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MaterialOrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
@@ -27,7 +25,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
@@ -50,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 )
         }
 )
-public class MaterialOrderControllerIntegrationTest {
+class MaterialOrderControllerIntegrationTest {
 
 
     @Autowired
@@ -264,7 +261,7 @@ public class MaterialOrderControllerIntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].orderedQuantity").value(10));
     }
     @Test
-    public void testAllAvailableProducts() throws Exception {
+    void testAllAvailableProducts() throws Exception {
         MaterialOrderDTO order1 = new MaterialOrderDTO();
         MaterialOrderDTO order2 = new MaterialOrderDTO();
         List<MaterialOrderDTO> allOrderedProducts = Arrays.asList(order1, order2);
