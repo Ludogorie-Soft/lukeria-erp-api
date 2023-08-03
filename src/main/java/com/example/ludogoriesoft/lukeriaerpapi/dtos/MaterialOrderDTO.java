@@ -14,7 +14,6 @@ import java.time.LocalDate;
 public class MaterialOrderDTO {
 
     private Long id;
-
     @Min(1)
     private int orderedQuantity;
     private Integer receivedQuantity;
