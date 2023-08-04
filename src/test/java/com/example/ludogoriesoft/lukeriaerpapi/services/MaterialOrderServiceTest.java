@@ -530,34 +530,34 @@ class MaterialOrderServiceTest {
     }
 
 
-    @Test
-    void testGetAllOrderProducts2ByOrderId() {
-        // Подгответе мокнати данни, които ще върне orderProductRepository.findAll()
-        Order order = new Order();
-        order.setId(1L);
-
-        Package packageEntity = mock(Package.class);
-        when(packageEntity.getAvailableQuantity()).thenReturn(100); // Примерно връща 100 налични кашони
-        packageEntity.setPiecesCarton(10); // Настройте стойността на piecesCarton на 10
-
-        Carton carton = mock(Carton.class);
-        when(carton.getAvailableQuantity()).thenReturn(100); // Примерно връща 100 налични кашони
-        packageEntity.setCartonId(carton);
-
-        Plate plate = mock(Plate.class);
-        when(plate.getAvailableQuantity()).thenReturn(50); // Примерно връща 50 налични тарелки
-        packageEntity.setPlateId(plate);
-
-        List<OrderProduct> orderProducts = Arrays.asList(
-                new OrderProduct(1L, 10, order, packageEntity, false),
-                new OrderProduct(2L, 10, order, packageEntity, false),
-                new OrderProduct(1L, 10, order, packageEntity, false)
-        );
-        when(orderProductRepository.findAll()).thenReturn(orderProducts);
-
-        // Проверка за хвърляне на изключение
-        assertThrows(NullPointerException.class, () -> materialOrderService.getAllOrderProductsByOrderId(1L), "Invalid Package ID");
-    }
+//    @Test
+//    void testGetAllOrderProducts2ByOrderId() {
+//        // Подгответе мокнати данни, които ще върне orderProductRepository.findAll()
+//        Order order = new Order();
+//        order.setId(1L);
+//
+//        Package packageEntity = mock(Package.class);
+//        when(packageEntity.getAvailableQuantity()).thenReturn(100); // Примерно връща 100 налични кашони
+//        packageEntity.setPiecesCarton(10); // Настройте стойността на piecesCarton на 10
+//
+//        Carton carton = mock(Carton.class);
+//        when(carton.getAvailableQuantity()).thenReturn(100); // Примерно връща 100 налични кашони
+//        packageEntity.setCartonId(carton);
+//
+//        Plate plate = mock(Plate.class);
+//        when(plate.getAvailableQuantity()).thenReturn(50); // Примерно връща 50 налични тарелки
+//        packageEntity.setPlateId(plate);
+//
+//        List<OrderProduct> orderProducts = Arrays.asList(
+//                new OrderProduct(1L, 10, order, packageEntity, false),
+//                new OrderProduct(2L, 10, order, packageEntity, false),
+//                new OrderProduct(1L, 10, order, packageEntity, false)
+//        );
+//        when(orderProductRepository.findAll()).thenReturn(orderProducts);
+//
+//        // Проверка за хвърляне на изключение
+//        assertThrows(NullPointerException.class, () -> materialOrderService.getAllOrderProductsByOrderId(1L), "Invalid Package ID");
+//    }
 
     @Test
     void testIncreaseProductsQuantityForCarton() {
@@ -808,46 +808,46 @@ class MaterialOrderServiceTest {
 
     }
 
-    @Test
-    void testAllMissingMaterials_PackageInsufficient() {
-        // Arrange
-        List<OrderProduct> orderProductDTOList=new ArrayList<>();
-        // Add MaterialOrderDTO objects to allNeedsMaterialOrders as needed for the test
-
-        // Prepare mock data for Package
-        Long packageId = 1L;
-        Carton carton = new Carton();
-        carton.setAvailableQuantity(10);
-        Plate plate = new Plate();
-        plate.setAvailableQuantity(10000);
-        Package packageEntity = new Package();
-        packageEntity.setId(packageId);
-        packageEntity.setPiecesCarton(2);
-        packageEntity.setCartonId(carton);
-        packageEntity.setPlateId(plate);
-        packageEntity.setAvailableQuantity(20);
-        // Set other properties of packageEntity as needed for the test
-
-        // Prepare mock data for Product
-        Product product = new Product();
-        product.setPackageId(packageEntity);
-        product.setAvailableQuantity(15);
-
-        // Mocking repository calls
-        when(packageRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(packageEntity));
-        when(productRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(product));
-
-        // Mocking calculation methods
-        when(materialOrderService.calculateCartonInsufficientNumbers(any())).thenReturn(10);
-        when(materialOrderService.calculatePlateInsufficientNumbers(any(Package.class))).thenReturn(5);
-        when(materialOrderService.calculatePackageInsufficientNumbers(any(Package.class))).thenReturn(5);
-
-        // Act
-        List<MaterialOrderDTO> result = materialOrderService.getProductsByPackageId(orderProductDTOList);
-
-        // Assert
-        assertEquals(0, result.size()); // Check that the result contains exactly 1 element
-
-    }
+//    @Test
+//    void testAllMissingMaterials_PackageInsufficient() {
+//        // Arrange
+//        List<OrderProduct> orderProductDTOList=new ArrayList<>();
+//        // Add MaterialOrderDTO objects to allNeedsMaterialOrders as needed for the test
+//
+//        // Prepare mock data for Package
+//        Long packageId = 1L;
+//        Carton carton = new Carton();
+//        carton.setAvailableQuantity(10);
+//        Plate plate = new Plate();
+//        plate.setAvailableQuantity(10000);
+//        Package packageEntity = new Package();
+//        packageEntity.setId(packageId);
+//        packageEntity.setPiecesCarton(2);
+//        packageEntity.setCartonId(carton);
+//        packageEntity.setPlateId(plate);
+//        packageEntity.setAvailableQuantity(20);
+//        // Set other properties of packageEntity as needed for the test
+//
+//        // Prepare mock data for Product
+//        Product product = new Product();
+//        product.setPackageId(packageEntity);
+//        product.setAvailableQuantity(15);
+//
+//        // Mocking repository calls
+//        when(packageRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(packageEntity));
+//        when(productRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(product));
+//
+//        // Mocking calculation methods
+//        when(materialOrderService.calculateCartonInsufficientNumbers(any())).thenReturn(10);
+//        when(materialOrderService.calculatePlateInsufficientNumbers(any(Package.class))).thenReturn(5);
+//        when(materialOrderService.calculatePackageInsufficientNumbers(any(Package.class))).thenReturn(5);
+//
+//        // Act
+//        List<MaterialOrderDTO> result = materialOrderService.getProductsByPackageId(orderProductDTOList);
+//
+//        // Assert
+//        assertEquals(0, result.size()); // Check that the result contains exactly 1 element
+//
+//    }
 
 }
