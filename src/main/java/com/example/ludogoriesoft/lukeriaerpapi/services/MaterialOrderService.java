@@ -54,18 +54,20 @@ public class MaterialOrderService {
 
     @Transactional
     public void increaseProductsQuantity(MaterialOrder updatedMaterialOrder) {
-        if (updatedMaterialOrder.getMaterialType().equals(MaterialType.CARTON)) {
-            Carton carton = cartonRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
-            carton.setAvailableQuantity(carton.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
-            cartonRepository.save(carton);
-        } else if (updatedMaterialOrder.getMaterialType().equals(MaterialType.PLATE)) {
-            Plate plate = plateRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
-            plate.setAvailableQuantity(plate.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
-            plateRepository.save(plate);
-        } else {
-            Package aPackage = packageRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
-            aPackage.setAvailableQuantity(aPackage.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
-            packageRepository.save(aPackage);
+        if (updatedMaterialOrder.getReceivedQuantity() != null) {
+            if (updatedMaterialOrder.getMaterialType().equals(MaterialType.CARTON)) {
+                Carton carton = cartonRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
+                carton.setAvailableQuantity(carton.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
+                cartonRepository.save(carton);
+            } else if (updatedMaterialOrder.getMaterialType().equals(MaterialType.PLATE)) {
+                Plate plate = plateRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
+                plate.setAvailableQuantity(plate.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
+                plateRepository.save(plate);
+            } else {
+                Package aPackage = packageRepository.findById(updatedMaterialOrder.getMaterialId()).orElseThrow(EntityNotFoundException::new);
+                aPackage.setAvailableQuantity(aPackage.getAvailableQuantity() + updatedMaterialOrder.getReceivedQuantity());
+                packageRepository.save(aPackage);
+            }
         }
     }
     public void deleteMaterialOrder(Long id) throws ChangeSetPersister.NotFoundException {
