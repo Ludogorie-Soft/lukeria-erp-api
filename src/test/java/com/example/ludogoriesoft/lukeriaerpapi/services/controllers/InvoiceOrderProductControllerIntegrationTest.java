@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.InvoiceOrderProductController;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.InvoiceOrderProductService;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -70,8 +72,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
-//                .andExpect(jsonPath("$[0].id").value(1))
-//                .andExpect(jsonPath("$[1].id").value(2))
                 .andReturn();
 
         String response = mvcResult.getResponse().getContentAsString();
@@ -87,10 +87,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
         when(invoiceOrderProductService.getInvoiceOrderProductById(1L)).thenReturn(invoiceOrderProductDTO);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoiceOrderProduct")
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoiceOrderProduct/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.id").value(1))
                 .andReturn();
 
         String response = mvcResult.getResponse().getContentAsString();
@@ -117,16 +117,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
     @Test
     void testCreateInvoiceOrderProduct() throws Exception {
-        int blankMaterialOrderName = 3;
+        InvoiceOrderProductDTO invoiceDTO = new InvoiceOrderProductDTO();
+        invoiceDTO.setId(1L);
+        when(invoiceOrderProductService.createInvoiceOrderProduct(any(InvoiceOrderProductDTO.class))).thenReturn(invoiceDTO);
 
-        doThrow(new ValidationException())
-                .when(invoiceOrderProductService).createInvoiceOrderProduct(any(InvoiceOrderProductDTO.class));
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/invoiceOrderProduct")
-                        .content("{\"id\": 1, \"invoiceId\": \"" + 3 + "\", \"invoiceId\": 3}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/invoiceOrderProduct")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"id\": 1}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1))
                 .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
     }
 
     @Test
