@@ -112,8 +112,7 @@ public class MaterialOrderService {
     }
 
     public List<MaterialOrderDTO> getAllOrderProductsByOrderId(Long orderId) {
-        List<OrderProduct> orderProducts = orderProductRepository.findAll();
-        List<OrderProduct> filteredOrderProducts = orderProducts.stream()
+        List<OrderProduct> filteredOrderProducts = orderProductRepository.findAll().stream()
                 .filter(orderProduct -> orderProduct.getOrderId().getId().equals(orderId)).toList();
         return getProductsByPackageId(filteredOrderProducts);
     }
@@ -122,20 +121,16 @@ public class MaterialOrderService {
         List<MaterialOrderDTO> materialsForOrder = new ArrayList<>();
         for (OrderProduct orderProduct : orderProducts) {
             Package packageEntity = orderProduct.getPackageId();
-            Optional<Product> productFromPackage = productRepository.findByIdAndDeletedFalse(packageEntity.getId());
-            Product product = productFromPackage.get();
+            Product product = productRepository.findByIdAndDeletedFalse(packageEntity.getId()).get();
             if (product.getAvailableQuantity() < orderProduct.getNumber()) {
                 if (calculatePlateInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
-                    int orderedQuantity = calculatePlateInsufficientNumbers(packageEntity) - orderProduct.getNumber();
-                    createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity, materialsForOrder);
+                    createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(),  calculatePlateInsufficientNumbers(packageEntity) - orderProduct.getNumber(), materialsForOrder);
                 }
                 if (calculateCartonInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
-                    int orderedQuantity = (calculateCartonInsufficientNumbers(packageEntity) / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton());
-                    createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity, materialsForOrder);
+                    createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), (calculateCartonInsufficientNumbers(packageEntity) / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton()), materialsForOrder);
                 }
                 if (calculatePackageInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
-                    int orderedQuantity = calculatePackageInsufficientNumbers(packageEntity) - orderProduct.getNumber();
-                    createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, materialsForOrder);
+                    createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), calculatePackageInsufficientNumbers(packageEntity) - orderProduct.getNumber(), materialsForOrder);
                 }
             }
         }
