@@ -7,6 +7,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -808,47 +809,29 @@ class MaterialOrderServiceTest {
 
     }
 
-//    @Test
-//    void testAllMissingMaterials_PackageInsufficient() {
-//        // Arrange
-//        List<OrderProduct> orderProductDTOList=new ArrayList<>();
-//        // Add MaterialOrderDTO objects to allNeedsMaterialOrders as needed for the test
-//
-//        // Prepare mock data for Package
-//        Long packageId = 1L;
-//        Carton carton = new Carton();
-//        carton.setAvailableQuantity(10);
-//        Plate plate = new Plate();
-//        plate.setAvailableQuantity(10000);
-//        Package packageEntity = new Package();
-//        packageEntity.setId(packageId);
-//        packageEntity.setPiecesCarton(2);
-//        packageEntity.setCartonId(carton);
-//        packageEntity.setPlateId(plate);
-//        packageEntity.setAvailableQuantity(20);
-//        // Set other properties of packageEntity as needed for the test
-//
-//        // Prepare mock data for Product
-//        Product product = new Product();
-//        product.setPackageId(packageEntity);
-//        product.setAvailableQuantity(15);
-//
-//        // Mocking repository calls
-//        when(packageRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(packageEntity));
-//        when(productRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(product));
-//
-//        // Mocking calculation methods
-//        when(materialOrderService.calculateCartonInsufficientNumbers(any())).thenReturn(10);
-//        when(materialOrderService.calculatePlateInsufficientNumbers(any(Package.class))).thenReturn(5);
-//        when(materialOrderService.calculatePackageInsufficientNumbers(any(Package.class))).thenReturn(5);
-//
-//        // Act
-//        List<MaterialOrderDTO> result = materialOrderService.getProductsByPackageId(orderProductDTOList);
-//
-//        // Assert
-//        assertEquals(0, result.size()); // Check that the result contains exactly 1 element
-//
-//    }
+@Test
+void testGetAllOrderProductsByOrderId() {
+    Long orderId = 123L;
+
+    // Create a list of mock OrderProduct objects
+    List<OrderProduct> mockOrderProducts = new ArrayList<>();
+    OrderProduct orderProduct = new OrderProduct();
+    orderProduct.setId(1L);
+    Order order = new Order();
+    order.setId(1L);
+    orderProduct.setOrderId(order);
+    mockOrderProducts.add(orderProduct);
+    mockOrderProducts.add(orderProduct);
+    mockOrderProducts.add(orderProduct);
+    // Mock the findAll() method of the orderProductRepository to return the mockOrderProducts list
+    when(orderProductRepository.findAll()).thenReturn(mockOrderProducts);
+
+    // Call the method under test
+    List<MaterialOrderDTO> result = materialOrderService.getAllOrderProductsByOrderId(orderId);
+
+    // Verify the expected result
+    Assertions.assertEquals(0, result.size()); // Expecting 2 OrderProduct objects with matching orderId
+}
 @Test
  void testFindPackageByMaterialId() {
     // Подготовка на данни: предполагаме, че имаме пакет с даден материален идентификатор (например 123)
