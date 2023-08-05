@@ -22,6 +22,8 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -808,7 +810,7 @@ class MaterialOrderServiceTest {
 
     }
 
-//    @Test
+    //    @Test
 //    void testAllMissingMaterials_PackageInsufficient() {
 //        // Arrange
 //        List<OrderProduct> orderProductDTOList=new ArrayList<>();
@@ -849,5 +851,33 @@ class MaterialOrderServiceTest {
 //        assertEquals(0, result.size()); // Check that the result contains exactly 1 element
 //
 //    }
+    @Test
+    void testGetProductsByPackageId() {
+        Package packageEntity1 = new Package();
+        packageEntity1.setId(1L);
+
+        Package packageEntity2 = new Package();
+        packageEntity2.setId(2L);
+
+        List<OrderProduct> orderProducts = new ArrayList<>();
+
+        OrderProduct orderProduct1 = new OrderProduct();
+        orderProduct1.setPackageId(packageEntity1);
+        orderProduct1.setNumber(10);
+
+        OrderProduct orderProduct2 = new OrderProduct();
+        orderProduct2.setPackageId(packageEntity2);
+        orderProduct2.setNumber(20);
+
+        orderProducts.add(orderProduct1);
+        orderProducts.add(orderProduct2);
+
+        when(productRepository.findByIdAndDeletedFalse(eq(1L))).thenReturn(Optional.of(new Product()));
+        when(productRepository.findByIdAndDeletedFalse(eq(2L))).thenReturn(Optional.of(new Product()));
+
+        List<MaterialOrderDTO> result = materialOrderService.getProductsByPackageId(orderProducts);
+
+        assertEquals(2, result.size());
+    }
 
 }
