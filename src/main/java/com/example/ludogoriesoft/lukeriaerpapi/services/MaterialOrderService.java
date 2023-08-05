@@ -122,22 +122,19 @@ public class MaterialOrderService {
         List<MaterialOrderDTO> materialsForOrder = new ArrayList<>();
         for (OrderProduct orderProduct : orderProducts) {
             Package packageEntity = orderProduct.getPackageId();
-            int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
-            int plateInsufficientNumbers = calculatePlateInsufficientNumbers(packageEntity);
-            int packageInsufficientNumbers = calculatePackageInsufficientNumbers(packageEntity);
             Optional<Product> productFromPackage = productRepository.findByIdAndDeletedFalse(packageEntity.getId());
             Product product = productFromPackage.get();
             if (product.getAvailableQuantity() < orderProduct.getNumber()) {
-                if (plateInsufficientNumbers < orderProduct.getNumber()) {
-                    int orderedQuantity = plateInsufficientNumbers - orderProduct.getNumber();
+                if (calculatePlateInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
+                    int orderedQuantity = calculatePlateInsufficientNumbers(packageEntity) - orderProduct.getNumber();
                     createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity, materialsForOrder);
                 }
-                if (cartonInsufficientNumbers < orderProduct.getNumber()) {
-                    int orderedQuantity = (cartonInsufficientNumbers / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton());
+                if (calculateCartonInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
+                    int orderedQuantity = (calculateCartonInsufficientNumbers(packageEntity) / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton());
                     createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity, materialsForOrder);
                 }
-                if (packageInsufficientNumbers < orderProduct.getNumber()) {
-                    int orderedQuantity = packageInsufficientNumbers - orderProduct.getNumber();
+                if (calculatePackageInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
+                    int orderedQuantity = calculatePackageInsufficientNumbers(packageEntity) - orderProduct.getNumber();
                     createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, materialsForOrder);
                 }
             }
@@ -197,22 +194,19 @@ public class MaterialOrderService {
             Optional<Package> optionalPackage = packageRepository.findByIdAndDeletedFalse(allNeedsMaterialOrder.getMaterialId());
             if (optionalPackage.isPresent()) {
                 Package packageEntity = optionalPackage.get();
-                int cartonInsufficientNumbers = calculateCartonInsufficientNumbers(packageEntity);
-                int plateInsufficientNumbers = calculatePlateInsufficientNumbers(packageEntity);
-                int packageInsufficientNumbers = calculatePackageInsufficientNumbers(packageEntity);
                 Optional<Product> productFromPackage = productRepository.findByIdAndDeletedFalse(packageEntity.getId());
                 Product product = productFromPackage.get();
                 if (product.getAvailableQuantity() < allNeedsMaterialOrder.getOrderedQuantity()) {
-                    if (plateInsufficientNumbers < allNeedsMaterialOrder.getOrderedQuantity()) {
-                        int orderedQuantity = plateInsufficientNumbers - allNeedsMaterialOrder.getOrderedQuantity();
+                    if (calculatePlateInsufficientNumbers(packageEntity) < allNeedsMaterialOrder.getOrderedQuantity()) {
+                        int orderedQuantity = calculatePlateInsufficientNumbers(packageEntity) - allNeedsMaterialOrder.getOrderedQuantity();
                         createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), orderedQuantity, allMaterialsForAllOrders);
                     }
-                    if (cartonInsufficientNumbers < allNeedsMaterialOrder.getOrderedQuantity()) {
-                        int orderedQuantity = (cartonInsufficientNumbers / packageEntity.getPiecesCarton()) - (allNeedsMaterialOrder.getOrderedQuantity() / packageEntity.getPiecesCarton());
+                    if (calculateCartonInsufficientNumbers(packageEntity) < allNeedsMaterialOrder.getOrderedQuantity()) {
+                        int orderedQuantity = (calculateCartonInsufficientNumbers(packageEntity) / packageEntity.getPiecesCarton()) - (allNeedsMaterialOrder.getOrderedQuantity() / packageEntity.getPiecesCarton());
                         createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), orderedQuantity, allMaterialsForAllOrders);
                     }
-                    if (packageInsufficientNumbers < allNeedsMaterialOrder.getOrderedQuantity()) {
-                        int orderedQuantity = packageInsufficientNumbers - allNeedsMaterialOrder.getOrderedQuantity();
+                    if ( calculatePackageInsufficientNumbers(packageEntity) < allNeedsMaterialOrder.getOrderedQuantity()) {
+                        int orderedQuantity =  calculatePackageInsufficientNumbers(packageEntity) - allNeedsMaterialOrder.getOrderedQuantity();
                         createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, allMaterialsForAllOrders);
                     }
                 }
