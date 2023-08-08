@@ -1,27 +1,26 @@
 package com.example.ludogoriesoft.lukeriaerpapi.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "order_product ")
-public class OrderProduct {
+@Table(name = "invoice")
+public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    private Integer number;
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order orderId;
-    @ManyToOne
-    @JoinColumn(name = "package_id")
-    private Package packageId;
+    private LocalDate invoiceDate;
+    private Long invoiceNumber;
+    private BigDecimal totalPrice;
+    private boolean isCashPayment;
+    private LocalDate deadline;
     @Column(name = "is_deleted")
     private boolean deleted;
 }

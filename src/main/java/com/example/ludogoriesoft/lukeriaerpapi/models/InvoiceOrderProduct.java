@@ -9,19 +9,20 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "order_product ")
-public class OrderProduct {
+@Table(name = "invoice_order_product")
+public class InvoiceOrderProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    private Integer number;
+
     @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order orderId;
+    @JoinColumn(name = "invoice_id")
+    private Invoice invoiceId;
     @ManyToOne
-    @JoinColumn(name = "package_id")
-    private Package packageId;
+    @JoinColumn(name = "order_product_id")
+    private OrderProduct orderProductId;
+
     @Column(name = "is_deleted")
     private boolean deleted;
 }
