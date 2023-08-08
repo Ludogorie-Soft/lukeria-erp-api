@@ -2,9 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.InvoiceOrderProductRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.InvoiceRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -18,6 +16,8 @@ import java.util.List;
 public class InvoiceOrderProductService {
     private final InvoiceOrderProductRepository invoiceOrderProductRepository;
     private final OrderProductRepository orderProductRepository;
+    private final PackageRepository packageRepository;
+    private final ClientRepository clientRepository;
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
 

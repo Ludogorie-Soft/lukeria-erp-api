@@ -17,8 +17,7 @@ public class InvoiceOrderProduct {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "invoic" +
-            "e_id")
+    @JoinColumn(name = "invoice_id")
     private Invoice invoiceId;
     @ManyToOne
     @JoinColumn(name = "order_product_id")
