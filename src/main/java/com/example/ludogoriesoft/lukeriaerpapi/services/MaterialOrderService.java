@@ -121,7 +121,7 @@ public class MaterialOrderService {
         List<MaterialOrderDTO> materialsForOrder = new ArrayList<>();
         for (OrderProduct orderProduct : orderProducts) {
             Package packageEntity = orderProduct.getPackageId();
-            Product product = productRepository.findByIdAndDeletedFalse(packageEntity.getId())
+            Product product = productRepository.findByPackageIdAndDeletedFalse(packageEntity)
                     .orElseThrow(() -> new RuntimeException("Продуктът не беше намерен"));
             if (product.getAvailableQuantity() < orderProduct.getNumber()) {
                 if (calculatePlateInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
@@ -207,7 +207,7 @@ public class MaterialOrderService {
     }
 
     public Product getProductFromPackage(Package packageEntity) {
-        return productRepository.findByIdAndDeletedFalse(packageEntity.getId())
+        return productRepository.findByPackageIdAndDeletedFalse(packageEntity)
                 .orElseThrow(() -> new RuntimeException("Продуктът не беше намерен"));
     }
 
