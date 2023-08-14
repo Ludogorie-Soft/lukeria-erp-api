@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +37,38 @@ class InvoiceServiceTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+    }
+
+
+    @Test
+     void testFindLastInvoiceNumberStartingWithTwo() {
+
+        String prefix = "2";
+        List<String> mockInvoiceNumbers = new ArrayList<>();
+        mockInvoiceNumbers.add("2000000002");
+        mockInvoiceNumbers.add("2000000004");
+        mockInvoiceNumbers.add("2000000003");
+
+        when(invoiceRepository.findLastInvoiceNumberStartingWith(prefix)).thenReturn(mockInvoiceNumbers);
+
+        Long expectedResult = 2000000004L;
+        Long actualResult = invoiceService.findLastInvoiceNumberStartingWithTwo();
+
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithTwoNull() {
+
+        String prefix = "2";
+        List<String> mockInvoiceNumbers = new ArrayList<>();
+
+        when(invoiceRepository.findLastInvoiceNumberStartingWith(prefix)).thenReturn(mockInvoiceNumbers);
+
+        Long expectedResult = null;
+        Long actualResult = invoiceService.findLastInvoiceNumberStartingWithTwo();
+
+        assertEquals(expectedResult, actualResult);
     }
 
     @Test

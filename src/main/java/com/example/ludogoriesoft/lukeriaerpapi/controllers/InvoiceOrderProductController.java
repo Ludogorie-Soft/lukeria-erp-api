@@ -43,5 +43,4 @@ public class InvoiceOrderProductController {
         return ResponseEntity.ok("InvoiceOrderProduct with id: " + id + " has been deleted successfully!");
     }
 
-
 }
