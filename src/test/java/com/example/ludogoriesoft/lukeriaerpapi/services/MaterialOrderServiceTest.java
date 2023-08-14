@@ -894,7 +894,7 @@ class MaterialOrderServiceTest {
         product.setDeleted(false);
 
         // Конфигурираме мока на productRepository.findByIdAndDeletedFalse да връща Optional с продукта
-        when(productRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.of(product));
+        when(productRepository.findByPackageIdAndDeletedFalse(packageEntity)).thenReturn(Optional.of(product));
 
         // Извикваме метода, който тестваме
         Product result = materialOrderService.getProductFromPackage(packageEntity);
