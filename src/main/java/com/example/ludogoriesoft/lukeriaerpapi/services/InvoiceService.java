@@ -19,13 +19,13 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
 
-    public Long findLastInvoiceNumberStartingWithTwo() {
+    public Long findLastInvoiceNumberStartingWithTwo()  {
         String prefix = "2";
 
         List<String> lastInvoiceNumbers = invoiceRepository.findLastInvoiceNumberStartingWith(prefix);
 
         if (lastInvoiceNumbers.isEmpty()) {
-            return null;
+           return 2000000000L;
         }
 
         String maxLastDigitNumber = lastInvoiceNumbers.stream()
