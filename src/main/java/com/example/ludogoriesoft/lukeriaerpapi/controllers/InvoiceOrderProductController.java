@@ -31,6 +31,10 @@ public class InvoiceOrderProductController {
     public ResponseEntity<InvoiceOrderProductDTO> createInvoiceOrderProduct(@Valid @RequestBody InvoiceOrderProductDTO invoiceOrderProductDTO) {
         return new ResponseEntity<>(invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO), HttpStatus.CREATED);
     }
+    @PostMapping("/withIds")
+    public ResponseEntity<String> createInvoiceOrderProductWhitIdsList(List<Long> orderProducts,Long invoiceID) {
+        return new ResponseEntity<>(invoiceOrderProductService.createInvoiceOrderProductWhitIds(orderProducts,invoiceID), HttpStatus.CREATED);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<InvoiceOrderProductDTO> updateInvoiceOrderProduct(@PathVariable("id") Long id, @Valid @RequestBody  InvoiceOrderProductDTO invoiceOrderProductDTO) throws ChangeSetPersister.NotFoundException {

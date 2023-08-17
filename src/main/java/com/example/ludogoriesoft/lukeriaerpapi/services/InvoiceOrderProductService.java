@@ -65,6 +65,17 @@ public class InvoiceOrderProductService {
         return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
     }
 
+    public String createInvoiceOrderProductWhitIds(List<Long> orderProducts,Long invoiceID){
+        InvoiceOrderProductDTO invoiceOrderProductDTO=new InvoiceOrderProductDTO();
+        for (Long orderProduct : orderProducts) {
+            invoiceOrderProductDTO.setOrderProductId(orderProduct);
+            invoiceOrderProductDTO.setInvoiceId(invoiceID);
+            validateInvoiceOrderProduct(invoiceOrderProductDTO);
+            createInvoiceOrderProduct(invoiceOrderProductDTO);
+        }
+        return "Операцията беше изпълнена";
+    }
+
     public InvoiceOrderProductDTO updateInvoiceOrderProduct(Long id, InvoiceOrderProductDTO invoiceOrderProductDTO) throws ChangeSetPersister.NotFoundException {
         validateInvoiceOrderProduct(invoiceOrderProductDTO);
 
