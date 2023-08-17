@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.services.InvoiceOrderProductService;
 import jakarta.validation.Valid;
@@ -32,8 +33,8 @@ public class InvoiceOrderProductController {
         return new ResponseEntity<>(invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO), HttpStatus.CREATED);
     }
     @PostMapping("/withIds")
-    public ResponseEntity<String> createInvoiceOrderProductWhitIdsList(List<Long> orderProducts,Long invoiceID) {
-        return new ResponseEntity<>(invoiceOrderProductService.createInvoiceOrderProductWhitIds(orderProducts,invoiceID), HttpStatus.CREATED);
+    public ResponseEntity<String> createInvoiceOrderProductWhitIdsList(@RequestBody InvoiceOrderProductConfigDTO configDTO) {
+        return new ResponseEntity<>(invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

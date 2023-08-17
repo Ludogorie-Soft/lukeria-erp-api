@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
@@ -65,16 +66,22 @@ public class InvoiceOrderProductService {
         return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
     }
 
-    public String createInvoiceOrderProductWhitIds(List<Long> orderProducts,Long invoiceID){
-        InvoiceOrderProductDTO invoiceOrderProductDTO=new InvoiceOrderProductDTO();
-        for (Long orderProduct : orderProducts) {
+    public String createInvoiceOrderProductWhitIds( InvoiceOrderProductConfigDTO configDTO) {
+        List<Long> orderProductIds = configDTO.getOrderProductIds();
+        Long invoiceId = configDTO.getInvoiceId();
+
+        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+
+        for (Long orderProduct : orderProductIds) {
             invoiceOrderProductDTO.setOrderProductId(orderProduct);
-            invoiceOrderProductDTO.setInvoiceId(invoiceID);
+            invoiceOrderProductDTO.setInvoiceId(invoiceId);
             validateInvoiceOrderProduct(invoiceOrderProductDTO);
             createInvoiceOrderProduct(invoiceOrderProductDTO);
         }
+
         return "Операцията беше изпълнена";
     }
+
 
     public InvoiceOrderProductDTO updateInvoiceOrderProduct(Long id, InvoiceOrderProductDTO invoiceOrderProductDTO) throws ChangeSetPersister.NotFoundException {
         validateInvoiceOrderProduct(invoiceOrderProductDTO);
