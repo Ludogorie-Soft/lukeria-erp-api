@@ -65,7 +65,7 @@ class InvoiceServiceTest {
 
         when(invoiceRepository.findLastInvoiceNumberStartingWith(prefix)).thenReturn(mockInvoiceNumbers);
 
-        Long expectedResult = null;
+        Long expectedResult = 2000000000L;
         Long actualResult = invoiceService.findLastInvoiceNumberStartingWithTwo();
 
         assertEquals(expectedResult, actualResult);
