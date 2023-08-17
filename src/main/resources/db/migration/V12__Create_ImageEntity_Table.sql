@@ -1,0 +1,4 @@
+CREATE TABLE image_entity (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    path VARCHAR(255) NOT NULL
+);

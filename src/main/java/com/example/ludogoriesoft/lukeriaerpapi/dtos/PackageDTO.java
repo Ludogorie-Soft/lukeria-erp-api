@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
@@ -22,7 +23,7 @@ public class PackageDTO {
     private Long plateId;
     @Min(value = 1, message = "Брой картони трябда да бъде по-голямо от 0!")
     private int piecesCarton;
-    private String photo;
+    private MultipartFile photo;
     @Min(value = 1, message = "Цената трябва да бъде по-голяма от 0!")
     private BigDecimal price;
 
