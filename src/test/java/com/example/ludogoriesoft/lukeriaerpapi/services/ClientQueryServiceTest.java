@@ -41,7 +41,6 @@ class ClientQueryServiceTest {
 
         // Мокване на поведението на entityManager
         when(entityManager.createQuery(anyString(), eq(OrderProduct.class))).thenReturn(typedQuery);
-        when(typedQuery.setParameter(eq("orderId"), eq(orderId))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(orderProducts);
 
         // Извикване на тествания метод
