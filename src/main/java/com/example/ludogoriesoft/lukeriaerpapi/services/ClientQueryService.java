@@ -12,7 +12,7 @@ import java.util.List;
 public class ClientQueryService {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    public EntityManager entityManager;
 
     public List<OrderProduct> getOrderProductsByOrderId(Long orderId) {
         String jpqlQuery = "SELECT op FROM OrderProduct op " +
