@@ -1,8 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.models.ImageEntity;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.ImageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,31 +15,40 @@ import java.util.UUID;
 
 @Service
 public class ImageService {
-
     @Value("${image.upload.directory}")
-    private String imageUploadDirectory;
+    private String IMAGE_DIRECTORY;
+    private final PackageRepository packageRepository;
 
-    @Autowired
-    private ImageRepository imageRepository;
+
+    public ImageService(PackageRepository packageRepository) {
+        this.packageRepository = packageRepository;
+    }
+
 
     public String saveImage(MultipartFile file) {
         try {
-            String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path directoryPath = Paths.get(imageUploadDirectory);
-            Path filePath = directoryPath.resolve(filename);
+            String originalFilename = file.getOriginalFilename();
+            String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+
+            Path directoryPath = Paths.get(IMAGE_DIRECTORY);
+            Path filePath = directoryPath.resolve(uniqueFilename);
 
             Files.createDirectories(directoryPath);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            ImageEntity imageEntity = new ImageEntity();
-            imageEntity.setPath(filePath.toString());
-            imageRepository.save(imageEntity);
+            Package aPackage = packageRepository.findFirstByDeletedFalseOrderByIdDesc();
+            aPackage.setPhoto(uniqueFilename);
+            packageRepository.save(aPackage);
 
-            return filename;
+            return uniqueFilename;
         } catch (IOException e) {
             throw new RuntimeException("Error saving image: " + e.getMessage());
         }
     }
 
+    public byte[] getImageBytes(String imageName) throws IOException {
+        Path imagePath = Paths.get(IMAGE_DIRECTORY, imageName);
+        return Files.readAllBytes(imagePath);
+    }
 }
 
