@@ -10,6 +10,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -18,6 +19,25 @@ public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
 
+    public Long findLastInvoiceNumberStartingWithTwo()  {
+        String prefix = "2";
+
+        List<String> lastInvoiceNumbers = invoiceRepository.findLastInvoiceNumberStartingWith(prefix);
+
+        if (lastInvoiceNumbers.isEmpty()) {
+           return 2000000000L;
+        }
+
+        String maxLastDigitNumber = lastInvoiceNumbers.stream()
+                .max(Comparator.comparing(this::getLastDigit))
+                .orElse(null);
+
+        return Long.parseLong(maxLastDigitNumber);
+    }
+
+    private int getLastDigit(String invoiceNumber) {
+        return Character.getNumericValue(invoiceNumber.charAt(invoiceNumber.length() - 1));
+    }
     public List<InvoiceDTO> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findByDeletedFalse();
         return invoices.stream().map(invoice -> modelMapper.map(invoice, InvoiceDTO.class)).toList();

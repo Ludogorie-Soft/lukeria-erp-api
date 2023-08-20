@@ -1,12 +1,11 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Invoice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.InvoiceOrderProductRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.InvoiceRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,8 +30,15 @@ class InvoiceOrderProductServiceTest {
 
     @Mock
     private InvoiceOrderProductRepository invoiceOrderProductRepository;
+
     @Mock
     private OrderProductRepository orderProductRepository;
+
+    @Mock
+    private PackageRepository packageRepository;
+
+    @Mock
+    private ClientRepository clientRepository;
 
     @Mock
     private InvoiceRepository invoiceRepository;
@@ -47,6 +54,30 @@ class InvoiceOrderProductServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @Test
+    void testValidateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
+        // Arrange
+        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+        invoiceOrderProductDTO.setOrderProductId(null);
+
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> invoiceOrderProductService.validateInvoiceOrderProduct(invoiceOrderProductDTO));
+    }
+
+    @Test
+    void testCreateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
+        // Arrange
+        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+        invoiceOrderProductDTO.setOrderProductId(null);
+
+        // Act and Assert
+        assertThrows(ValidationException.class, () -> invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO));
+
+        // Verify method calls
+        verify(orderProductRepository, never()).existsById(anyLong());
+        verify(invoiceRepository, never()).existsById(anyLong());
+        verify(invoiceOrderProductRepository, never()).save(any());
+    }
     @Test
     void testGetAllInvoiceOrderProducts() {
         // Arrange

@@ -43,4 +43,9 @@ public class InvoiceController {
         invoiceService.deleteInvoice(id);
         return ResponseEntity.ok("Invoice with id: " + id + " has been deleted successfully!");
     }
+
+    @GetMapping("/number")
+    public ResponseEntity<Long> findLastInvoiceNumberStartingWith() {
+        return ResponseEntity.ok(invoiceService.findLastInvoiceNumberStartingWithTwo());
+    }
 }
