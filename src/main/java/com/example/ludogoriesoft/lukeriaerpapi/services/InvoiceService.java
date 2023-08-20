@@ -55,6 +55,7 @@ public class InvoiceService {
         if (invoiceDTO.getTotalPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
+        invoiceDTO.setCreated(true);
         Invoice invoiceEntity = invoiceRepository.save(modelMapper.map(invoiceDTO, Invoice.class));
         return modelMapper.map(invoiceEntity, InvoiceDTO.class);
     }
