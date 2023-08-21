@@ -21,6 +21,11 @@ public class ImageController {
         String imagePath = imageService.saveImageForPackage(file);
         return ResponseEntity.ok(imagePath);
     }
+    @PostMapping("/editImageForPackage")
+    public ResponseEntity<String> editImageForPackage(MultipartFile file, Long packageId) {
+        String imagePath = imageService.editImageForPackage(file, packageId);
+        return ResponseEntity.ok(imagePath);
+    }
     @GetMapping("/{imageName}")
     public ResponseEntity<byte[]> getImage(@PathVariable String imageName) throws IOException {
         byte[] imageBytes = imageService.getImageBytes(imageName);

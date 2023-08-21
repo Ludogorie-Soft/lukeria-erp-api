@@ -7,16 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class ImageService {
     @Value("${image.upload.directory}")
-    private String IMAGE_DIRECTORY;
+    private String imageDirectory;
     private final PackageRepository packageRepository;
 
 
@@ -30,7 +28,7 @@ public class ImageService {
             String originalFilename = file.getOriginalFilename();
             String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
 
-            Path directoryPath = Paths.get(IMAGE_DIRECTORY);
+            Path directoryPath = Paths.get(imageDirectory);
             Path filePath = directoryPath.resolve(uniqueFilename);
 
             Files.createDirectories(directoryPath);
@@ -46,9 +44,35 @@ public class ImageService {
         }
     }
 
-    public byte[] getImageBytes(String imageName) throws IOException {
-        Path imagePath = Paths.get(IMAGE_DIRECTORY, imageName);
-        return Files.readAllBytes(imagePath);
+    public String editImageForPackage(MultipartFile file, Long packageId) {
+        try {
+            String originalFilename = file.getOriginalFilename();
+            String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+
+            Path directoryPath = Paths.get(imageDirectory);
+            Path filePath = directoryPath.resolve(uniqueFilename);
+
+            Files.createDirectories(directoryPath);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            Optional<Package> aPackage = packageRepository.findByIdAndDeletedFalse(packageId);
+            aPackage.get().setPhoto(uniqueFilename);
+            packageRepository.save(aPackage.get());
+
+            return uniqueFilename;
+        } catch (IOException e) {
+            throw new RuntimeException("Error saving image: " + e.getMessage());
+        }
     }
+
+    public byte[] getImageBytes(String imageName) throws IOException {
+        try {
+            Path imagePath = Paths.get(imageDirectory, imageName);
+            return Files.readAllBytes(imagePath);
+        } catch (NoSuchFileException e) {
+            return new byte[0];
+        }
+    }
+
 }
 
