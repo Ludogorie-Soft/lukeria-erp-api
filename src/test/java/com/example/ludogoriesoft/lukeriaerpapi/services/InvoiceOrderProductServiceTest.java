@@ -10,6 +10,7 @@ import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -45,6 +46,8 @@ class InvoiceOrderProductServiceTest {
 
     @Mock
     private ModelMapper modelMapper;
+    @Mock
+    private ClientQueryService clientQueryService;
 
     @InjectMocks
     private InvoiceOrderProductService invoiceOrderProductService;
@@ -52,6 +55,33 @@ class InvoiceOrderProductServiceTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+    }
+
+
+    @Test
+    void testCreateInvoiceOrderProductWhitIds2() {
+        // Създаване на мокнати данни
+        InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
+        List<Long> orderProductIds = Arrays.asList(1L, 2L, 3L);
+        Long invoiceId = 123L;
+        configDTO.setOrderProductIds(orderProductIds);
+        configDTO.setInvoiceId(invoiceId);
+
+        // Мокване на поведението на репозиториите
+        when(orderProductRepository.existsById(anyLong())).thenReturn(true);
+        when(invoiceRepository.existsById(anyLong())).thenReturn(true);
+
+        // Мокване на поведението на invoiceOrderProductRepository.save()
+        ArgumentCaptor<InvoiceOrderProduct> captor = ArgumentCaptor.forClass(InvoiceOrderProduct.class);
+        when(invoiceOrderProductRepository.save(captor.capture())).thenReturn(new InvoiceOrderProduct());
+
+        // Извикване на тествания метод
+        String result = invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO);
+
+        // Проверка на резултата
+        assertEquals("Операцията беше изпълнена", result);
+        List<InvoiceOrderProduct> savedProducts = captor.getAllValues();
+        assertEquals(3, savedProducts.size()); // Проверка за брой записани продукти
     }
 
     @Test
