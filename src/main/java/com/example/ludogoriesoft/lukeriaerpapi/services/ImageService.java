@@ -25,7 +25,7 @@ public class ImageService {
     }
 
 
-    public String saveImage(MultipartFile file) {
+    public String saveImageForPackage(MultipartFile file) {
         try {
             String originalFilename = file.getOriginalFilename();
             String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;

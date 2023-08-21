@@ -16,9 +16,9 @@ import java.io.IOException;
 public class ImageController {
     private final ImageService imageService;
 
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadImage(MultipartFile file) {
-        String imagePath = imageService.saveImage(file);
+    @PostMapping("/uploadImageForPackage")
+    public ResponseEntity<String> uploadImageForPackage(MultipartFile file) {
+        String imagePath = imageService.saveImageForPackage(file);
         return ResponseEntity.ok(imagePath);
     }
     @GetMapping("/{imageName}")
