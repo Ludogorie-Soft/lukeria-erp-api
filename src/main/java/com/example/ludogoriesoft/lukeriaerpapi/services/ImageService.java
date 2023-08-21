@@ -18,22 +18,26 @@ public class ImageService {
     private String imageDirectory;
     private final PackageRepository packageRepository;
 
-
     public ImageService(PackageRepository packageRepository) {
         this.packageRepository = packageRepository;
     }
 
+    private String saveFileAndGetUniqueFilename(MultipartFile file) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+
+        Path directoryPath = Paths.get(imageDirectory);
+        Path filePath = directoryPath.resolve(uniqueFilename);
+
+        Files.createDirectories(directoryPath);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        return uniqueFilename;
+    }
 
     public String saveImageForPackage(MultipartFile file) {
         try {
-            String originalFilename = file.getOriginalFilename();
-            String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
-
-            Path directoryPath = Paths.get(imageDirectory);
-            Path filePath = directoryPath.resolve(uniqueFilename);
-
-            Files.createDirectories(directoryPath);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            String uniqueFilename = saveFileAndGetUniqueFilename(file);
 
             Package aPackage = packageRepository.findFirstByDeletedFalseOrderByIdDesc();
             aPackage.setPhoto(uniqueFilename);
@@ -47,18 +51,13 @@ public class ImageService {
 
     public String editImageForPackage(MultipartFile file, Long packageId) {
         try {
-            String originalFilename = file.getOriginalFilename();
-            String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
-
-            Path directoryPath = Paths.get(imageDirectory);
-            Path filePath = directoryPath.resolve(uniqueFilename);
-
-            Files.createDirectories(directoryPath);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            String uniqueFilename = saveFileAndGetUniqueFilename(file);
 
             Optional<Package> aPackage = packageRepository.findByIdAndDeletedFalse(packageId);
-            aPackage.get().setPhoto(uniqueFilename);
-            packageRepository.save(aPackage.get());
+            aPackage.ifPresent(pkg -> {
+                pkg.setPhoto(uniqueFilename);
+                packageRepository.save(pkg);
+            });
 
             return uniqueFilename;
         } catch (IOException e) {
