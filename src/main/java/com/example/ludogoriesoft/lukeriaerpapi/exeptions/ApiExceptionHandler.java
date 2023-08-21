@@ -15,8 +15,12 @@ public class ApiExceptionHandler {
     }
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<String> handleValidationException(ValidationException ex) {
-        // Handle the ValidationException here
         String errorMessage = "Validation error: " + ex.getMessage();
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(ImageProcessingException.class)
+    public ResponseEntity<String> handleImageProcessingException(ImageProcessingException ex) {
+        String errorMessage = "Image processing error: " + ex.getMessage();
+        return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ImageProcessingException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,7 @@ public class ImageService {
 
             return uniqueFilename;
         } catch (IOException e) {
-            throw new RuntimeException("Error saving image: " + e.getMessage());
+            throw new ImageProcessingException("Error saving image: " + e.getMessage(), e);
         }
     }
 
@@ -61,7 +62,7 @@ public class ImageService {
 
             return uniqueFilename;
         } catch (IOException e) {
-            throw new RuntimeException("Error saving image: " + e.getMessage());
+            throw new ImageProcessingException("Error saving image: " + e.getMessage(), e);
         }
     }
 
