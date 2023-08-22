@@ -22,17 +22,23 @@ public class ImageService {
         this.packageRepository = packageRepository;
     }
 
-    private String saveFileAndGetUniqueFilename(MultipartFile file) throws IOException {
-        String originalFilename = file.getOriginalFilename();
-        String uniqueFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+    public String saveFileAndGetUniqueFilename(MultipartFile file) throws IOException {
+        String uniqueFilename = generateUniqueFilename(file.getOriginalFilename());
+        Path filePath = createFilePath(uniqueFilename);
 
-        Path directoryPath = Paths.get(imageDirectory);
-        Path filePath = directoryPath.resolve(uniqueFilename);
-
-        Files.createDirectories(directoryPath);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         return uniqueFilename;
+    }
+
+    String generateUniqueFilename(String originalFilename) {
+        return UUID.randomUUID().toString() + "_" + originalFilename;
+    }
+
+    Path createFilePath(String uniqueFilename) throws IOException {
+        Path directoryPath = Paths.get(imageDirectory);
+        Files.createDirectories(directoryPath);
+        return directoryPath.resolve(uniqueFilename);
     }
 
     public String saveImageForPackage(MultipartFile file) {
