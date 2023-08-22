@@ -17,12 +17,12 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping("/uploadImageForPackage")
-    public ResponseEntity<String> uploadImageForPackage(MultipartFile file) {
+    public ResponseEntity<String> uploadImageForPackage(MultipartFile file) throws IOException {
         String imagePath = imageService.saveImageForPackage(file);
         return ResponseEntity.ok(imagePath);
     }
     @PostMapping("/editImageForPackage")
-    public ResponseEntity<String> editImageForPackage(MultipartFile file, Long packageId) {
+    public ResponseEntity<String> editImageForPackage(MultipartFile file, Long packageId) throws IOException {
         String imagePath = imageService.editImageForPackage(file, packageId);
         return ResponseEntity.ok(imagePath);
     }

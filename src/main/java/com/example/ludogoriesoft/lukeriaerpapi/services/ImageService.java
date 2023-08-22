@@ -1,6 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ImageProcessingException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,34 +40,26 @@ public class ImageService {
         return directoryPath.resolve(uniqueFilename);
     }
 
-    public String saveImageForPackage(MultipartFile file) {
-        try {
-            String uniqueFilename = saveFileAndGetUniqueFilename(file);
+    public String saveImageForPackage(MultipartFile file) throws IOException {
+        String uniqueFilename = saveFileAndGetUniqueFilename(file);
 
-            Package aPackage = packageRepository.findFirstByDeletedFalseOrderByIdDesc();
-            aPackage.setPhoto(uniqueFilename);
-            packageRepository.save(aPackage);
+        Package aPackage = packageRepository.findFirstByDeletedFalseOrderByIdDesc();
+        aPackage.setPhoto(uniqueFilename);
+        packageRepository.save(aPackage);
 
-            return uniqueFilename;
-        } catch (IOException e) {
-            throw new ImageProcessingException("Error saving image: " + e.getMessage(), e);
-        }
+        return uniqueFilename;
     }
 
-    public String editImageForPackage(MultipartFile file, Long packageId) {
-        try {
-            String uniqueFilename = saveFileAndGetUniqueFilename(file);
+    public String editImageForPackage(MultipartFile file, Long packageId) throws IOException {
+        String uniqueFilename = saveFileAndGetUniqueFilename(file);
 
-            Optional<Package> aPackage = packageRepository.findByIdAndDeletedFalse(packageId);
-            aPackage.ifPresent(pkg -> {
-                pkg.setPhoto(uniqueFilename);
-                packageRepository.save(pkg);
-            });
+        Optional<Package> aPackage = packageRepository.findByIdAndDeletedFalse(packageId);
+        aPackage.ifPresent(pkg -> {
+            pkg.setPhoto(uniqueFilename);
+            packageRepository.save(pkg);
+        });
 
-            return uniqueFilename;
-        } catch (IOException e) {
-            throw new ImageProcessingException("Error saving image: " + e.getMessage(), e);
-        }
+        return uniqueFilename;
     }
 
     public byte[] getImageBytes(String imageName) throws IOException {
