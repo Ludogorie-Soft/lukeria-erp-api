@@ -17,11 +17,10 @@ public class ImageService {
      private String imageDirectory;
     private final PackageRepository packageRepository;
 
-    public ImageService(String imageDirectory, PackageRepository packageRepository) {
+    public ImageService(@Value("${image.upload.directory}") String imageDirectory, PackageRepository packageRepository) {
         this.imageDirectory = imageDirectory;
         this.packageRepository = packageRepository;
     }
-
     public String saveFileAndGetUniqueFilename(MultipartFile file) throws IOException {
         String uniqueFilename = generateUniqueFilename(file.getOriginalFilename());
         Path filePath = createFilePath(uniqueFilename);
