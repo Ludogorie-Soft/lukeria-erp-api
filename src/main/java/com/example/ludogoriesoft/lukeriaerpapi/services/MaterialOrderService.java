@@ -128,7 +128,8 @@ public class MaterialOrderService {
                     createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(),  calculatePlateInsufficientNumbers(packageEntity) - orderProduct.getNumber(), materialsForOrder);
                 }
                 if (calculateCartonInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
-                    createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(), (calculateCartonInsufficientNumbers(packageEntity) / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton()), materialsForOrder);
+                    createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(),
+                            (calculateCartonInsufficientNumbers(packageEntity) / packageEntity.getPiecesCarton()) - (orderProduct.getNumber() / packageEntity.getPiecesCarton()), materialsForOrder);
                 }
                 if (calculatePackageInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
                     createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), calculatePackageInsufficientNumbers(packageEntity) - orderProduct.getNumber(), materialsForOrder);

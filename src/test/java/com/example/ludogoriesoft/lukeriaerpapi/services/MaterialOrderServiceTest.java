@@ -7,6 +7,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -796,6 +797,37 @@ class MaterialOrderServiceTest {
         long materialId = 123;
         Package packageEntity = new Package();
         packageEntity.setId(materialId);
+
+@Test
+void testGetAllOrderProductsByOrderId() {
+    Long orderId = 123L;
+
+    // Create a list of mock OrderProduct objects
+    List<OrderProduct> mockOrderProducts = new ArrayList<>();
+    OrderProduct orderProduct = new OrderProduct();
+    orderProduct.setId(1L);
+    Order order = new Order();
+    order.setId(1L);
+    orderProduct.setOrderId(order);
+    mockOrderProducts.add(orderProduct);
+    mockOrderProducts.add(orderProduct);
+    mockOrderProducts.add(orderProduct);
+    // Mock the findAll() method of the orderProductRepository to return the mockOrderProducts list
+    when(orderProductRepository.findAll()).thenReturn(mockOrderProducts);
+
+    // Call the method under test
+    List<MaterialOrderDTO> result = materialOrderService.getAllOrderProductsByOrderId(orderId);
+
+    // Verify the expected result
+    Assertions.assertEquals(0, result.size()); // Expecting 2 OrderProduct objects with matching orderId
+}
+@Test
+ void testFindPackageByMaterialId() {
+    // Подготовка на данни: предполагаме, че имаме пакет с даден материален идентификатор (например 123)
+    long materialId = 123;
+    Package packageEntity = new Package();
+    packageEntity.setId(materialId);
+
 
         // Конфигурираме мока на packageRepository.findByIdAndDeletedFalse да връща Optional с пакета
         when(packageRepository.findByIdAndDeletedFalse(materialId)).thenReturn(Optional.of(packageEntity));
