@@ -824,23 +824,18 @@ class MaterialOrderServiceTest {
 
     @Test
     void testGetProductFromPackage() {
-        // Подготовка на данни: предполагаме, че имаме пакет с даден идентификатор (например 123)
         long packageId = 123;
         Package packageEntity = new Package();
         packageEntity.setId(packageId);
 
-        // Подготовка на продукт, който ще бъде върнат от мока
         Product product = new Product();
         product.setId(456L);
         product.setDeleted(false);
 
-        // Конфигурираме мока на productRepository.findByIdAndDeletedFalse да връща Optional с продукта
         when(productRepository.findByPackageIdAndDeletedFalse(packageEntity)).thenReturn(Optional.of(product));
 
-        // Извикваме метода, който тестваме
         Product result = materialOrderService.getProductFromPackage(packageEntity);
 
-        // Проверяваме дали резултатът е същият като продукта, който очакваме да бъде върнат от мока
         assertEquals(product, result);
     }
 
@@ -895,14 +890,8 @@ class MaterialOrderServiceTest {
         // Подготовка на MaterialOrderDTO с нулево количество поръчан материал
         MaterialOrderDTO allNeedsMaterialOrder = new MaterialOrderDTO();
         allNeedsMaterialOrder.setOrderedQuantity(0);
-
-        // Подготовка на списък с материални поръчки
         List<MaterialOrderDTO> allMaterialsForAllOrders = new ArrayList<>();
-
-        // Извикваме метода, който тестваме
         materialOrderService.createPackageInsufficientMaterialOrder(allNeedsMaterialOrder, packageEntity, allMaterialsForAllOrders);
-
-        // Проверяваме дали не е добавена материална поръчка към списъка
         assertEquals(0, allMaterialsForAllOrders.size());
     }
 }
