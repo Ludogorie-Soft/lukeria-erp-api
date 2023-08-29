@@ -14,10 +14,11 @@ import java.util.UUID;
 @Service
 public class ImageService {
     @Value("${image.upload.directory}")
-    private String imageDirectory;
+     private String imageDirectory;
     private final PackageRepository packageRepository;
 
-    public ImageService(PackageRepository packageRepository) {
+    public ImageService(String imageDirectory, PackageRepository packageRepository) {
+        this.imageDirectory = imageDirectory;
         this.packageRepository = packageRepository;
     }
 
