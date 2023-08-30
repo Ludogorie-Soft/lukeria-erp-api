@@ -21,4 +21,6 @@ public class Order {
     private LocalDate orderDate;
     @Column(name = "is_deleted")
     private boolean deleted;
+    @Column(name = "is_invoiced")
+    private boolean invoiced;
 }

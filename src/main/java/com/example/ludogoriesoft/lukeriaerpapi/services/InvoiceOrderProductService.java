@@ -3,6 +3,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -11,10 +12,12 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class InvoiceOrderProductService {
+    private final OrderRepository orderRepository;
     private final InvoiceOrderProductRepository invoiceOrderProductRepository;
     private final OrderProductRepository orderProductRepository;
     private final PackageRepository packageRepository;
@@ -60,13 +63,23 @@ public class InvoiceOrderProductService {
         }
     }
 
-    public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
-        validateInvoiceOrderProduct(invoiceOrderProductDTO);
-        InvoiceOrderProduct invoiceOrderProduct = invoiceOrderProductRepository.save(modelMapper.map(invoiceOrderProductDTO, InvoiceOrderProduct.class));
-        return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
-    }
+public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
+    validateInvoiceOrderProduct(invoiceOrderProductDTO);
+    InvoiceOrderProduct invoiceOrderProduct = invoiceOrderProductRepository.save(modelMapper.map(invoiceOrderProductDTO, InvoiceOrderProduct.class));
 
-    public String createInvoiceOrderProductWhitIds( InvoiceOrderProductConfigDTO configDTO) {
+    Long orderProductId = invoiceOrderProduct.getOrderProductId().getId();
+    Optional<Order> order = orderRepository.findByIdAndDeletedFalse(orderProductId);
+    if (order.isPresent()) {
+        Order orderForSave = order.get();
+        orderForSave.setInvoiced(true);
+        orderRepository.save(orderForSave);
+    } else {
+        System.err.println("InvoiceOrderProductService.createInvoiceOrderProduct");    }
+
+    return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
+}
+
+    public String createInvoiceOrderProductWhitIds(InvoiceOrderProductConfigDTO configDTO) {
         List<Long> orderProductIds = configDTO.getOrderProductIds();
         Long invoiceId = configDTO.getInvoiceId();
 
@@ -78,7 +91,6 @@ public class InvoiceOrderProductService {
             validateInvoiceOrderProduct(invoiceOrderProductDTO);
             createInvoiceOrderProduct(invoiceOrderProductDTO);
         }
-
         return "Операцията беше изпълнена";
     }
 
