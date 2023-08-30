@@ -73,9 +73,7 @@ public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO i
         Order orderForSave = order.get();
         orderForSave.setInvoiced(true);
         orderRepository.save(orderForSave);
-    } else {
-        System.err.println("InvoiceOrderProductService.createInvoiceOrderProduct");    }
-
+    }
     return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
 }
 
