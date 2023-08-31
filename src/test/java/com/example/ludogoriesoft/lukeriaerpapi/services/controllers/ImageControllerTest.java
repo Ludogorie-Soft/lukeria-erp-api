@@ -52,7 +52,7 @@ class ImageControllerTest {
     }
 
     @Test
-    void testUpdateImage() throws Exception {
+    void testUpdateImageForPackage() throws Exception {
         byte[] content = "Sample file content".getBytes();
 
         String filename = "sample.txt";
@@ -72,7 +72,7 @@ class ImageControllerTest {
     }
 
     @Test
-    void testEditImage() throws Exception {
+    void testEditImageForPackage() throws Exception {
         byte[] content = "Sample file content".getBytes();
 
         String filename = "sample.txt";
@@ -84,6 +84,46 @@ class ImageControllerTest {
         when(imageService.editImageForPackage(multipartFile, 1L)).thenReturn(String.valueOf(multipartFile));
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/images/editImageForPackage")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
+    @Test
+    void testUpdateImageForPlate() throws Exception {
+        byte[] content = "Sample file content".getBytes();
+
+        String filename = "sample.txt";
+        InputStream inputStream = new ByteArrayInputStream(content);
+
+        MultipartFile multipartFile = new MockMultipartFile(filename, filename, "text/plain", inputStream);
+
+        when(imageService.saveImageForPackage(multipartFile)).thenReturn(String.valueOf(multipartFile));
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/images/uploadImageForPlate")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
+
+    @Test
+    void testEditImageForPlate() throws Exception {
+        byte[] content = "Sample file content".getBytes();
+
+        String filename = "sample.txt";
+        InputStream inputStream = new ByteArrayInputStream(content);
+
+        MultipartFile multipartFile = new MockMultipartFile(filename, filename, "text/plain", inputStream);
+
+
+        when(imageService.editImageForPackage(multipartFile, 1L)).thenReturn(String.valueOf(multipartFile));
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/images/editImageForPlate")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
