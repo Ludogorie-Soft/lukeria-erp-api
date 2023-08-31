@@ -2,6 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -24,12 +24,14 @@ class ImageServiceTest {
 
     @Mock
     private PackageRepository packageRepository;
+    @Mock
+    private PlateRepository plateRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         String imageDirectory = "src/main/resources/static/PackageImages/";
-        imageService = new ImageService(imageDirectory, packageRepository);
+        imageService = new ImageService(imageDirectory, packageRepository, plateRepository);
     }
 
     @Test
