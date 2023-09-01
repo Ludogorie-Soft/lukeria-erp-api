@@ -31,7 +31,7 @@ class ImageServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        String imageDirectory = "src/main/resources/static/PackageImages/";
+        String imageDirectory = "src/main/resources/static/uploads/";
         imageService = new ImageService(imageDirectory, packageRepository, plateRepository);
     }
 
@@ -116,7 +116,7 @@ class ImageServiceTest {
     @Test
     void testGetImageBytes() throws IOException {
         String imageName = "test-image.jpg";
-        String imageDirectory="src/main/resources/static/PackageImages/";
+        String imageDirectory="src/main/resources/static/uploads/";
         Path imagePath = Path.of(imageDirectory, imageName);
         Files.createDirectories(imagePath.getParent());
         Files.write(imagePath, "Test image content".getBytes());
