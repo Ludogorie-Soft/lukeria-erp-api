@@ -20,4 +20,5 @@ public class InvoiceDTO {
     private BigDecimal totalPrice;
     private boolean isCashPayment;
     private LocalDate deadline;
+    private boolean created;
 }

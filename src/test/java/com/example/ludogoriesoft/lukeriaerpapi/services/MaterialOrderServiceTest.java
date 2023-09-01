@@ -1,28 +1,26 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
-import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -754,19 +752,6 @@ class MaterialOrderServiceTest {
         // Expecting a NullPointerException because there's no available quantity for the plate
     }
 
-//    @Test
-//    void testCalculatePackageInsufficientNumbers2() {
-//        // Arrange
-//        Package packageEntity = new Package();
-//        packageEntity.setAvailableQuantity(20);
-//
-//        // Act
-//        int result = materialOrderService.calculatePackageInsufficientNumbers(packageEntity);
-//
-//        // Assert
-//        assertEquals(20, result); // Expecting the available quantity of the package
-//    }
-
     @Test
     void testAllMissingMaterials_PackageInsufficient3() {
         // Arrange
@@ -796,11 +781,6 @@ class MaterialOrderServiceTest {
         when(packageRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(packageEntity));
         when(productRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(product));
 
-        // Mocking calculation methods
-//        when(materialOrderService.calculateCartonInsufficientNumbers(any(Package.class))).thenReturn(10);
-//        when(materialOrderService.calculatePlateInsufficientNumbers(any(Package.class))).thenReturn(5);
-//        when(materialOrderService.calculatePackageInsufficientNumbers(any(Package.class))).thenReturn(5);
-
         // Act
         List<MaterialOrderDTO> result = materialOrderService.allMissingMaterials(allNeedsMaterialOrders);
 
@@ -809,145 +789,140 @@ class MaterialOrderServiceTest {
 
     }
 
-@Test
-void testGetAllOrderProductsByOrderId() {
-    Long orderId = 123L;
+//    @Test
+//    void testFindPackageByMaterialId() {
+//        // Подготовка на данни: предполагаме, че имаме пакет с даден материален идентификатор (например 123)
+//        long materialId = 123;
+//        Package packageEntity = new Package();
+//        packageEntity.setId(materialId);
+//    }
 
-    // Create a list of mock OrderProduct objects
-    List<OrderProduct> mockOrderProducts = new ArrayList<>();
-    OrderProduct orderProduct = new OrderProduct();
-    orderProduct.setId(1L);
-    Order order = new Order();
-    order.setId(1L);
-    orderProduct.setOrderId(order);
-    mockOrderProducts.add(orderProduct);
-    mockOrderProducts.add(orderProduct);
-    mockOrderProducts.add(orderProduct);
-    // Mock the findAll() method of the orderProductRepository to return the mockOrderProducts list
-    when(orderProductRepository.findAll()).thenReturn(mockOrderProducts);
+        @Test
+        void testGetAllOrderProductsByOrderId () {
+            Long orderId = 123L;
 
-    // Call the method under test
-    List<MaterialOrderDTO> result = materialOrderService.getAllOrderProductsByOrderId(orderId);
+            // Create a list of mock OrderProduct objects
+            List<OrderProduct> mockOrderProducts = new ArrayList<>();
+            OrderProduct orderProduct = new OrderProduct();
+            orderProduct.setId(1L);
+            Order order = new Order();
+            order.setId(1L);
+            orderProduct.setOrderId(order);
+            mockOrderProducts.add(orderProduct);
+            mockOrderProducts.add(orderProduct);
+            mockOrderProducts.add(orderProduct);
+            // Mock the findAll() method of the orderProductRepository to return the mockOrderProducts list
+            when(orderProductRepository.findAll()).thenReturn(mockOrderProducts);
 
-    // Verify the expected result
-    Assertions.assertEquals(0, result.size()); // Expecting 2 OrderProduct objects with matching orderId
-}
-@Test
- void testFindPackageByMaterialId() {
-    // Подготовка на данни: предполагаме, че имаме пакет с даден материален идентификатор (например 123)
-    long materialId = 123;
-    Package packageEntity = new Package();
-    packageEntity.setId(materialId);
+            // Call the method under test
+            List<MaterialOrderDTO> result = materialOrderService.getAllOrderProductsByOrderId(orderId);
 
-    // Конфигурираме мока на packageRepository.findByIdAndDeletedFalse да връща Optional с пакета
-    when(packageRepository.findByIdAndDeletedFalse(materialId)).thenReturn(Optional.of(packageEntity));
+            // Verify the expected result
+            Assertions.assertEquals(0, result.size()); // Expecting 2 OrderProduct objects with matching orderId
+        }
+        @Test
+        void testFindPackageByMaterialId () {
+            // Подготовка на данни: предполагаме, че имаме пакет с даден материален идентификатор (например 123)
+            long materialId = 123;
+            Package packageEntity = new Package();
+            packageEntity.setId(materialId);
 
-    // Извикваме метода, който тестваме
-    Package result = materialOrderService.findPackageByMaterialId(materialId);
 
-    // Проверяваме дали резултатът е същият като пакета, който очакваме да бъде върнат от мока
-    assertEquals(packageEntity, result);
-}
+            // Конфигурираме мока на packageRepository.findByIdAndDeletedFalse да връща Optional с пакета
+            when(packageRepository.findByIdAndDeletedFalse(materialId)).thenReturn(Optional.of(packageEntity));
 
-    @Test
-     void testFindPackageByMaterialIdNotFound() {
-        // Подготовка на данни: предполагаме, че не съществува пакет с даден материален идентификатор (например 456)
-        long materialId = 456;
+            // Извикваме метода, който тестваме
+            Package result = materialOrderService.findPackageByMaterialId(materialId);
 
-        // Конфигурираме мока на packageRepository.findByIdAndDeletedFalse да връща празен Optional (пакетът не съществува)
-        when(packageRepository.findByIdAndDeletedFalse(materialId)).thenReturn(Optional.empty());
+            // Проверяваме дали резултатът е същият като пакета, който очакваме да бъде върнат от мока
+            assertEquals(packageEntity, result);
+        }
 
-        // Извикваме метода, който тестваме
-        Package result = materialOrderService.findPackageByMaterialId(materialId);
+        @Test
+        void testFindPackageByMaterialIdNotFound () {
+            // Подготовка на данни: предполагаме, че не съществува пакет с даден материален идентификатор (например 456)
+            long materialId = 456;
 
-        // Проверяваме дали резултатът е null, тъй като пакетът не съществува
-        assertEquals(null, result);
+            // Конфигурираме мока на packageRepository.findByIdAndDeletedFalse да връща празен Optional (пакетът не съществува)
+            when(packageRepository.findByIdAndDeletedFalse(materialId)).thenReturn(Optional.empty());
+
+            // Извикваме метода, който тестваме
+            Package result = materialOrderService.findPackageByMaterialId(materialId);
+
+            // Проверяваме дали резултатът е null, тъй като пакетът не съществува
+            assertEquals(null, result);
+        }
+
+        @Test
+        void testGetProductFromPackage () {
+            long packageId = 123;
+            Package packageEntity = new Package();
+            packageEntity.setId(packageId);
+
+            Product product = new Product();
+            product.setId(456L);
+            product.setDeleted(false);
+
+            when(productRepository.findByPackageIdAndDeletedFalse(packageEntity)).thenReturn(Optional.of(product));
+
+            Product result = materialOrderService.getProductFromPackage(packageEntity);
+
+            assertEquals(product, result);
+        }
+
+        @Test
+        void testGetProductFromPackageNotFound () {
+            // Подготовка на данни: предполагаме, че не съществува пакет с даден идентификатор (например 789)
+            long packageId = 789;
+            Package packageEntity = new Package();
+            packageEntity.setId(packageId);
+
+            // Конфигурираме мока на productRepository.findByIdAndDeletedFalse да връща празен Optional (продуктът не съществува)
+            when(productRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.empty());
+
+            // Очакваме RuntimeException със съобщението "Продуктът не беше намерен"
+            assertThrows(RuntimeException.class, () -> {
+                materialOrderService.getProductFromPackage(packageEntity);
+            });
+        }
+
+        @Test
+        void testCreatePackageInsufficientMaterialOrder () {
+            // Подготовка на данни: предполагаме, че имаме пакет с налични бройки (например 100)
+            int availableQuantity = 100;
+
+            // Подготовка на Package с валидни данни
+            Package packageEntity = new Package();
+            packageEntity.setAvailableQuantity(availableQuantity);
+
+            // Подготовка на MaterialOrderDTO с нужно количество поръчан материал
+            MaterialOrderDTO allNeedsMaterialOrder = new MaterialOrderDTO();
+            allNeedsMaterialOrder.setOrderedQuantity(50);
+
+            // Подготовка на списък с материални поръчки
+            List<MaterialOrderDTO> allMaterialsForAllOrders = new ArrayList<>();
+
+            // Извикваме метода, който тестваме
+            materialOrderService.createPackageInsufficientMaterialOrder(allNeedsMaterialOrder, packageEntity, allMaterialsForAllOrders);
+
+            // Проверяваме дали е добавена материална поръчка към списъка с правилни стойности
+            assertEquals(0, allMaterialsForAllOrders.size()); // Очакваме 1 материална поръчка, тъй като недостигащите бройки са (100 - 50) = 50
+        }
+
+        @Test
+        void testCreatePackageInsufficientMaterialOrderNoOrderNeeded () {
+            // Подготовка на данни: предполагаме, че имаме пакет с достатъчно налични бройки (например 100)
+            int availableQuantity = 100;
+
+            // Подготовка на Package с валидни данни
+            Package packageEntity = new Package();
+            packageEntity.setAvailableQuantity(availableQuantity);
+
+            // Подготовка на MaterialOrderDTO с нулево количество поръчан материал
+            MaterialOrderDTO allNeedsMaterialOrder = new MaterialOrderDTO();
+            allNeedsMaterialOrder.setOrderedQuantity(0);
+            List<MaterialOrderDTO> allMaterialsForAllOrders = new ArrayList<>();
+            materialOrderService.createPackageInsufficientMaterialOrder(allNeedsMaterialOrder, packageEntity, allMaterialsForAllOrders);
+            assertEquals(0, allMaterialsForAllOrders.size());
+        }
     }
-
-    @Test
-     void testGetProductFromPackage() {
-        // Подготовка на данни: предполагаме, че имаме пакет с даден идентификатор (например 123)
-        long packageId = 123;
-        Package packageEntity = new Package();
-        packageEntity.setId(packageId);
-
-        // Подготовка на продукт, който ще бъде върнат от мока
-        Product product = new Product();
-        product.setId(456L);
-        product.setDeleted(false);
-
-        // Конфигурираме мока на productRepository.findByIdAndDeletedFalse да връща Optional с продукта
-        when(productRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.of(product));
-
-        // Извикваме метода, който тестваме
-        Product result = materialOrderService.getProductFromPackage(packageEntity);
-
-        // Проверяваме дали резултатът е същият като продукта, който очакваме да бъде върнат от мока
-        assertEquals(product, result);
-    }
-
-    @Test
-     void testGetProductFromPackageNotFound() {
-        // Подготовка на данни: предполагаме, че не съществува пакет с даден идентификатор (например 789)
-        long packageId = 789;
-        Package packageEntity = new Package();
-        packageEntity.setId(packageId);
-
-        // Конфигурираме мока на productRepository.findByIdAndDeletedFalse да връща празен Optional (продуктът не съществува)
-        when(productRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.empty());
-
-        // Очакваме RuntimeException със съобщението "Продуктът не беше намерен"
-        assertThrows(RuntimeException.class, () -> {
-            materialOrderService.getProductFromPackage(packageEntity);
-        });
-    }
-
-    @Test
-     void testCreatePackageInsufficientMaterialOrder() {
-        // Подготовка на данни: предполагаме, че имаме пакет с налични бройки (например 100)
-        int availableQuantity = 100;
-
-        // Подготовка на Package с валидни данни
-        Package packageEntity = new Package();
-        packageEntity.setAvailableQuantity(availableQuantity);
-
-        // Подготовка на MaterialOrderDTO с нужно количество поръчан материал
-        MaterialOrderDTO allNeedsMaterialOrder = new MaterialOrderDTO();
-        allNeedsMaterialOrder.setOrderedQuantity(50);
-
-        // Подготовка на списък с материални поръчки
-        List<MaterialOrderDTO> allMaterialsForAllOrders = new ArrayList<>();
-
-        // Извикваме метода, който тестваме
-        materialOrderService.createPackageInsufficientMaterialOrder(allNeedsMaterialOrder, packageEntity, allMaterialsForAllOrders);
-
-        // Проверяваме дали е добавена материална поръчка към списъка с правилни стойности
-        assertEquals(0, allMaterialsForAllOrders.size()); // Очакваме 1 материална поръчка, тъй като недостигащите бройки са (100 - 50) = 50
-    }
-
-    @Test
-     void testCreatePackageInsufficientMaterialOrderNoOrderNeeded() {
-        // Подготовка на данни: предполагаме, че имаме пакет с достатъчно налични бройки (например 100)
-        int availableQuantity = 100;
-
-        // Подготовка на Package с валидни данни
-        Package packageEntity = new Package();
-        packageEntity.setAvailableQuantity(availableQuantity);
-
-        // Подготовка на MaterialOrderDTO с нулево количество поръчан материал
-        MaterialOrderDTO allNeedsMaterialOrder = new MaterialOrderDTO();
-        allNeedsMaterialOrder.setOrderedQuantity(0);
-
-        // Подготовка на списък с материални поръчки
-        List<MaterialOrderDTO> allMaterialsForAllOrders = new ArrayList<>();
-
-        // Извикваме метода, който тестваме
-        materialOrderService.createPackageInsufficientMaterialOrder(allNeedsMaterialOrder, packageEntity, allMaterialsForAllOrders);
-
-        // Проверяваме дали не е добавена материална поръчка към списъка
-        assertEquals(0, allMaterialsForAllOrders.size());
-    }
-
-
-
-}

@@ -10,6 +10,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,7 +18,27 @@ import java.util.List;
 public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
+    public static final Long FIRS_INVOICE_NUMBER = 2000000000L;
 
+    public Long findLastInvoiceNumberStartingWithTwo()  {
+        String prefix = "2";
+
+        List<String> lastInvoiceNumbers = invoiceRepository.findLastInvoiceNumberStartingWith(prefix);
+
+        if (lastInvoiceNumbers.isEmpty()) {
+           return FIRS_INVOICE_NUMBER;
+        }
+
+        String maxLastDigitNumber = lastInvoiceNumbers.stream()
+                .max(Comparator.comparing(this::getLastDigit))
+                .orElse("0");
+
+        return Long.parseLong(maxLastDigitNumber);
+    }
+
+    private int getLastDigit(String invoiceNumber) {
+        return Character.getNumericValue(invoiceNumber.charAt(invoiceNumber.length() - 1));
+    }
     public List<InvoiceDTO> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findByDeletedFalse();
         return invoices.stream().map(invoice -> modelMapper.map(invoice, InvoiceDTO.class)).toList();
@@ -35,6 +56,7 @@ public class InvoiceService {
         if (invoiceDTO.getTotalPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
+        invoiceDTO.setCreated(true);
         Invoice invoiceEntity = invoiceRepository.save(modelMapper.map(invoiceDTO, Invoice.class));
         return modelMapper.map(invoiceEntity, InvoiceDTO.class);
     }

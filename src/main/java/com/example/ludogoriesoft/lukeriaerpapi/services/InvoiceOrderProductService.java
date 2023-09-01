@@ -1,10 +1,10 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.InvoiceOrderProductRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.InvoiceRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -12,12 +12,16 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class InvoiceOrderProductService {
+    private final OrderRepository orderRepository;
     private final InvoiceOrderProductRepository invoiceOrderProductRepository;
     private final OrderProductRepository orderProductRepository;
+    private final PackageRepository packageRepository;
+    private final ClientRepository clientRepository;
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
 
@@ -59,11 +63,6 @@ public class InvoiceOrderProductService {
         }
     }
 
-    public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
-        validateInvoiceOrderProduct(invoiceOrderProductDTO);
-        InvoiceOrderProduct invoiceOrderProduct = invoiceOrderProductRepository.save(modelMapper.map(invoiceOrderProductDTO, InvoiceOrderProduct.class));
-        return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
-    }
 
     public InvoiceOrderProductDTO updateInvoiceOrderProduct(Long id, InvoiceOrderProductDTO invoiceOrderProductDTO) throws ChangeSetPersister.NotFoundException {
         validateInvoiceOrderProduct(invoiceOrderProductDTO);

@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.services.InvoiceOrderProductService;
 import jakarta.validation.Valid;
@@ -27,11 +28,6 @@ public class InvoiceOrderProductController {
         return ResponseEntity.ok(invoiceOrderProductService.getInvoiceOrderProductById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<InvoiceOrderProductDTO> createInvoiceOrderProduct(@Valid @RequestBody InvoiceOrderProductDTO invoiceOrderProductDTO) {
-        return new ResponseEntity<>(invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO), HttpStatus.CREATED);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<InvoiceOrderProductDTO> updateInvoiceOrderProduct(@PathVariable("id") Long id, @Valid @RequestBody  InvoiceOrderProductDTO invoiceOrderProductDTO) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(invoiceOrderProductService.updateInvoiceOrderProduct(id, invoiceOrderProductDTO));
@@ -42,6 +38,5 @@ public class InvoiceOrderProductController {
         invoiceOrderProductService.deleteInvoiceOrderProduct(id);
         return ResponseEntity.ok("InvoiceOrderProduct with id: " + id + " has been deleted successfully!");
     }
-
 
 }

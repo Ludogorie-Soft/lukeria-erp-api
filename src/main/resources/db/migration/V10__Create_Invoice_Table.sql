@@ -5,5 +5,6 @@ CREATE TABLE invoice (
   total_price DECIMAL(10, 2) NOT NULL,
   is_cash_payment TINYINT(1) DEFAULT FALSE,
   deadline DATE,
-  is_deleted TINYINT(1) DEFAULT FALSE
+  is_deleted TINYINT(1) DEFAULT FALSE,
+  is_created TINYINT(1) DEFAULT FALSE
 );

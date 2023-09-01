@@ -24,4 +24,6 @@ public class OrderProduct {
     private Package packageId;
     @Column(name = "is_deleted")
     private boolean deleted;
+    @Column(name = "selling_price")
+    private Integer sellingPrice;
 }

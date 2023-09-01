@@ -23,6 +23,7 @@ public class PackageService {
     private final CartonRepository cartonRepository;
     private final PlateRepository plateRepository;
     private final ModelMapper modelMapper;
+    private final ImageService imageService;
 
     public List<PackageDTO> getAllPackages() {
         List<Package> packages = packageRepository.findByDeletedFalse();

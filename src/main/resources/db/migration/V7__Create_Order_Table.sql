@@ -3,5 +3,6 @@ CREATE TABLE order_table  (
   client_id BIGINT,
   order_date DATE,
   FOREIGN KEY (client_id) REFERENCES client(id),
-  is_deleted TINYINT(1) DEFAULT FALSE
+  is_deleted TINYINT(1) DEFAULT FALSE,
+  is_invoiced TINYINT(1) DEFAULT FALSE
 );

@@ -23,4 +23,6 @@ public class Invoice {
     private LocalDate deadline;
     @Column(name = "is_deleted")
     private boolean deleted;
+    @Column(name = "is_created")
+    private boolean created;
 }

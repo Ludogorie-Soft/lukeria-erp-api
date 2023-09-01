@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface PackageRepository extends JpaRepository<Package,Long> {
     List<Package> findByDeletedFalse();
     Optional<Package> findByIdAndDeletedFalse(Long id);
+    Package findFirstByDeletedFalseOrderByIdDesc();
 }
