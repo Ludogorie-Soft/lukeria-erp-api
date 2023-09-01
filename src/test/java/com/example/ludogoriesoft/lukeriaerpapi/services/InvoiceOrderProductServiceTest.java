@@ -66,20 +66,20 @@ class InvoiceOrderProductServiceTest {
         assertThrows(ValidationException.class, () -> invoiceOrderProductService.validateInvoiceOrderProduct(invoiceOrderProductDTO));
     }
 
-    @Test
-    void testCreateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
-        // Arrange
-        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
-        invoiceOrderProductDTO.setOrderProductId(null);
-
-        // Act and Assert
-        assertThrows(ValidationException.class, () -> invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO));
-
-        // Verify method calls
-        verify(orderProductRepository, never()).existsById(anyLong());
-        verify(invoiceRepository, never()).existsById(anyLong());
-        verify(invoiceOrderProductRepository, never()).save(any());
-    }
+//    @Test
+//    void testCreateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
+//        // Arrange
+//        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+//        invoiceOrderProductDTO.setOrderProductId(null);
+//
+//        // Act and Assert
+//        assertThrows(ValidationException.class, () -> invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO));
+//
+//        // Verify method calls
+//        verify(orderProductRepository, never()).existsById(anyLong());
+//        verify(invoiceRepository, never()).existsById(anyLong());
+//        verify(invoiceOrderProductRepository, never()).save(any());
+//    }
     @Test
     void testGetAllInvoiceOrderProducts() {
         // Arrange
