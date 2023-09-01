@@ -18,7 +18,7 @@ import java.util.List;
 public class InvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
-    public static final Long FIRS_INVOICE_NUMBER = 2000000000L;
+    public static final Long FIRST_INVOICE_NUMBER = 2000000000L;
 
     public Long findLastInvoiceNumberStartingWithTwo()  {
         String prefix = "2";
@@ -26,7 +26,7 @@ public class InvoiceService {
         List<String> lastInvoiceNumbers = invoiceRepository.findLastInvoiceNumberStartingWith(prefix);
 
         if (lastInvoiceNumbers.isEmpty()) {
-           return FIRS_INVOICE_NUMBER;
+           return FIRST_INVOICE_NUMBER;
         }
 
         String maxLastDigitNumber = lastInvoiceNumbers.stream()
