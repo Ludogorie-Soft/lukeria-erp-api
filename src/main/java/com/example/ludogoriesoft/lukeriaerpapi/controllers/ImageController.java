@@ -26,6 +26,16 @@ public class ImageController {
         String imagePath = imageService.editImageForPackage(file, packageId);
         return ResponseEntity.ok(imagePath);
     }
+    @PostMapping("/uploadImageForPlate")
+    public ResponseEntity<String> uploadImageForPlate(MultipartFile file) throws IOException {
+        String imagePath = imageService.saveImageForPlate(file);
+        return ResponseEntity.ok(imagePath);
+    }
+    @PostMapping("/editImageForPlate")
+    public ResponseEntity<String> editImageForPlate(MultipartFile file, Long plateId) throws IOException {
+        String imagePath = imageService.editImageForPlate(file, plateId);
+        return ResponseEntity.ok(imagePath);
+    }
     @GetMapping("/{imageName}")
     public ResponseEntity<byte[]> getImage(@PathVariable String imageName) throws IOException {
         byte[] imageBytes = imageService.getImageBytes(imageName);

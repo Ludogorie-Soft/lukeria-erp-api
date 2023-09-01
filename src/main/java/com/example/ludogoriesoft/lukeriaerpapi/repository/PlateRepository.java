@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface PlateRepository extends JpaRepository<Plate, Long> {
     List<Plate> findByDeletedFalse();
     Optional<Plate> findByIdAndDeletedFalse(Long id);
+    Plate findFirstByDeletedFalseOrderByIdDesc();
 }

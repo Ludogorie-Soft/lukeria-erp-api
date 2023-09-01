@@ -1,7 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -24,12 +25,14 @@ class ImageServiceTest {
 
     @Mock
     private PackageRepository packageRepository;
+    @Mock
+    private PlateRepository plateRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        String imageDirectory = "src/main/resources/static/PackageImages/";
-        imageService = new ImageService(imageDirectory, packageRepository);
+        String imageDirectory = "src/main/resources/static/uploads/";
+        imageService = new ImageService(imageDirectory, packageRepository, plateRepository);
     }
 
     @Test
@@ -113,7 +116,7 @@ class ImageServiceTest {
     @Test
     void testGetImageBytes() throws IOException {
         String imageName = "test-image.jpg";
-        String imageDirectory="src/main/resources/static/PackageImages/";
+        String imageDirectory="src/main/resources/static/uploads/";
         Path imagePath = Path.of(imageDirectory, imageName);
         Files.createDirectories(imagePath.getParent());
         Files.write(imagePath, "Test image content".getBytes());
@@ -131,5 +134,75 @@ class ImageServiceTest {
 
         Assertions.assertArrayEquals(new byte[0], imageBytes);
     }
+    @Test
+    void testEditImageForPlate() throws IOException {
+        Long plateId = 1L;
+        Plate aPlate = new Plate();
+        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(Optional.of(aPlate));
+
+        MockMultipartFile file = new MockMultipartFile(
+                "test-image.jpg",
+                "test-image.jpg",
+                "image/jpeg",
+                "Test image content".getBytes()
+        );
+
+        String uniqueFilename = imageService.editImageForPlate(file, plateId);
+
+        Assertions.assertNotNull(aPlate); // Проверка за null стойност
+        Assertions.assertEquals(uniqueFilename, aPlate.getPhoto());
+    }
+
+    @Test
+    void testEditImageForPlateThrowsNullPointerException() throws IOException {
+        Long plateId = 1L;
+        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null); // Връщаме null вместо Optional.of(aPlate)
+
+        MockMultipartFile file = new MockMultipartFile(
+                "test-image.jpg",
+                "test-image.jpg",
+                "image/jpeg",
+                "Test image content".getBytes()
+        );
+
+        assertThrows(NullPointerException.class, () -> {
+            imageService.editImageForPlate(file, plateId);
+        });
+    }
+
+    @Test
+    void testSaveImageForPlateThrowsNullPointerException() throws IOException {
+        when(plateRepository.findFirstByDeletedFalseOrderByIdDesc()).thenReturn(null); // Връщаме null вместо aPlate
+
+        MockMultipartFile file = new MockMultipartFile(
+                "test-image.jpg",
+                "test-image.jpg",
+                "image/jpeg",
+                "Test image content".getBytes()
+        );
+
+        assertThrows(NullPointerException.class, () -> {
+            imageService.saveImageForPlate(file);
+        });
+    }
+
+    @Test
+    void testEditImageForPlateThrowsNullPointerException2() throws IOException {
+        Long plateId = 1L;
+        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null); // Връщаме null вместо Optional.of(aPlate)
+
+        MockMultipartFile file = new MockMultipartFile(
+                "test-image.jpg",
+                "test-image.jpg",
+                "image/jpeg",
+                "Test image content".getBytes()
+        );
+
+        assertThrows(NullPointerException.class, () -> {
+            imageService.editImageForPlate(file, plateId);
+        });
+    }
+
+
 }
 
