@@ -63,35 +63,6 @@ public class InvoiceOrderProductService {
         }
     }
 
-public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
-    validateInvoiceOrderProduct(invoiceOrderProductDTO);
-    InvoiceOrderProduct invoiceOrderProduct = invoiceOrderProductRepository.save(modelMapper.map(invoiceOrderProductDTO, InvoiceOrderProduct.class));
-
-    Long orderProductId = invoiceOrderProduct.getOrderProductId().getId();
-    Optional<Order> order = orderRepository.findByIdAndDeletedFalse(orderProductId);
-    if (order.isPresent()) {
-        Order orderForSave = order.get();
-        orderForSave.setInvoiced(true);
-        orderRepository.save(orderForSave);
-    }
-    return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
-}
-
-    public String createInvoiceOrderProductWhitIds(InvoiceOrderProductConfigDTO configDTO) {
-        List<Long> orderProductIds = configDTO.getOrderProductIds();
-        Long invoiceId = configDTO.getInvoiceId();
-
-        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
-
-        for (Long orderProduct : orderProductIds) {
-            invoiceOrderProductDTO.setOrderProductId(orderProduct);
-            invoiceOrderProductDTO.setInvoiceId(invoiceId);
-            validateInvoiceOrderProduct(invoiceOrderProductDTO);
-            createInvoiceOrderProduct(invoiceOrderProductDTO);
-        }
-        return "Операцията беше изпълнена";
-    }
-
 
     public InvoiceOrderProductDTO updateInvoiceOrderProduct(Long id, InvoiceOrderProductDTO invoiceOrderProductDTO) throws ChangeSetPersister.NotFoundException {
         validateInvoiceOrderProduct(invoiceOrderProductDTO);
