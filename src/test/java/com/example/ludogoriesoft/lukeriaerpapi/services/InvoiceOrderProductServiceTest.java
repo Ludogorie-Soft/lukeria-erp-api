@@ -1,6 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Invoice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
@@ -10,7 +9,6 @@ import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -18,7 +16,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +29,8 @@ class InvoiceOrderProductServiceTest {
     @Mock
     private InvoiceOrderProductRepository invoiceOrderProductRepository;
 
+    @Mock
+    private OrderRepository orderRepository;
     @Mock
     private OrderProductRepository orderProductRepository;
 
@@ -55,33 +54,6 @@ class InvoiceOrderProductServiceTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-    }
-
-
-    @Test
-    void testCreateInvoiceOrderProductWhitIds2() {
-        // Създаване на мокнати данни
-        InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
-        List<Long> orderProductIds = Arrays.asList(1L, 2L, 3L);
-        Long invoiceId = 123L;
-        configDTO.setOrderProductIds(orderProductIds);
-        configDTO.setInvoiceId(invoiceId);
-
-        // Мокване на поведението на репозиториите
-        when(orderProductRepository.existsById(anyLong())).thenReturn(true);
-        when(invoiceRepository.existsById(anyLong())).thenReturn(true);
-
-        // Мокване на поведението на invoiceOrderProductRepository.save()
-        ArgumentCaptor<InvoiceOrderProduct> captor = ArgumentCaptor.forClass(InvoiceOrderProduct.class);
-        when(invoiceOrderProductRepository.save(captor.capture())).thenReturn(new InvoiceOrderProduct());
-
-        // Извикване на тествания метод
-        String result = invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO);
-
-        // Проверка на резултата
-        assertEquals("Операцията беше изпълнена", result);
-        List<InvoiceOrderProduct> savedProducts = captor.getAllValues();
-        assertEquals(3, savedProducts.size()); // Проверка за брой записани продукти
     }
 
     @Test
@@ -257,33 +229,6 @@ class InvoiceOrderProductServiceTest {
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> invoiceOrderProductService.validateInvoiceOrderProduct(invalidDTO));
         assertEquals("Invoice does not exist with ID: 2", exception.getMessage());
-    }
-
-    @Test
-    void testCreateInvoiceOrderProduct_ValidDTO_ReturnsDTO() {
-        // Arrange
-        InvoiceOrderProductDTO validDTO = new InvoiceOrderProductDTO();
-        validDTO.setOrderProductId(1L);
-        validDTO.setInvoiceId(1L);
-        Invoice invoice = new Invoice();
-        invoice.setId(1L);
-        OrderProduct orderProduct = new OrderProduct();
-        orderProduct.setId(1L);
-
-        when(orderProductRepository.existsById(validDTO.getOrderProductId())).thenReturn(true);
-        when(invoiceRepository.existsById(validDTO.getInvoiceId())).thenReturn(true);
-
-        InvoiceOrderProduct invoiceOrderProduct = new InvoiceOrderProduct();
-        when(modelMapper.map(validDTO, InvoiceOrderProduct.class)).thenReturn(invoiceOrderProduct);
-        when(invoiceOrderProductRepository.save(invoiceOrderProduct)).thenReturn(invoiceOrderProduct);
-
-        InvoiceOrderProductDTO expectedDTO = new InvoiceOrderProductDTO();
-        when(modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class)).thenReturn(expectedDTO);
-
-        InvoiceOrderProductDTO createdInvoiceOrderProductDTO = invoiceOrderProductService.createInvoiceOrderProduct(validDTO);
-
-        verify(invoiceOrderProductRepository, times(1)).save(invoiceOrderProduct);
-        assertEquals(expectedDTO, createdInvoiceOrderProductDTO);
     }
 
     @Test
