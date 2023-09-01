@@ -31,7 +31,7 @@ public class InvoiceService {
 
         String maxLastDigitNumber = lastInvoiceNumbers.stream()
                 .max(Comparator.comparing(this::getLastDigit))
-                .orElse(null);
+                .orElse("0");
 
         return Long.parseLong(maxLastDigitNumber);
     }
