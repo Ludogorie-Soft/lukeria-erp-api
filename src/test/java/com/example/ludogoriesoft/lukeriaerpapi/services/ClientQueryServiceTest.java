@@ -32,21 +32,17 @@ class ClientQueryServiceTest {
     void testGetOrderProductsByOrderId() {
         Long orderId = 1L;
 
-        // Създаване на мокнати данни
         OrderProduct orderProduct1 = new OrderProduct();
         OrderProduct orderProduct2 = new OrderProduct();
         List<OrderProduct> orderProducts = new ArrayList<>();
         orderProducts.add(orderProduct1);
         orderProducts.add(orderProduct2);
 
-        // Мокване на поведението на entityManager
         when(entityManager.createQuery(anyString(), eq(OrderProduct.class))).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(orderProducts);
 
-        // Извикване на тествания метод
         List<OrderProduct> result = clientQueryService.getOrderProductsByOrderId(orderId);
 
-        // Проверка на резултата
         assertNotNull(result);
         assertEquals(2, result.size());
     }
