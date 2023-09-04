@@ -79,26 +79,6 @@ public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO i
     return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
 }
 
-//    public String createInvoiceOrderProductWhitIds(InvoiceOrderProductConfigDTO configDTO) {
-//        List<Long> orderProductIds = configDTO.getOrderProductIds();
-//        Long invoiceId = configDTO.getInvoiceId();
-//        List<BigDecimal> sellingPrices=configDTO.getPriceInputBigDecimalList();
-//        List<Integer> sellingQuality=configDTO.getQuantityInputIntList();
-//
-//        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
-//
-//        for (int i = 0; i < orderProductIds.size(); i++) {
-//          Optional<OrderProduct> orderProduct1=orderProductRepository.findByIdAndDeletedFalse(orderProductIds.get(i));
-//            orderProduct1.get().setSellingPrice(sellingPrices.get(i));
-//            orderProduct1.get().setNumber(sellingQuality.get(i));
-//            orderProductRepository.save(orderProduct1.get());
-//            invoiceOrderProductDTO.setOrderProductId(orderProductIds.get(i));
-//            invoiceOrderProductDTO.setInvoiceId(invoiceId);
-//            createInvoiceOrderProduct(invoiceOrderProductDTO);
-//        }
-//        return "Операцията беше изпълнена";
-//    }
-
     public String createInvoiceOrderProductWhitIds(InvoiceOrderProductConfigDTO configDTO) {
         List<Long> orderProductIds = configDTO.getOrderProductIds();
         Long invoiceId = configDTO.getInvoiceId();
