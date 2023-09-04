@@ -6,5 +6,5 @@ CREATE TABLE order_product (
     is_deleted TINYINT(1) DEFAULT FALSE,
     FOREIGN KEY (order_id) REFERENCES order_table(id),
     FOREIGN KEY (package_id) REFERENCES package(id),
-     selling_price INT
+     selling_price DECIMAL(10, 2)
 );
