@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
+import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,14 +82,26 @@ public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO i
     public String createInvoiceOrderProductWhitIds(InvoiceOrderProductConfigDTO configDTO) {
         List<Long> orderProductIds = configDTO.getOrderProductIds();
         Long invoiceId = configDTO.getInvoiceId();
+        List<BigDecimal> sellingPrices=configDTO.getPriceInputBigDecimalList();
+        List<Integer> sellingQuality=configDTO.getQuantityInputIntList();
 
         InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
 
-        for (Long orderProduct : orderProductIds) {
-            invoiceOrderProductDTO.setOrderProductId(orderProduct);
-            invoiceOrderProductDTO.setInvoiceId(invoiceId);
-            validateInvoiceOrderProduct(invoiceOrderProductDTO);
-            createInvoiceOrderProduct(invoiceOrderProductDTO);
+        for (int i = 0; i < orderProductIds.size(); i++) {
+            Optional<OrderProduct> orderProductOptional = orderProductRepository.findByIdAndDeletedFalse(orderProductIds.get(i));
+
+            if (orderProductOptional.isPresent()) {
+                OrderProduct orderProduct = orderProductOptional.get();
+                orderProduct.setSellingPrice(sellingPrices.get(i));
+                orderProduct.setNumber(sellingQuality.get(i));
+                orderProductRepository.save(orderProduct);
+
+                invoiceOrderProductDTO.setOrderProductId(orderProductIds.get(i));
+                invoiceOrderProductDTO.setInvoiceId(invoiceId);
+                createInvoiceOrderProduct(invoiceOrderProductDTO);
+            } else {
+                throw new IllegalArgumentException("Записът не е намерен за orderProductId: " + orderProductIds.get(i));
+            }
         }
         return "Операцията беше изпълнена";
     }
