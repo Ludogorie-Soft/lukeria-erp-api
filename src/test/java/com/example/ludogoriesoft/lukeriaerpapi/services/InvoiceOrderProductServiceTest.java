@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Invoice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
@@ -14,6 +15,7 @@ import org.mockito.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +24,6 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.assertNotNull;
 
 class InvoiceOrderProductServiceTest {
 
@@ -50,6 +51,13 @@ class InvoiceOrderProductServiceTest {
 
     @InjectMocks
     private InvoiceOrderProductService invoiceOrderProductService;
+    @Captor
+    private ArgumentCaptor<InvoiceOrderProduct> invoiceOrderProductCaptor;
+    @Captor
+    private ArgumentCaptor<OrderProduct> orderProductCaptor;
+
+    @Captor
+    private ArgumentCaptor<InvoiceOrderProductDTO> invoiceOrderProductDTOCaptor;
 
     @BeforeEach
     public void setup() {
@@ -79,6 +87,7 @@ class InvoiceOrderProductServiceTest {
         verify(invoiceRepository, never()).existsById(anyLong());
         verify(invoiceOrderProductRepository, never()).save(any());
     }
+
     @Test
     void testGetAllInvoiceOrderProducts() {
         // Arrange
@@ -283,10 +292,9 @@ class InvoiceOrderProductServiceTest {
         assertEquals(2L, result.getInvoiceId());
         Assertions.assertFalse(result.isDeleted());
     }
-    @Captor
-    private ArgumentCaptor<InvoiceOrderProduct> invoiceOrderProductCaptor;
+
     @Test
-    public void testCreateInvoiceOrderProduct() {
+    void testCreateInvoiceOrderProduct() {
         InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
         invoiceOrderProductDTO.setOrderProductId(1L);
         invoiceOrderProductDTO.setId(1L);
@@ -296,5 +304,37 @@ class InvoiceOrderProductServiceTest {
         verify(invoiceOrderProductRepository).save(invoiceOrderProductCaptor.capture());
         InvoiceOrderProduct savedInvoiceOrderProduct = invoiceOrderProductCaptor.getValue();
         verify(orderRepository).save(any(Order.class));
+    }
+
+    @Test
+    public void testCreateInvoiceOrderProductWhitIds() {
+        InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
+        List<Long> orderProducts = new ArrayList<>();
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.setId(1L);
+        orderProducts.add(orderProduct.getId());
+        configDTO.setOrderProductIds(orderProducts);
+        List<BigDecimal> prices = new ArrayList<>();
+        prices.add(BigDecimal.valueOf(10));
+        configDTO.setPriceInputBigDecimalList(prices);
+        List<Integer> qualities = new ArrayList<>();
+        qualities.add(10);
+        configDTO.setQuantityInputIntList(qualities);
+        when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(new OrderProduct()));
+        when(invoiceOrderProductRepository.save(any(InvoiceOrderProduct.class))).thenReturn(new InvoiceOrderProduct());
+        String result = invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO);
+        verify(orderProductRepository, times(configDTO.getOrderProductIds().size())).save(any(OrderProduct.class));
+    }
+    @Test
+    public void testCreateInvoiceOrderProductWhitIdsWithInvalidOrderProduct() {
+        InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
+        List<Long> orderProducts = new ArrayList<>();
+        orderProducts.add(1L);
+        configDTO.setOrderProductIds(orderProducts);
+        when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.empty());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO);
+        });
+        assertEquals("Записът не е намерен за orderProductId: 1", exception.getMessage());
     }
 }
