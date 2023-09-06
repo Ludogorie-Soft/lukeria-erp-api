@@ -30,6 +30,7 @@ public class InvoiceOrderProductController {
 
     @PostMapping
     public ResponseEntity<InvoiceOrderProductDTO> createInvoiceOrderProduct(@Valid @RequestBody InvoiceOrderProductDTO invoiceOrderProductDTO) {
+        invoiceOrderProductService.validateInvoiceOrderProduct(invoiceOrderProductDTO);
         return new ResponseEntity<>(invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO), HttpStatus.CREATED);
     }
     @PostMapping("/withIds")

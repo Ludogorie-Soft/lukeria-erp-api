@@ -45,7 +45,7 @@ public class InvoiceOrderProductService {
         invoiceOrderProductRepository.save(invoiceOrderProduct);
     }
 
-    void validateInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
+    public void validateInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
         if (invoiceOrderProductDTO.getOrderProductId() == null) {
             throw new ValidationException("OrderProduct ID cannot be null!");
         }
@@ -66,10 +66,9 @@ public class InvoiceOrderProductService {
     }
 
 public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
-    validateInvoiceOrderProduct(invoiceOrderProductDTO);
     InvoiceOrderProduct invoiceOrderProduct = invoiceOrderProductRepository.save(modelMapper.map(invoiceOrderProductDTO, InvoiceOrderProduct.class));
 
-    Long orderProductId = invoiceOrderProduct.getOrderProductId().getId();
+    Long orderProductId = invoiceOrderProductDTO.getOrderProductId();
     Optional<Order> order = orderRepository.findByIdAndDeletedFalse(orderProductId);
     if (order.isPresent()) {
         Order orderForSave = order.get();

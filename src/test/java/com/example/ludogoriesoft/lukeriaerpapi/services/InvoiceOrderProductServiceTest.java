@@ -3,15 +3,14 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Invoice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
@@ -234,7 +233,6 @@ class InvoiceOrderProductServiceTest {
 
     @Test
     void testUpdateInvoiceOrderProduct_ValidInput_ReturnsDTO() throws ChangeSetPersister.NotFoundException {
-        // Arrange
         Long id = 1L;
         InvoiceOrderProductDTO inputDTO = new InvoiceOrderProductDTO();
         inputDTO.setOrderProductId(1L);
@@ -279,16 +277,25 @@ class InvoiceOrderProductServiceTest {
 
         when(modelMapper.map(updatedInvoiceOrderProduct, InvoiceOrderProductDTO.class))
                 .thenReturn(expectedDTO);
-
-        // Act
         InvoiceOrderProductDTO result = invoiceOrderProductService.updateInvoiceOrderProduct(id, inputDTO);
-
-        // Assert
         Assertions.assertNotNull(result);
         assertEquals(id, result.getId());
         assertEquals(1L, result.getOrderProductId());
         assertEquals(2L, result.getInvoiceId());
         Assertions.assertFalse(result.isDeleted());
-        // You can add more specific assertions based on your use case.
+    }
+    @Captor
+    private ArgumentCaptor<InvoiceOrderProduct> invoiceOrderProductCaptor;
+    @Test
+    public void testCreateInvoiceOrderProduct() {
+        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+        invoiceOrderProductDTO.setOrderProductId(1L);
+        invoiceOrderProductDTO.setId(1L);
+        when(invoiceOrderProductRepository.save(any(InvoiceOrderProduct.class))).thenReturn(new InvoiceOrderProduct());
+        when(orderRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(new Order()));
+        InvoiceOrderProductDTO result = invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO);
+        verify(invoiceOrderProductRepository).save(invoiceOrderProductCaptor.capture());
+        InvoiceOrderProduct savedInvoiceOrderProduct = invoiceOrderProductCaptor.getValue();
+        verify(orderRepository).save(any(Order.class));
     }
 }
