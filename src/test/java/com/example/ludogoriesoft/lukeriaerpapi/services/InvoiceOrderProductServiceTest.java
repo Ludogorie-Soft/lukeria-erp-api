@@ -307,7 +307,7 @@ class InvoiceOrderProductServiceTest {
     }
 
     @Test
-    public void testCreateInvoiceOrderProductWhitIds() {
+    void testCreateInvoiceOrderProductWhitIds() {
         InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
         List<Long> orderProducts = new ArrayList<>();
         OrderProduct orderProduct = new OrderProduct();
@@ -325,8 +325,9 @@ class InvoiceOrderProductServiceTest {
         String result = invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO);
         verify(orderProductRepository, times(configDTO.getOrderProductIds().size())).save(any(OrderProduct.class));
     }
+
     @Test
-    public void testCreateInvoiceOrderProductWhitIdsWithInvalidOrderProduct() {
+    void testCreateInvoiceOrderProductWhitIdsWithInvalidOrderProduct() {
         InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
         List<Long> orderProducts = new ArrayList<>();
         orderProducts.add(1L);
