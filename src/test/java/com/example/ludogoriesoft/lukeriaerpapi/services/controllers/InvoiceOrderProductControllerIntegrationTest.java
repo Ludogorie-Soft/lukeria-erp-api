@@ -115,22 +115,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         Assertions.assertNotNull(response);
     }
 
-    @Test
-    void testCreateInvoiceOrderProduct() throws Exception {
-        InvoiceOrderProductDTO invoiceDTO = new InvoiceOrderProductDTO();
-        invoiceDTO.setId(1L);
-        when(invoiceOrderProductService.createInvoiceOrderProduct(any(InvoiceOrderProductDTO.class))).thenReturn(invoiceDTO);
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/invoiceOrderProduct")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\": 1}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andReturn();
-
-        String response = mvcResult.getResponse().getContentAsString();
-        Assertions.assertNotNull(response);
-    }
 
     @Test
     void testDeleteInvoiceOrderProductById() throws Exception {

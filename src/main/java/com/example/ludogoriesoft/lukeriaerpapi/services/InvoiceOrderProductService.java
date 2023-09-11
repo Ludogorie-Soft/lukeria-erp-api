@@ -65,24 +65,24 @@ public class InvoiceOrderProductService {
         }
     }
 
-public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
-    InvoiceOrderProduct invoiceOrderProduct = invoiceOrderProductRepository.save(modelMapper.map(invoiceOrderProductDTO, InvoiceOrderProduct.class));
+    public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO invoiceOrderProductDTO) {
+        InvoiceOrderProduct invoiceOrderProduct = invoiceOrderProductRepository.save(modelMapper.map(invoiceOrderProductDTO, InvoiceOrderProduct.class));
 
-    Long orderProductId = invoiceOrderProductDTO.getOrderProductId();
-    Optional<Order> order = orderRepository.findByIdAndDeletedFalse(orderProductId);
-    if (order.isPresent()) {
-        Order orderForSave = order.get();
-        orderForSave.setInvoiced(true);
-        orderRepository.save(orderForSave);
+        Long orderProductId = invoiceOrderProductDTO.getOrderProductId();
+        Optional<Order> order = orderRepository.findByIdAndDeletedFalse(orderProductId);
+        if (order.isPresent()) {
+            Order orderForSave = order.get();
+            orderForSave.setInvoiced(true);
+            orderRepository.save(orderForSave);
+        }
+        return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
     }
-    return modelMapper.map(invoiceOrderProduct, InvoiceOrderProductDTO.class);
-}
 
-    public String createInvoiceOrderProductWhitIds(InvoiceOrderProductConfigDTO configDTO) {
+    public String createInvoiceOrderProductWithIds(InvoiceOrderProductConfigDTO configDTO) {
         List<Long> orderProductIds = configDTO.getOrderProductIds();
         Long invoiceId = configDTO.getInvoiceId();
-        List<BigDecimal> sellingPrices=configDTO.getPriceInputBigDecimalList();
-        List<Integer> sellingQuality=configDTO.getQuantityInputIntList();
+        List<BigDecimal> sellingPrices = configDTO.getPriceInputBigDecimalList();
+        List<Integer> sellingQuality = configDTO.getQuantityInputIntList();
 
         InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
 
@@ -104,7 +104,6 @@ public InvoiceOrderProductDTO createInvoiceOrderProduct(InvoiceOrderProductDTO i
         }
         return "Операцията беше изпълнена";
     }
-
 
     public InvoiceOrderProductDTO updateInvoiceOrderProduct(Long id, InvoiceOrderProductDTO invoiceOrderProductDTO) throws ChangeSetPersister.NotFoundException {
         validateInvoiceOrderProduct(invoiceOrderProductDTO);

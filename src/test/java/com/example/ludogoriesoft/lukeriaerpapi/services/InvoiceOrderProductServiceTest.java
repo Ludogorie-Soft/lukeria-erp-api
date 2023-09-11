@@ -307,7 +307,7 @@ class InvoiceOrderProductServiceTest {
     }
 
     @Test
-    void testCreateInvoiceOrderProductWhitIds() {
+    void testcreateInvoiceOrderProductWithIds() {
         InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
         List<Long> orderProducts = new ArrayList<>();
         OrderProduct orderProduct = new OrderProduct();
@@ -322,19 +322,19 @@ class InvoiceOrderProductServiceTest {
         configDTO.setQuantityInputIntList(qualities);
         when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(new OrderProduct()));
         when(invoiceOrderProductRepository.save(any(InvoiceOrderProduct.class))).thenReturn(new InvoiceOrderProduct());
-        String result = invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO);
+        String result = invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO);
         verify(orderProductRepository, times(configDTO.getOrderProductIds().size())).save(any(OrderProduct.class));
     }
 
     @Test
-    void testCreateInvoiceOrderProductWhitIdsWithInvalidOrderProduct() {
+    void testcreateInvoiceOrderProductWithIdsWithInvalidOrderProduct() {
         InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
         List<Long> orderProducts = new ArrayList<>();
         orderProducts.add(1L);
         configDTO.setOrderProductIds(orderProducts);
         when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.empty());
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceOrderProductService.createInvoiceOrderProductWhitIds(configDTO);
+            invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO);
         });
         assertEquals("Записът не е намерен за orderProductId: 1", exception.getMessage());
     }
