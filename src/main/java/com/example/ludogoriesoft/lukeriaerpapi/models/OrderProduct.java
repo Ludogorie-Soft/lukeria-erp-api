@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -25,5 +27,5 @@ public class OrderProduct {
     @Column(name = "is_deleted")
     private boolean deleted;
     @Column(name = "selling_price")
-    private Integer sellingPrice;
+    private BigDecimal sellingPrice;
 }

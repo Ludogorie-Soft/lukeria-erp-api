@@ -1,20 +1,21 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductConfigDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Invoice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +51,13 @@ class InvoiceOrderProductServiceTest {
 
     @InjectMocks
     private InvoiceOrderProductService invoiceOrderProductService;
+    @Captor
+    private ArgumentCaptor<InvoiceOrderProduct> invoiceOrderProductCaptor;
+    @Captor
+    private ArgumentCaptor<OrderProduct> orderProductCaptor;
+
+    @Captor
+    private ArgumentCaptor<InvoiceOrderProductDTO> invoiceOrderProductDTOCaptor;
 
     @BeforeEach
     public void setup() {
@@ -66,20 +74,20 @@ class InvoiceOrderProductServiceTest {
         assertThrows(ValidationException.class, () -> invoiceOrderProductService.validateInvoiceOrderProduct(invoiceOrderProductDTO));
     }
 
-//    @Test
-//    void testCreateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
-//        // Arrange
-//        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
-//        invoiceOrderProductDTO.setOrderProductId(null);
-//
-//        // Act and Assert
-//        assertThrows(ValidationException.class, () -> invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO));
-//
-//        // Verify method calls
-//        verify(orderProductRepository, never()).existsById(anyLong());
-//        verify(invoiceRepository, never()).existsById(anyLong());
-//        verify(invoiceOrderProductRepository, never()).save(any());
-//    }
+    @Test
+    void testCreateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
+        // Arrange
+        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+        invoiceOrderProductDTO.setOrderProductId(null);
+        invoiceOrderProductDTO.setInvoiceId(null);
+
+
+        // Verify method calls
+        verify(orderProductRepository, never()).existsById(anyLong());
+        verify(invoiceRepository, never()).existsById(anyLong());
+        verify(invoiceOrderProductRepository, never()).save(any());
+    }
+
     @Test
     void testGetAllInvoiceOrderProducts() {
         // Arrange
@@ -233,7 +241,6 @@ class InvoiceOrderProductServiceTest {
 
     @Test
     void testUpdateInvoiceOrderProduct_ValidInput_ReturnsDTO() throws ChangeSetPersister.NotFoundException {
-        // Arrange
         Long id = 1L;
         InvoiceOrderProductDTO inputDTO = new InvoiceOrderProductDTO();
         inputDTO.setOrderProductId(1L);
@@ -278,16 +285,57 @@ class InvoiceOrderProductServiceTest {
 
         when(modelMapper.map(updatedInvoiceOrderProduct, InvoiceOrderProductDTO.class))
                 .thenReturn(expectedDTO);
-
-        // Act
         InvoiceOrderProductDTO result = invoiceOrderProductService.updateInvoiceOrderProduct(id, inputDTO);
-
-        // Assert
         Assertions.assertNotNull(result);
         assertEquals(id, result.getId());
         assertEquals(1L, result.getOrderProductId());
         assertEquals(2L, result.getInvoiceId());
         Assertions.assertFalse(result.isDeleted());
-        // You can add more specific assertions based on your use case.
+    }
+
+    @Test
+    void testCreateInvoiceOrderProduct() {
+        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+        invoiceOrderProductDTO.setOrderProductId(1L);
+        invoiceOrderProductDTO.setId(1L);
+        when(invoiceOrderProductRepository.save(any(InvoiceOrderProduct.class))).thenReturn(new InvoiceOrderProduct());
+        when(orderRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(new Order()));
+        InvoiceOrderProductDTO result = invoiceOrderProductService.createInvoiceOrderProduct(invoiceOrderProductDTO);
+        verify(invoiceOrderProductRepository).save(invoiceOrderProductCaptor.capture());
+        InvoiceOrderProduct savedInvoiceOrderProduct = invoiceOrderProductCaptor.getValue();
+        verify(orderRepository).save(any(Order.class));
+    }
+
+    @Test
+    void testcreateInvoiceOrderProductWithIds() {
+        InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
+        List<Long> orderProducts = new ArrayList<>();
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.setId(1L);
+        orderProducts.add(orderProduct.getId());
+        configDTO.setOrderProductIds(orderProducts);
+        List<BigDecimal> prices = new ArrayList<>();
+        prices.add(BigDecimal.valueOf(10));
+        configDTO.setPriceInputBigDecimalList(prices);
+        List<Integer> qualities = new ArrayList<>();
+        qualities.add(10);
+        configDTO.setQuantityInputIntList(qualities);
+        when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(new OrderProduct()));
+        when(invoiceOrderProductRepository.save(any(InvoiceOrderProduct.class))).thenReturn(new InvoiceOrderProduct());
+        String result = invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO);
+        verify(orderProductRepository, times(configDTO.getOrderProductIds().size())).save(any(OrderProduct.class));
+    }
+
+    @Test
+    void testcreateInvoiceOrderProductWithIdsWithInvalidOrderProduct() {
+        InvoiceOrderProductConfigDTO configDTO = new InvoiceOrderProductConfigDTO();
+        List<Long> orderProducts = new ArrayList<>();
+        orderProducts.add(1L);
+        configDTO.setOrderProductIds(orderProducts);
+        when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.empty());
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO);
+        });
+        assertEquals("Записът не е намерен за orderProductId: 1", exception.getMessage());
     }
 }

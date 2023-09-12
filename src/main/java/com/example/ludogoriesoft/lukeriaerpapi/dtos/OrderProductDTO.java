@@ -1,12 +1,12 @@
 package com.example.ludogoriesoft.lukeriaerpapi.dtos;
 
-import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +18,5 @@ public class OrderProductDTO {
     private Integer number;
     private Long orderId;
     private Long packageId;
-    private Integer sellingPrice;
+    private BigDecimal sellingPrice;
 }
