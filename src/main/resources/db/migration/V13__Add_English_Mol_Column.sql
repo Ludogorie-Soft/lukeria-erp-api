@@ -1,0 +1,2 @@
+ALTER TABLE client
+ADD COLUMN english_mol VARCHAR(255);

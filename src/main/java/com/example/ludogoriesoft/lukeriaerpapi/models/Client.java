@@ -14,11 +14,17 @@ public class Client {
     @Column(name = "id", nullable = false)
     private Long id;
     private String businessName;
+    @Column(name = "english_business_name")
+    private String englishBusinessName;
     private String idNumEIK;
     private boolean hasIdNumDDS;
     private String address;
+    @Column(name = "english_address")
+    private String englishAddress;
     private boolean isBulgarianClient;
     private String mol;
+    @Column(name = "english_mol")
+    private String englishMol;
     @Column(name = "is_deleted")
     private boolean deleted;
 }

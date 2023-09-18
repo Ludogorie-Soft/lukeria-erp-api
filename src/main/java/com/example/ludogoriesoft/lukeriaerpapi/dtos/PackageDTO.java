@@ -16,6 +16,8 @@ public class PackageDTO {
     private Long id;
     @NotEmpty(message = "Името на опаковката е задължително за попълване!")
     private String name;
+    @NotEmpty(message = "Името на опаковката на английски е задължително за попълване!")
+    private String englishName;
     @Min(value = 1, message = "Наличните бройки трябва да бъдат по-големи от 0!")
     private int availableQuantity;
     private Long cartonId;

@@ -1,0 +1,2 @@
+ALTER TABLE package
+ADD COLUMN english_name VARCHAR(255);
