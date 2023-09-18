@@ -4,9 +4,11 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +37,8 @@ class OrderProductServiceTest {
     @Mock
     private PackageRepository packageRepository;
     @Mock
+    private ProductRepository productRepository;
+    @Mock
     private ModelMapper modelMapper;
 
     @InjectMocks
@@ -48,6 +53,28 @@ class OrderProductServiceTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
     }
+
+    @Test
+    void testReductionQuantities() throws ChangeSetPersister.NotFoundException {
+        OrderProductDTO orderProductDTO = new OrderProductDTO();
+        orderProductDTO.setPackageId(1L);
+        orderProductDTO.setNumber(5);
+        Package packageEntity=new Package();
+        packageEntity.setId(1L);
+        // Създаваме подделка (spy) на истинския обект product
+        Product product = new Product();
+        product.setPackageId(packageEntity);
+        product.setAvailableQuantity(10);
+        Product spyProduct = spy(product);
+
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(spyProduct));
+
+        orderProductService.reductionQuantities(List.of(orderProductDTO));
+
+        verify(spyProduct, times(1)).setAvailableQuantity(5);
+        verify(productRepository, times(1)).save(spyProduct);
+    }
+
     @Test
     void testValidateOrderProductDTO_ValidOrder() {
         OrderProductDTO orderDTO = new OrderProductDTO();
