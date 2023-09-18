@@ -20,8 +20,11 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +32,8 @@ import java.util.List;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.http.RequestEntity.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc(addFilters = false)
@@ -139,6 +142,45 @@ class OrderProductControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Order with id: 1 has been deleted successfully!"));
     }
+    @Test
+     void testReductionQuantities() throws Exception {
+        List<OrderProductDTO> productDTOList = createSampleOrderProductDTOList();
+
+        doNothing().when(orderProductService).reductionQuantities(productDTOList);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/lessening")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(productDTOList)))
+                .andExpect(status().isOk());
+
+        verify(orderProductService, times(1)).reductionQuantities(productDTOList);
+    }
+
+    private List<OrderProductDTO> createSampleOrderProductDTOList() {
+        OrderProductDTO orderProductDTO1 = new OrderProductDTO();
+        orderProductDTO1.setId(null);
+        orderProductDTO1.setNumber(1);
+        orderProductDTO1.setOrderId(1L);
+        orderProductDTO1.setPackageId(1L);
+        orderProductDTO1.setSellingPrice(BigDecimal.valueOf(3.10));
+
+        OrderProductDTO orderProductDTO2 = new OrderProductDTO();
+        orderProductDTO2.setId(null);
+        orderProductDTO2.setNumber(2);
+        orderProductDTO2.setOrderId(1L);
+        orderProductDTO2.setPackageId(1L);
+        orderProductDTO2.setSellingPrice(BigDecimal.valueOf(3.20));
+
+        OrderProductDTO orderProductDTO3 = new OrderProductDTO();
+        orderProductDTO3.setId(null);
+        orderProductDTO3.setNumber(3);
+        orderProductDTO3.setOrderId(1L);
+        orderProductDTO3.setPackageId(1L);
+        orderProductDTO3.setSellingPrice(BigDecimal.valueOf(3.30));
+
+        return List.of(orderProductDTO1, orderProductDTO2, orderProductDTO3);
+    }
+
 
     @Test
     void testGetAllOrderProductsWhenNoOrderProductExist() throws Exception {
