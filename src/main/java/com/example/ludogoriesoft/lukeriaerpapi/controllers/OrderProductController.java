@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.services.OrderProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -42,9 +43,9 @@ public class OrderProductController {
         return ResponseEntity.ok("Order with id: " + id + " has been deleted successfully!");
     }
     @GetMapping("/lessening")
-    public ResponseEntity<String> reductionQuantities(@RequestBody List<OrderProductDTO>productDTOList) throws ChangeSetPersister.NotFoundException {
-        orderProductService.reductionQuantities(productDTOList);
-        return ResponseEntity.ok("quantities were reduced. "+productDTOList.size()+"- of so many products");
+    public ResponseEntity<Boolean> findInvoiceOrderProductsByInvoiceId(@RequestParam Long invoiceId)  {
+        List<InvoiceOrderProduct> invoiceOrderProductsList= orderProductService.findInvoiceOrderProductsByInvoiceId(invoiceId);
+        return ResponseEntity.ok(orderProductService.reduceProducts(invoiceOrderProductsList));
     }
 
 }

@@ -11,7 +11,10 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @Table(name = "invoice")
+
 public class Invoice {
+    public static final Long FIRST_INVOICE_NUMBER = 2000000000L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -25,4 +28,12 @@ public class Invoice {
     private boolean deleted;
     @Column(name = "is_created")
     private boolean created;
+    @PrePersist
+    private void prePersist() {
+        if (invoiceNumber == null) {
+            invoiceNumber = FIRST_INVOICE_NUMBER;
+        } else {
+            invoiceNumber++;
+        }
+    }
 }

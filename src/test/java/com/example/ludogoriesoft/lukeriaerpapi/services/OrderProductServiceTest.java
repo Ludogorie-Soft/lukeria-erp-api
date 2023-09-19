@@ -54,26 +54,26 @@ class OrderProductServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testReductionQuantities() throws ChangeSetPersister.NotFoundException {
-        OrderProductDTO orderProductDTO = new OrderProductDTO();
-        orderProductDTO.setPackageId(1L);
-        orderProductDTO.setNumber(5);
-        Package packageEntity=new Package();
-        packageEntity.setId(1L);
-        // Създаваме подделка (spy) на истинския обект product
-        Product product = new Product();
-        product.setPackageId(packageEntity);
-        product.setAvailableQuantity(10);
-        Product spyProduct = spy(product);
-
-        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(spyProduct));
-
-        orderProductService.reductionQuantities(List.of(orderProductDTO));
-
-        verify(spyProduct, times(1)).setAvailableQuantity(5);
-        verify(productRepository, times(1)).save(spyProduct);
-    }
+//    @Test
+//    void testReductionQuantities() throws ChangeSetPersister.NotFoundException {
+//        OrderProductDTO orderProductDTO = new OrderProductDTO();
+//        orderProductDTO.setPackageId(1L);
+//        orderProductDTO.setNumber(5);
+//        Package packageEntity=new Package();
+//        packageEntity.setId(1L);
+//        // Създаваме подделка (spy) на истинския обект product
+//        Product product = new Product();
+//        product.setPackageId(packageEntity);
+//        product.setAvailableQuantity(10);
+//        Product spyProduct = spy(product);
+//
+//        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(spyProduct));
+//
+//        orderProductService.reductionQuantities(List.of(orderProductDTO));
+//
+//        verify(spyProduct, times(1)).setAvailableQuantity(5);
+//        verify(productRepository, times(1)).save(spyProduct);
+//    }
 
     @Test
     void testValidateOrderProductDTO_ValidOrder() {

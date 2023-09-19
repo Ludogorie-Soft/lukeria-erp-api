@@ -1,12 +1,10 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -16,10 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class OrderProductService {
+
+    private final InvoiceOrderProductRepository invoiceOrderProductRepository;
     private final OrderProductRepository orderProductRepository;
     private final OrderRepository orderRepository;
     private final PackageRepository packageRepository;
@@ -80,19 +82,25 @@ public class OrderProductService {
         order.setDeleted(true);
         orderProductRepository.save(order);
     }
-    public void reductionQuantities(List<OrderProductDTO> orderProductList) throws ChangeSetPersister.NotFoundException {
-        for (OrderProductDTO orderProduct : orderProductList) {
-            Product product = productRepository.findByIdAndDeletedFalse(orderProduct.getPackageId())
-                    .orElseThrow(ChangeSetPersister.NotFoundException::new);
 
-            int availableQuantity = product.getAvailableQuantity();
-            int quantityToReduce = orderProduct.getNumber();
-            Product productForException = productRepository.findByIdAndDeletedFalse(orderProduct.getPackageId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
-            if (availableQuantity < quantityToReduce) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Insufficient quantity available for product-" + productForException.toString());
-            }
-            product.setAvailableQuantity(availableQuantity - quantityToReduce);
-            productRepository.save(product);
+    public List<InvoiceOrderProduct> findInvoiceOrderProductsByInvoiceId(Long invoiceId) {
+        List<InvoiceOrderProduct> invoiceOrderProductsList = invoiceOrderProductRepository.findAll();
+
+        return invoiceOrderProductsList.stream()
+                .filter(orderProduct -> orderProduct.getInvoiceId() != null && orderProduct.getInvoiceId().getId().equals(invoiceId))
+                .collect(Collectors.toList());
+    }
+
+    public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList){
+        for (InvoiceOrderProduct invoiceOrderProduct : invoiceOrderProductsList) {
+            Optional<Product> productForReduce = productRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
+            int sellingProductForReduce = invoiceOrderProduct.getOrderProductId().getNumber();
+            if (productForReduce.isPresent()) {
+                Product product = productForReduce.get();
+                product.setAvailableQuantity(product.getAvailableQuantity() - sellingProductForReduce);
+                productRepository.save(product);
+            } else return false;
         }
+        return true;
     }
 }
