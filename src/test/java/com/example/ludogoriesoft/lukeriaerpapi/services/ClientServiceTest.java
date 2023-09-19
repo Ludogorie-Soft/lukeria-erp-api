@@ -223,6 +223,8 @@ class ClientServiceTest {
         clientDTO.setBusinessName("Updated Client 1");
         clientDTO.setIdNumEIK("12345678");
         clientDTO.setAddress("updates address");
+        clientDTO.setEnglishAddress("address");
+        clientDTO.setEnglishBusinessName("en name");
 
         when(clientRepository.findByIdAndDeletedFalse(clientId)).thenReturn(Optional.of(existingClient));
         when(modelMapper.map(existingClient, ClientDTO.class)).thenReturn(clientDTO);
@@ -249,6 +251,8 @@ class ClientServiceTest {
         clientEntity.setBusinessName("Client 1");
         clientEntity.setIdNumEIK("Size 1");
         clientEntity.setAddress("address");
+        clientDTO.setEnglishAddress("address");
+        clientDTO.setEnglishBusinessName("en name");
 
         when(clientRepository.save(any(Client.class))).thenReturn(clientEntity);
         when(modelMapper.map(clientDTO, Client.class)).thenReturn(clientEntity);

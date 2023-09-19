@@ -112,6 +112,7 @@ class PackageServiceTest {
         packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(1L);
+        packageDTO.setEnglishName("en name");
 
         when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(java.util.Optional.of(existingPackage));
         when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
@@ -304,6 +305,7 @@ class PackageServiceTest {
         packageDTO.setPhoto("Photo");
         packageDTO.setPrice(BigDecimal.valueOf(100));
         packageDTO.setCartonId(1L);
+        packageDTO.setEnglishName("en name");
         Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(false);
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
         assertEquals("Carton does not exist with ID: " + packageDTO.getCartonId(), exception.getMessage());
