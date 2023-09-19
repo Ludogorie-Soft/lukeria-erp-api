@@ -38,11 +38,11 @@ public class ClientService {
         if (StringUtils.isBlank(clientDTO.getAddress())) {
             throw new ValidationException("Address is required!");
         }
-        if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
-            throw new ValidationException("Business name is english is required!");
-        }
         if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
             throw new ValidationException("Address in english is required!");
+        }
+        if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
+            throw new ValidationException("Business name is english is required!");
         }
         Client clientEntity = clientRepository.save(modelMapper.map(clientDTO, Client.class));
         return modelMapper.map(clientEntity, ClientDTO.class);

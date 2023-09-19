@@ -157,6 +157,7 @@ class ClientServiceTest {
     void testCreateClient_InvalidClientDTO_EnglishNameMissing() {
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setBusinessName("business name");
+        clientDTO.setEnglishAddress("address");
         clientDTO.setIdNumEIK("12345");
         clientDTO.setAddress("address");
         ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
