@@ -141,6 +141,31 @@ class ClientServiceTest {
         verifyNoInteractions(clientRepository);
     }
     @Test
+    void testCreateClient_InvalidClientDTO_EnglishAddressMissing() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setEnglishBusinessName("en name");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("Address in english is required!", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+    @Test
+    void testCreateClient_InvalidClientDTO_EnglishNameMissing() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("Business name is english is required!", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+    @Test
     void testUpdateClient_MissingBusinessName() {
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setIdNumEIK("123456");
@@ -177,6 +202,41 @@ class ClientServiceTest {
     }
     @Test
     void testUpdateClient_MissingAddress() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("name");
+        clientDTO.setIdNumEIK("123456");
+
+        Client existingClient = new Client();
+        existingClient.setId(1L);
+        existingClient.setBusinessName("Existing Client");
+        existingClient.setIdNumEIK("123456");
+        existingClient.setAddress("address");
+
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingClient));
+        assertThrows(ValidationException.class, () -> clientService.updateClient(1L, clientDTO));
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
+    void testUpdateClient_MissingEnglishAddress() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("name");
+        clientDTO.setIdNumEIK("123456");
+        clientDTO.setEnglishBusinessName("en name");
+
+        Client existingClient = new Client();
+        existingClient.setId(1L);
+        existingClient.setBusinessName("Existing Client");
+        existingClient.setIdNumEIK("123456");
+        existingClient.setAddress("address");
+
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingClient));
+        assertThrows(ValidationException.class, () -> clientService.updateClient(1L, clientDTO));
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
+    void testUpdateClient_MissingEnglishName() {
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setBusinessName("name");
         clientDTO.setIdNumEIK("123456");
