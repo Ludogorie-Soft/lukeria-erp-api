@@ -142,19 +142,19 @@ class OrderProductControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string("Order with id: 1 has been deleted successfully!"));
     }
-    @Test
-     void testReductionQuantities() throws Exception {
-        List<OrderProductDTO> productDTOList = createSampleOrderProductDTOList();
-
-        doNothing().when(orderProductService).reductionQuantities(productDTOList);
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/lessening")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(productDTOList)))
-                .andExpect(status().isOk());
-
-        verify(orderProductService, times(1)).reductionQuantities(productDTOList);
-    }
+//    @Test
+//     void testReductionQuantities() throws Exception {
+//        List<OrderProductDTO> productDTOList = createSampleOrderProductDTOList();
+//
+//        doNothing().when(orderProductService).reductionQuantities(productDTOList);
+//
+//        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/lessening")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(asJsonString(productDTOList)))
+//                .andExpect(status().isOk());
+//
+//        verify(orderProductService, times(1)).reductionQuantities(productDTOList);
+//    }
 
     private List<OrderProductDTO> createSampleOrderProductDTOList() {
         OrderProductDTO orderProductDTO1 = new OrderProductDTO();

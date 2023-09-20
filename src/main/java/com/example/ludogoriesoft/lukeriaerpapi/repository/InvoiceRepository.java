@@ -12,8 +12,11 @@ import java.util.Optional;
 public interface InvoiceRepository extends JpaRepository<Invoice,Long> {
     List<Invoice> findByDeletedFalse();
     Optional<Invoice> findByIdAndDeletedFalse(Long id);
-    @Query("SELECT i.invoiceNumber FROM Invoice i WHERE i.invoiceNumber LIKE :prefix% ORDER BY i.invoiceNumber DESC")
-    List<String> findLastInvoiceNumberStartingWith(@Param("prefix") String prefix);
+    @Query("SELECT MAX(i.invoiceNumber) FROM Invoice i")
+    Long findLastInvoiceNumber();
+
+//    @Query("SELECT i.invoiceNumber FROM Invoice i WHERE i.invoiceNumber LIKE :prefix% ORDER BY i.invoiceNumber DESC")
+//    List<String> findLastInvoiceNumberStartingWith(@Param("prefix") String prefix);
 
 }
 

@@ -20,24 +20,12 @@ public class InvoiceService {
     private final ModelMapper modelMapper;
     public static final Long FIRST_INVOICE_NUMBER = 2000000000L;
 
-    public Long findLastInvoiceNumberStartingWithTwo()  {
-        String prefix = "2";
-
-        List<String> lastInvoiceNumbers = invoiceRepository.findLastInvoiceNumberStartingWith(prefix);
-
-        if (lastInvoiceNumbers.isEmpty()) {
-           return FIRST_INVOICE_NUMBER;
+    public Long findLastInvoiceNumberStartingWithTwo() {
+        Long lastInvoiceNumber = invoiceRepository.findLastInvoiceNumber();
+        if (lastInvoiceNumber == null || lastInvoiceNumber < FIRST_INVOICE_NUMBER) {
+            return FIRST_INVOICE_NUMBER;
         }
-
-        String maxLastDigitNumber = lastInvoiceNumbers.stream()
-                .max(Comparator.comparing(this::getLastDigit))
-                .orElse("0");
-
-        return Long.parseLong(maxLastDigitNumber);
-    }
-
-    private int getLastDigit(String invoiceNumber) {
-        return Character.getNumericValue(invoiceNumber.charAt(invoiceNumber.length() - 1));
+        return lastInvoiceNumber + 1;
     }
     public List<InvoiceDTO> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findByDeletedFalse();
