@@ -314,7 +314,24 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
+    @Test
+    void testCreatePackage_InvalidPackageDTO_InvalidEnglishName() {
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setName("name");
+        packageDTO.setPiecesCarton(11);
+        packageDTO.setAvailableQuantity(10);
+        packageDTO.setPhoto("Photo");
+        packageDTO.setPrice(BigDecimal.valueOf(100));
+        packageDTO.setCartonId(1L);
+        packageDTO.setEnglishName("тфуеуэ");
+        Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(false);
+        ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
+        assertEquals("English name can contain only letters English", exception.getMessage());
 
+        verifyNoInteractions(modelMapper);
+
+        verifyNoInteractions(packageRepository);
+    }
 
 
     @Test
