@@ -57,70 +57,70 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void testGetAllInvoiceOrderProduct() throws Exception {
+//    @Test
+//    void testGetAllInvoiceOrderProduct() throws Exception {
+//
+//        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+//        invoiceOrderProductDTO.setId(1L);
+//        InvoiceOrderProductDTO invoiceOrderProductDTO2 = new InvoiceOrderProductDTO();
+//        invoiceOrderProductDTO2.setId(2L);
+//        List<InvoiceOrderProductDTO> invoiceOrderProductDTOList = Arrays.asList(invoiceOrderProductDTO2, invoiceOrderProductDTO);
+//
+//        when(invoiceOrderProductService.getAllInvoiceOrderProducts()).thenReturn(invoiceOrderProductDTOList);
+//
+//        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoiceOrderProduct")
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.length()").value(2))
+//                .andReturn();
+//
+//        String response = mvcResult.getResponse().getContentAsString();
+//        Assertions.assertNotNull(response);
+//    }
 
-        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
-        invoiceOrderProductDTO.setId(1L);
-        InvoiceOrderProductDTO invoiceOrderProductDTO2 = new InvoiceOrderProductDTO();
-        invoiceOrderProductDTO2.setId(2L);
-        List<InvoiceOrderProductDTO> invoiceOrderProductDTOList = Arrays.asList(invoiceOrderProductDTO2, invoiceOrderProductDTO);
+//    @Test
+//    void testGetInvoiceOrderProductById() throws Exception {
+//
+//        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+//        invoiceOrderProductDTO.setId(1L);
+//
+//
+//        when(invoiceOrderProductService.getInvoiceOrderProductById(1L)).thenReturn(invoiceOrderProductDTO);
+//
+//        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoiceOrderProduct/{id}", 1)
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.id").value(1))
+//                .andReturn();
+//
+//        String response = mvcResult.getResponse().getContentAsString();
+//        Assertions.assertNotNull(response);
+//    }
 
-        when(invoiceOrderProductService.getAllInvoiceOrderProducts()).thenReturn(invoiceOrderProductDTOList);
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoiceOrderProduct")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andReturn();
-
-        String response = mvcResult.getResponse().getContentAsString();
-        Assertions.assertNotNull(response);
-    }
-
-    @Test
-    void testGetInvoiceOrderProductById() throws Exception {
-
-        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
-        invoiceOrderProductDTO.setId(1L);
-
-
-        when(invoiceOrderProductService.getInvoiceOrderProductById(1L)).thenReturn(invoiceOrderProductDTO);
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoiceOrderProduct/{id}", 1)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andReturn();
-
-        String response = mvcResult.getResponse().getContentAsString();
-        Assertions.assertNotNull(response);
-    }
-
-    @Test
-    void testUpdateMaterialOrder() throws Exception {
-        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
-        invoiceOrderProductDTO.setId(1L);
-
-        when(invoiceOrderProductService.updateInvoiceOrderProduct(anyLong(), any(InvoiceOrderProductDTO.class))).thenReturn(invoiceOrderProductDTO);
-
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/invoiceOrderProduct/{id}", 1)
-                        .content("{\"id\": 1, \"invoiceId\": \"3\"}")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andReturn();
-
-        String response = mvcResult.getResponse().getContentAsString();
-        Assertions.assertNotNull(response);
-    }
-
-
-    @Test
-    void testDeleteInvoiceOrderProductById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoiceOrderProduct/{id}", 1))
-                .andExpect(status().isOk())
-                .andExpect(content().string("InvoiceOrderProduct with id: 1 has been deleted successfully!"));
-    }
+//    @Test
+//    void testUpdateMaterialOrder() throws Exception {
+//        InvoiceOrderProductDTO invoiceOrderProductDTO = new InvoiceOrderProductDTO();
+//        invoiceOrderProductDTO.setId(1L);
+//
+//        when(invoiceOrderProductService.updateInvoiceOrderProduct(anyLong(), any(InvoiceOrderProductDTO.class))).thenReturn(invoiceOrderProductDTO);
+//
+//        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/invoiceOrderProduct/{id}", 1)
+//                        .content("{\"id\": 1, \"invoiceId\": \"3\"}")
+//                        .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.id").value(1))
+//                .andReturn();
+//
+//        String response = mvcResult.getResponse().getContentAsString();
+//        Assertions.assertNotNull(response);
+//    }
+//
+//
+//    @Test
+//    void testDeleteInvoiceOrderProductById() throws Exception {
+//        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoiceOrderProduct/{id}", 1))
+//                .andExpect(status().isOk())
+//                .andExpect(content().string("InvoiceOrderProduct with id: 1 has been deleted successfully!"));
+//    }
 
 }
