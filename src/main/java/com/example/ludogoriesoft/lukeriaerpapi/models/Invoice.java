@@ -28,12 +28,5 @@ public class Invoice {
     private boolean deleted;
     @Column(name = "is_created")
     private boolean created;
-    @PrePersist
-    private void prePersist() {
-        if (invoiceNumber == null) {
-            invoiceNumber = FIRST_INVOICE_NUMBER;
-        } else {
-            invoiceNumber++;
-        }
-    }
+
 }

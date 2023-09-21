@@ -44,7 +44,6 @@ public class InvoiceService {
             throw new ValidationException("Price must be greater than zero");
         }
         invoiceDTO.setCreated(true);
-        invoiceDTO.setInvoiceNumber(invoiceDTO.getInvoiceNumber()-1);
         Invoice invoiceEntity = invoiceRepository.save(modelMapper.map(invoiceDTO, Invoice.class));
         return modelMapper.map(invoiceEntity, InvoiceDTO.class);
     }
