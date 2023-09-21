@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -36,7 +37,7 @@ class InvoiceOrderProductServiceTest {
     private OrderProductRepository orderProductRepository;
 
     @Mock
-    private PackageRepository packageRepository;
+    private OrderProductService orderProductService;
 
     @Mock
     private ClientRepository clientRepository;
@@ -64,6 +65,42 @@ class InvoiceOrderProductServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+
+    @Test
+    public void testFindInvoiceOrderProductsByInvoiceId() {
+        // Подгответе сценарий за връщане на списък с продукти при извикване на findAll()
+        Invoice invoice=new Invoice();
+        invoice.setId(1L);
+        InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
+        invoiceOrderProduct.setInvoiceId(invoice);
+        List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+
+
+
+        Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
+        Mockito.when(orderProductService.findInvoiceOrderProductsByInvoiceId(1L)).thenReturn(mockInvoiceOrderProductsList);
+
+        List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
+
+        assertEquals(3, result.size());
+    }
+
+    @Test
+    public void testFindInvoiceOrderProductsByInvoiceIdWhenNoMatchingProducts() {
+        // Подгответе сценарий за връщане на празен списък при извикване на findAll()
+        List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
+
+        Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
+
+        // Извикайте метода, който искате да тествате
+        List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
+
+        // Проверете дали връщаният резултат е празен
+        Assertions.assertTrue(result.isEmpty());
+    }
     @Test
     void testValidateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
         // Arrange
