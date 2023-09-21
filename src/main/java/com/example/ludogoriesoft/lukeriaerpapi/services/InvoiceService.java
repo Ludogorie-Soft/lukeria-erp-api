@@ -10,7 +10,6 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -45,6 +44,7 @@ public class InvoiceService {
             throw new ValidationException("Price must be greater than zero");
         }
         invoiceDTO.setCreated(true);
+        invoiceDTO.setInvoiceNumber(invoiceDTO.getInvoiceNumber()-1);
         Invoice invoiceEntity = invoiceRepository.save(modelMapper.map(invoiceDTO, Invoice.class));
         return modelMapper.map(invoiceEntity, InvoiceDTO.class);
     }

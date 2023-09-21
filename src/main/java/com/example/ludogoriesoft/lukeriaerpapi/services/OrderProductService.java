@@ -9,13 +9,10 @@ import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -88,7 +85,7 @@ public class OrderProductService {
 
         return invoiceOrderProductsList.stream()
                 .filter(orderProduct -> orderProduct.getInvoiceId() != null && orderProduct.getInvoiceId().getId().equals(invoiceId))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList){
