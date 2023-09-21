@@ -55,7 +55,7 @@ class OrderProductServiceTest {
     }
 
     @Test
-    public void testFindInvoiceOrderProductsByInvoiceId() {
+     void testFindInvoiceOrderProductsByInvoiceId() {
         Invoice invoice=new Invoice();
         invoice.setId(1L);
         InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
@@ -76,7 +76,7 @@ class OrderProductServiceTest {
     }
 
     @Test
-    public void testReduceProducts() {
+     void testReduceProducts() {
         Invoice invoice=new Invoice();
         invoice.setId(1L);
         Order order=new Order();

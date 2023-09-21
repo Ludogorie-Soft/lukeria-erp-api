@@ -41,7 +41,7 @@ class InvoiceServiceTest {
 
 
     @Test
-    public void testGenerateNextInvoiceNumber() {
+     void testGenerateNextInvoiceNumber() {
         // Подгответе сценарий за връщане на последния номер от репозитория
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(2000000001L);
 
@@ -53,7 +53,7 @@ class InvoiceServiceTest {
     }
 
     @Test
-    public void testGenerateNextInvoiceNumberWhenNoLastNumber() {
+     void testGenerateNextInvoiceNumberWhenNoLastNumber() {
         // Подгответе сценарий за връщане на null от репозитория
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(null);
 
@@ -65,7 +65,7 @@ class InvoiceServiceTest {
     }
 
     @Test
-    public void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
+     void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
         // Подгответе сценарий за връщане на номер, по-малък от FIRST_INVOICE_NUMBER
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(1999999999L);
 

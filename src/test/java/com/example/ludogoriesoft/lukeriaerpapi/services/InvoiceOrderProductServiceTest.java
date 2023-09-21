@@ -67,7 +67,7 @@ class InvoiceOrderProductServiceTest {
 
 
     @Test
-    public void testFindInvoiceOrderProductsByInvoiceId() {
+     void testFindInvoiceOrderProductsByInvoiceId() {
         Invoice invoice=new Invoice();
         invoice.setId(1L);
         InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
@@ -88,7 +88,7 @@ class InvoiceOrderProductServiceTest {
     }
 
     @Test
-    public void testFindInvoiceOrderProductsByInvoiceIdWhenNoMatchingProducts() {
+     void testFindInvoiceOrderProductsByInvoiceIdWhenNoMatchingProducts() {
         List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
 
         Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
