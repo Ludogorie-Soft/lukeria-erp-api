@@ -4,17 +4,16 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Invoice;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.InvoiceRepository;
 import jakarta.validation.ValidationException;
-import org.hibernate.mapping.Any;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +40,41 @@ class InvoiceServiceTest {
     }
 
 
+    @Test
+    public void testGenerateNextInvoiceNumber() {
+        // Подгответе сценарий за връщане на последния номер от репозитория
+        Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(2000000001L);
+
+        // Извикайте метода за генериране на следващия номер
+        Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
+
+        // Проверете дали резултата е очакваният
+        assertEquals(Long.valueOf(2000000002L), nextInvoiceNumber);
+    }
+
+    @Test
+    public void testGenerateNextInvoiceNumberWhenNoLastNumber() {
+        // Подгответе сценарий за връщане на null от репозитория
+        Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(null);
+
+        // Извикайте метода за генериране на следващия номер
+        Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
+
+        // Проверете дали резултата е първият номер
+        assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
+    }
+
+    @Test
+    public void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
+        // Подгответе сценарий за връщане на номер, по-малък от FIRST_INVOICE_NUMBER
+        Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(1999999999L);
+
+        // Извикайте метода за генериране на следващия номер
+        Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
+
+        // Проверете дали резултата е първият номер
+        assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
+    }
 
     @Test
     void testGetAllInvoices() {
