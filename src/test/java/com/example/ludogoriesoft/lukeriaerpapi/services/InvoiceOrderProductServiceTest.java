@@ -68,7 +68,6 @@ class InvoiceOrderProductServiceTest {
 
     @Test
     public void testFindInvoiceOrderProductsByInvoiceId() {
-        // Подгответе сценарий за връщане на списък с продукти при извикване на findAll()
         Invoice invoice=new Invoice();
         invoice.setId(1L);
         InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
@@ -90,15 +89,12 @@ class InvoiceOrderProductServiceTest {
 
     @Test
     public void testFindInvoiceOrderProductsByInvoiceIdWhenNoMatchingProducts() {
-        // Подгответе сценарий за връщане на празен списък при извикване на findAll()
         List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
 
         Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
 
-        // Извикайте метода, който искате да тествате
         List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
 
-        // Проверете дали връщаният резултат е празен
         Assertions.assertTrue(result.isEmpty());
     }
     @Test
@@ -370,9 +366,7 @@ class InvoiceOrderProductServiceTest {
         orderProducts.add(1L);
         configDTO.setOrderProductIds(orderProducts);
         when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.empty());
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO));
         assertEquals("Записът не е намерен за orderProductId: 1", exception.getMessage());
     }
 }
