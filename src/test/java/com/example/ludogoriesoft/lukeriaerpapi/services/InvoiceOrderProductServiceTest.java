@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -36,7 +37,7 @@ class InvoiceOrderProductServiceTest {
     private OrderProductRepository orderProductRepository;
 
     @Mock
-    private PackageRepository packageRepository;
+    private OrderProductService orderProductService;
 
     @Mock
     private ClientRepository clientRepository;
@@ -64,6 +65,38 @@ class InvoiceOrderProductServiceTest {
         MockitoAnnotations.openMocks(this);
     }
 
+
+    @Test
+     void testFindInvoiceOrderProductsByInvoiceId() {
+        Invoice invoice=new Invoice();
+        invoice.setId(1L);
+        InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
+        invoiceOrderProduct.setInvoiceId(invoice);
+        List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+
+
+
+        Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
+        Mockito.when(orderProductService.findInvoiceOrderProductsByInvoiceId(1L)).thenReturn(mockInvoiceOrderProductsList);
+
+        List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
+
+        assertEquals(3, result.size());
+    }
+
+    @Test
+     void testFindInvoiceOrderProductsByInvoiceIdWhenNoMatchingProducts() {
+        List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
+
+        Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
+
+        List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
+
+        Assertions.assertTrue(result.isEmpty());
+    }
     @Test
     void testValidateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
         // Arrange
@@ -333,9 +366,7 @@ class InvoiceOrderProductServiceTest {
         orderProducts.add(1L);
         configDTO.setOrderProductIds(orderProducts);
         when(orderProductRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.empty());
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> invoiceOrderProductService.createInvoiceOrderProductWithIds(configDTO));
         assertEquals("Записът не е намерен за orderProductId: 1", exception.getMessage());
     }
 }

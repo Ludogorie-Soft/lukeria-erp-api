@@ -1,10 +1,10 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -12,13 +12,17 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class OrderProductService {
+
+    private final InvoiceOrderProductRepository invoiceOrderProductRepository;
     private final OrderProductRepository orderProductRepository;
     private final OrderRepository orderRepository;
     private final PackageRepository packageRepository;
+    private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
 
     public List<OrderProductDTO> getAllOrderProducts() {
@@ -74,5 +78,26 @@ public class OrderProductService {
         OrderProduct order = orderProductRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         order.setDeleted(true);
         orderProductRepository.save(order);
+    }
+
+    public List<InvoiceOrderProduct> findInvoiceOrderProductsByInvoiceId(Long invoiceId) {
+        List<InvoiceOrderProduct> invoiceOrderProductsList = invoiceOrderProductRepository.findAll();
+
+        return invoiceOrderProductsList.stream()
+                .filter(orderProduct -> orderProduct.getInvoiceId() != null && orderProduct.getInvoiceId().getId().equals(invoiceId))
+                .toList();
+    }
+
+    public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList){
+        for (InvoiceOrderProduct invoiceOrderProduct : invoiceOrderProductsList) {
+            Optional<Product> productForReduce = productRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
+            int sellingProductForReduce = invoiceOrderProduct.getOrderProductId().getNumber();
+            if (productForReduce.isPresent()) {
+                Product product = productForReduce.get();
+                product.setAvailableQuantity(product.getAvailableQuantity() - sellingProductForReduce);
+                productRepository.save(product);
+            } else return false;
+        }
+        return true;
     }
 }

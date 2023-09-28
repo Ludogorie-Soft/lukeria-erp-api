@@ -1,21 +1,21 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
-import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -31,8 +31,13 @@ class OrderProductServiceTest {
     private OrderProductRepository orderProductRepository;
     @Mock
     private OrderRepository orderRepository;
+
+    @Mock
+    private ProductRepository productRepository;
     @Mock
     private PackageRepository packageRepository;
+    @Mock
+    private InvoiceOrderProductRepository invoiceOrderProductRepository;
     @Mock
     private ModelMapper modelMapper;
 
@@ -47,6 +52,62 @@ class OrderProductServiceTest {
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+     void testFindInvoiceOrderProductsByInvoiceId() {
+        Invoice invoice=new Invoice();
+        invoice.setId(1L);
+        InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
+        invoiceOrderProduct.setInvoiceId(invoice);
+        List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+        mockInvoiceOrderProductsList.add(invoiceOrderProduct);
+
+
+
+        Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
+        Mockito.when(orderProductService.findInvoiceOrderProductsByInvoiceId(1L)).thenReturn(mockInvoiceOrderProductsList);
+
+        List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
+
+        assertEquals(3, result.size());
+    }
+
+    @Test
+     void testReduceProducts() {
+        Invoice invoice=new Invoice();
+        invoice.setId(1L);
+        Order order=new Order();
+        order.setId(1L);
+        Package packageEntity=new Package();
+        packageEntity.setId(1L);
+        Product product=new Product();
+        product.setId(1L);
+        OrderProduct orderProduct=new OrderProduct();
+        orderProduct.setId(1L);
+        orderProduct.setNumber(20);
+        orderProduct.setOrderId(order);
+        orderProduct.setPackageId(packageEntity);
+        // Arrange
+        InvoiceOrderProduct invoiceOrderProduct1 = new InvoiceOrderProduct();
+        invoiceOrderProduct1.setOrderProductId(orderProduct);
+        InvoiceOrderProduct invoiceOrderProduct2 = new InvoiceOrderProduct();
+        invoiceOrderProduct2.setOrderProductId(orderProduct);
+        List<InvoiceOrderProduct> invoiceOrderProductsList = Arrays.asList(invoiceOrderProduct1, invoiceOrderProduct2);
+
+        when(productRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(product));
+
+        // Act
+        boolean result = orderProductService.reduceProducts(invoiceOrderProductsList);
+
+        // Assert
+        assertTrue(result);
+
+        // Verify that the product's available quantity was updated
+        verify(productRepository, times(2)).save(product);
+        assertTrue(result); // Replace with the expected updated quantity
     }
     @Test
     void testValidateOrderProductDTO_ValidOrder() {
