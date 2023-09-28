@@ -66,6 +66,12 @@ public class PackageService {
         if (packageDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
+        if (StringUtils.isBlank(packageDTO.getEnglishName())) {
+            throw new ValidationException("English name is required");
+        }
+        if (!packageDTO.getEnglishName().matches("^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$")) {
+            throw new ValidationException("English name can contain only letters English");
+        }
         if (packageDTO.getCartonId() != null) {
             boolean cartonExists = cartonRepository.existsById(packageDTO.getCartonId());
             if (!cartonExists) {

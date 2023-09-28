@@ -141,6 +141,76 @@ class ClientServiceTest {
         verifyNoInteractions(clientRepository);
     }
     @Test
+    void testCreateClient_InvalidClientDTO_EnglishAddressMissing() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setEnglishBusinessName("en name");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("Address in english is required!", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+    @Test
+    void testCreateClient_InvalidClientDTO_EnglishNameError() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setEnglishBusinessName("эяаэяаэ");
+        clientDTO.setEnglishAddress("name");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("English name can contain only letters in English", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+    @Test
+    void testCreateClient_InvalidClientDTO_EnglishAddressError() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setEnglishBusinessName("name");
+        clientDTO.setEnglishAddress("иэх");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setEnglishMol("Jenna");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("English address can contain only letters in English", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+    @Test
+    void testCreateClient_InvalidClientDTO_EnglishMolError() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setEnglishBusinessName("name");
+        clientDTO.setEnglishAddress("иэх");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setEnglishMol("Няма име");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("English MOL can contain only letters in English", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+    @Test
+    void testCreateClient_InvalidClientDTO_EnglishNameMissing() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setEnglishAddress("address");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("Business name is english is required!", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+    @Test
     void testUpdateClient_MissingBusinessName() {
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setIdNumEIK("123456");
@@ -193,6 +263,41 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
     }
     @Test
+    void testUpdateClient_MissingEnglishAddress() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("name");
+        clientDTO.setIdNumEIK("123456");
+        clientDTO.setEnglishBusinessName("en name");
+
+        Client existingClient = new Client();
+        existingClient.setId(1L);
+        existingClient.setBusinessName("Existing Client");
+        existingClient.setIdNumEIK("123456");
+        existingClient.setAddress("address");
+
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingClient));
+        assertThrows(ValidationException.class, () -> clientService.updateClient(1L, clientDTO));
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
+    void testUpdateClient_MissingEnglishName() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("name");
+        clientDTO.setIdNumEIK("123456");
+
+        Client existingClient = new Client();
+        existingClient.setId(1L);
+        existingClient.setBusinessName("Existing Client");
+        existingClient.setIdNumEIK("123456");
+        existingClient.setAddress("address");
+
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingClient));
+        assertThrows(ValidationException.class, () -> clientService.updateClient(1L, clientDTO));
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(modelMapper);
+    }
+    @Test
     void testDeleteClient_ExistingId() throws ChangeSetPersister.NotFoundException {
         Client existingClient = new Client();
         existingClient.setId(1L);
@@ -223,6 +328,9 @@ class ClientServiceTest {
         clientDTO.setBusinessName("Updated Client 1");
         clientDTO.setIdNumEIK("12345678");
         clientDTO.setAddress("updates address");
+        clientDTO.setEnglishAddress("address");
+        clientDTO.setEnglishBusinessName("en name");
+        clientDTO.setEnglishMol("MOL");
 
         when(clientRepository.findByIdAndDeletedFalse(clientId)).thenReturn(Optional.of(existingClient));
         when(modelMapper.map(existingClient, ClientDTO.class)).thenReturn(clientDTO);
@@ -249,6 +357,9 @@ class ClientServiceTest {
         clientEntity.setBusinessName("Client 1");
         clientEntity.setIdNumEIK("Size 1");
         clientEntity.setAddress("address");
+        clientDTO.setEnglishAddress("address");
+        clientDTO.setEnglishBusinessName("en name");
+        clientDTO.setEnglishMol("MOL");
 
         when(clientRepository.save(any(Client.class))).thenReturn(clientEntity);
         when(modelMapper.map(clientDTO, Client.class)).thenReturn(clientEntity);

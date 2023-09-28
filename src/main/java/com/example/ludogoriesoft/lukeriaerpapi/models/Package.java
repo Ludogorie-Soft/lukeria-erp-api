@@ -14,6 +14,8 @@ public class Package {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(name = "english_name")
+    private String englishName;
     @Column(name = "available_quantity")
     private int availableQuantity;
     @ManyToOne

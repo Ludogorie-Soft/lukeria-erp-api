@@ -13,11 +13,19 @@ public class ClientDTO {
     private Long id;
     @NotNull(message = "Моля въведете името на бизнеса!")
     private String businessName;
+    @NotNull(message = "Моля въведете името на бизнеса и с английски букви!")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$", message = "Името на бизнеса на английски трябва да бъде само с латински букви!")
+    private String englishBusinessName;
     @Pattern(regexp = "\\d{5,}", message = "Моля въведете поне 5 цифри за Ид.Номер - ЕИК!")
     private String idNumEIK;
     private boolean hasIdNumDDS = false;
     @NotNull(message = "Моля въведете адреса!")
     private String address;
+    @NotNull(message = "Моля въведете адреса на бизнеса и с английски букви!")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$", message = "Адреса на английски трябва да бъде само с латински букви!")
+    private String englishAddress;
     private boolean isBulgarianClient = false;
     private String mol;
+    @Pattern(regexp = "^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$", message = "Името на МОЛ- на английски трябва да бъде само с латински букви!")
+    private String englishMol;
 }

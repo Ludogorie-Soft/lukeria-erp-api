@@ -38,6 +38,21 @@ public class ClientService {
         if (StringUtils.isBlank(clientDTO.getAddress())) {
             throw new ValidationException("Address is required!");
         }
+        if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
+            throw new ValidationException("Address in english is required!");
+        }
+        if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
+            throw new ValidationException("Business name is english is required!");
+        }
+        if (!clientDTO.getEnglishBusinessName().matches("^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$")) {
+            throw new ValidationException("English name can contain only letters in English");
+        }
+        if (!clientDTO.getEnglishMol().matches("^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$")) {
+            throw new ValidationException("English MOL can contain only letters in English");
+        }
+        if (!clientDTO.getEnglishAddress().matches("^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$")) {
+            throw new ValidationException("English address can contain only letters in English");
+        }
         Client clientEntity = clientRepository.save(modelMapper.map(clientDTO, Client.class));
         return modelMapper.map(clientEntity, ClientDTO.class);
     }
@@ -53,12 +68,30 @@ public class ClientService {
         if (StringUtils.isBlank(clientDTO.getAddress())) {
             throw new ValidationException("Address is required!");
         }
+        if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
+            throw new ValidationException("Business name is english is required!");
+        }
+        if (!clientDTO.getEnglishBusinessName().matches("^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$")) {
+            throw new ValidationException("English name can contain only letters in English");
+        }
+        if (!clientDTO.getEnglishAddress().matches("^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$")) {
+            throw new ValidationException("English address can contain only letters in English");
+        }
+        if (!clientDTO.getEnglishMol().matches("^[a-zA-Z0-9\\s!@#$%^&*()-_=+]*$")) {
+            throw new ValidationException("English MOL can contain only letters in English");
+        }
+        if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
+            throw new ValidationException("Address in english is required!");
+        }
         existingClient.setBusinessName(clientDTO.getBusinessName());
         existingClient.setIdNumEIK(clientDTO.getIdNumEIK());
         existingClient.setHasIdNumDDS(clientDTO.isHasIdNumDDS());
         existingClient.setAddress(clientDTO.getAddress());
         existingClient.setBulgarianClient(clientDTO.isBulgarianClient());
         existingClient.setMol(clientDTO.getMol());
+        existingClient.setEnglishAddress(clientDTO.getEnglishAddress());
+        existingClient.setEnglishBusinessName(clientDTO.getEnglishBusinessName());
+        existingClient.setEnglishMol(clientDTO.getEnglishMol());
         Client updatedClient = clientRepository.save(existingClient);
         updatedClient.setId(id);
         return modelMapper.map(updatedClient, ClientDTO.class);

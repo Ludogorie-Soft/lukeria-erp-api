@@ -112,6 +112,7 @@ class PackageServiceTest {
         packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(1L);
+        packageDTO.setEnglishName("en name");
 
         when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(java.util.Optional.of(existingPackage));
         when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(true);
@@ -260,6 +261,22 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
+    @Test
+    void testCreatePackage_InvalidPackageDTO_EnglishNameMissing() {
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setPiecesCarton(11);
+        packageDTO.setAvailableQuantity(10);
+        packageDTO.setPhoto("Photo");
+        packageDTO.setPrice(BigDecimal.valueOf(100));
+        packageDTO.setCartonId(1L);
+        packageDTO.setName("name");
+        ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
+        assertEquals("English name is required", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+
+        verifyNoInteractions(packageRepository);
+    }
 
     @Test
     void testCreatePackage_InvalidPackageDTO_InvalidPiecesCarton() {
@@ -288,6 +305,7 @@ class PackageServiceTest {
         packageDTO.setPhoto("Photo");
         packageDTO.setPrice(BigDecimal.valueOf(100));
         packageDTO.setCartonId(1L);
+        packageDTO.setEnglishName("en name");
         Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(false);
         ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
         assertEquals("Carton does not exist with ID: " + packageDTO.getCartonId(), exception.getMessage());
@@ -296,7 +314,24 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
+    @Test
+    void testCreatePackage_InvalidPackageDTO_InvalidEnglishName() {
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setName("name");
+        packageDTO.setPiecesCarton(11);
+        packageDTO.setAvailableQuantity(10);
+        packageDTO.setPhoto("Photo");
+        packageDTO.setPrice(BigDecimal.valueOf(100));
+        packageDTO.setCartonId(1L);
+        packageDTO.setEnglishName("тфуеуэ");
+        Mockito.when(cartonRepository.existsById(packageDTO.getCartonId())).thenReturn(false);
+        ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
+        assertEquals("English name can contain only letters English", exception.getMessage());
 
+        verifyNoInteractions(modelMapper);
+
+        verifyNoInteractions(packageRepository);
+    }
 
 
     @Test
