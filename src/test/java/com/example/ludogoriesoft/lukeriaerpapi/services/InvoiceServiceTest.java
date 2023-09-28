@@ -42,37 +42,22 @@ class InvoiceServiceTest {
 
     @Test
      void testGenerateNextInvoiceNumber() {
-        // Подгответе сценарий за връщане на последния номер от репозитория
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(2000000001L);
-
-        // Извикайте метода за генериране на следващия номер
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
-
-        // Проверете дали резултата е очакваният
         assertEquals(Long.valueOf(2000000002L), nextInvoiceNumber);
     }
 
     @Test
      void testGenerateNextInvoiceNumberWhenNoLastNumber() {
-        // Подгответе сценарий за връщане на null от репозитория
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(null);
-
-        // Извикайте метода за генериране на следващия номер
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
-
-        // Проверете дали резултата е първият номер
         assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
     }
 
     @Test
      void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
-        // Подгответе сценарий за връщане на номер, по-малък от FIRST_INVOICE_NUMBER
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(1999999999L);
-
-        // Извикайте метода за генериране на следващия номер
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
-
-        // Проверете дали резултата е първият номер
         assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
     }
 
