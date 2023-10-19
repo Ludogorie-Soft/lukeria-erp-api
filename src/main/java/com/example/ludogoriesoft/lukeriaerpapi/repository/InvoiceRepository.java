@@ -16,7 +16,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     @Query("SELECT MAX(i.invoiceNumber) FROM Invoice i")
     Long findLastInvoiceNumber();
-
+    @Query("SELECT MAX(i.invoiceNumber) FROM Invoice i WHERE i.invoiceNumber LIKE '1%'")
+    Long findLastInvoiceNumberAbroad();
 
 }
 
