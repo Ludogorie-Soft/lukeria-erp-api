@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -244,6 +245,19 @@ class InvoiceControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoice/{id}", invoiceId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
+    }
+    @Test
+    void testFindLastInvoiceNumberStartingWithTwo() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$").isNumber());
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithOne() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number/abroad"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$").isNumber());
     }
 }
 
