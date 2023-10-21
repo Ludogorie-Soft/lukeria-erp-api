@@ -1,9 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -87,15 +87,23 @@ public class OrderProductService {
                 .filter(orderProduct -> orderProduct.getInvoiceId() != null && orderProduct.getInvoiceId().getId().equals(invoiceId))
                 .toList();
     }
-
+    private final PlateRepository plateRepository;
+    private final CartonRepository cartonRepository;
     public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList){
         for (InvoiceOrderProduct invoiceOrderProduct : invoiceOrderProductsList) {
-            Optional<Product> productForReduce = productRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
-            int sellingProductForReduce = invoiceOrderProduct.getOrderProductId().getNumber();
-            if (productForReduce.isPresent()) {
-                Product product = productForReduce.get();
-                product.setAvailableQuantity(product.getAvailableQuantity() - sellingProductForReduce);
-                productRepository.save(product);
+            Optional<Package> packageForReduce = packageRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
+            int sellingPackageForReduce = invoiceOrderProduct.getOrderProductId().getNumber();
+            if (packageForReduce.isPresent()) {
+                Package aPackage = packageForReduce.get();
+                aPackage.setAvailableQuantity(aPackage.getAvailableQuantity() - sellingPackageForReduce);
+                Optional<Carton> carton = cartonRepository.findByIdAndDeletedFalse(aPackage.getCartonId().getId());
+                double cartonStock = (double) sellingPackageForReduce / aPackage.getPiecesCarton();
+                carton.get().setAvailableQuantity((int) Math.ceil(carton.get().getAvailableQuantity() - cartonStock));
+                Optional<Plate> plate = plateRepository.findByIdAndDeletedFalse(aPackage.getPlateId().getId());
+                plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() - sellingPackageForReduce);
+                Optional<Product> product = productRepository.findByPackageIdAndDeletedFalse(aPackage);
+                product.get().setAvailableQuantity(product.get().getAvailableQuantity() - sellingPackageForReduce);
+                packageRepository.save(aPackage);
             } else return false;
         }
         return true;

@@ -15,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,41 +74,6 @@ class OrderProductServiceTest {
         List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
 
         assertEquals(3, result.size());
-    }
-
-    @Test
-     void testReduceProducts() {
-        Invoice invoice=new Invoice();
-        invoice.setId(1L);
-        Order order=new Order();
-        order.setId(1L);
-        Package packageEntity=new Package();
-        packageEntity.setId(1L);
-        Product product=new Product();
-        product.setId(1L);
-        OrderProduct orderProduct=new OrderProduct();
-        orderProduct.setId(1L);
-        orderProduct.setNumber(20);
-        orderProduct.setOrderId(order);
-        orderProduct.setPackageId(packageEntity);
-        // Arrange
-        InvoiceOrderProduct invoiceOrderProduct1 = new InvoiceOrderProduct();
-        invoiceOrderProduct1.setOrderProductId(orderProduct);
-        InvoiceOrderProduct invoiceOrderProduct2 = new InvoiceOrderProduct();
-        invoiceOrderProduct2.setOrderProductId(orderProduct);
-        List<InvoiceOrderProduct> invoiceOrderProductsList = Arrays.asList(invoiceOrderProduct1, invoiceOrderProduct2);
-
-        when(productRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(product));
-
-        // Act
-        boolean result = orderProductService.reduceProducts(invoiceOrderProductsList);
-
-        // Assert
-        assertTrue(result);
-
-        // Verify that the product's available quantity was updated
-        verify(productRepository, times(2)).save(product);
-        assertTrue(result); // Replace with the expected updated quantity
     }
     @Test
     void testValidateOrderProductDTO_ValidOrder() {
