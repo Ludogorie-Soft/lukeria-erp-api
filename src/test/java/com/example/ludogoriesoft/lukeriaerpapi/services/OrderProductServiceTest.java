@@ -5,6 +5,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -74,6 +75,37 @@ class OrderProductServiceTest {
         List<InvoiceOrderProduct> result = orderProductService.findInvoiceOrderProductsByInvoiceId(1L);
 
         assertEquals(3, result.size());
+    }
+    @Test
+    public void testReduceProducts_Failure() {
+        List<InvoiceOrderProduct> invoiceOrderProductsList = new ArrayList<>();
+        Mockito.when(packageRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.empty());
+        boolean result = orderProductService.reduceProducts(invoiceOrderProductsList);
+        Assertions.assertEquals(result, true);
+    }
+    @Mock
+    private CartonRepository cartonRepository;
+    @Mock
+    private PlateRepository plateRepository;
+    @Test
+    public void testReduceProducts_FailureReturnFalse() {
+        List<InvoiceOrderProduct> invoiceOrderProductsList = new ArrayList<>();
+        Package aPackage = new Package();
+        aPackage.setId(1L);
+        Carton carton = new Carton(1L, "name", "size", 10, BigDecimal.ONE, false);
+        Plate plate = new Plate(1L,"name", 10, "ph.jpg", BigDecimal.ONE, false);
+        aPackage.setCartonId(carton);
+        aPackage.setPlateId(plate);
+        Mockito.when(cartonRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.of(carton));
+        Mockito.when(plateRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.of(plate));
+        Product product = new Product(1L, aPackage, BigDecimal.ONE, 10, false);
+        Mockito.when(productRepository.findByPackageIdAndDeletedFalse(aPackage)).thenReturn(Optional.of(product));
+        OrderProduct orderProduct = new OrderProduct(1L, 10, new Order(), aPackage, false, BigDecimal.ONE);
+        InvoiceOrderProduct invoiceOrderProduct = new InvoiceOrderProduct(1L,new Invoice(), orderProduct, false);
+        invoiceOrderProductsList.add(invoiceOrderProduct);
+        Mockito.when(packageRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.of(aPackage));
+        boolean result = orderProductService.reduceProducts(invoiceOrderProductsList);
+        Assertions.assertEquals(result, true);
     }
     @Test
     void testValidateOrderProductDTO_ValidOrder() {
