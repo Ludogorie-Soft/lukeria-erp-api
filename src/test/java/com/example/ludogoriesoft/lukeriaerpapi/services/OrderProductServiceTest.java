@@ -88,24 +88,31 @@ class OrderProductServiceTest {
     @Mock
     private PlateRepository plateRepository;
     @Test
-    public void testReduceProducts_FailureReturnFalse() {
-        List<InvoiceOrderProduct> invoiceOrderProductsList = new ArrayList<>();
-        Package aPackage = new Package();
-        aPackage.setId(1L);
-        Carton carton = new Carton(1L, "name", "size", 10, BigDecimal.ONE, false);
-        Plate plate = new Plate(1L,"name", 10, "ph.jpg", BigDecimal.ONE, false);
-        aPackage.setCartonId(carton);
-        aPackage.setPlateId(plate);
-        Mockito.when(cartonRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.of(carton));
-        Mockito.when(plateRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.of(plate));
-        Product product = new Product(1L, aPackage, BigDecimal.ONE, 10, false);
-        Mockito.when(productRepository.findByPackageIdAndDeletedFalse(aPackage)).thenReturn(Optional.of(product));
-        OrderProduct orderProduct = new OrderProduct(1L, 10, new Order(), aPackage, false, BigDecimal.ONE);
-        InvoiceOrderProduct invoiceOrderProduct = new InvoiceOrderProduct(1L,new Invoice(), orderProduct, false);
-        invoiceOrderProductsList.add(invoiceOrderProduct);
-        Mockito.when(packageRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.of(aPackage));
+    void testReduceProducts() {
+        Invoice invoice=new Invoice();
+        invoice.setId(1L);
+        Order order=new Order();
+        order.setId(1L);
+        Package packageEntity=new Package();
+        packageEntity.setId(1L);
+        Product product=new Product();
+        product.setId(1L);
+        OrderProduct orderProduct=new OrderProduct();
+        orderProduct.setId(1L);
+        orderProduct.setNumber(20);
+        orderProduct.setOrderId(order);
+        orderProduct.setPackageId(packageEntity);
+        InvoiceOrderProduct invoiceOrderProduct1 = new InvoiceOrderProduct();
+        invoiceOrderProduct1.setOrderProductId(orderProduct);
+        InvoiceOrderProduct invoiceOrderProduct2 = new InvoiceOrderProduct();
+        invoiceOrderProduct2.setOrderProductId(orderProduct);
+        List<InvoiceOrderProduct> invoiceOrderProductsList = Arrays.asList(invoiceOrderProduct1, invoiceOrderProduct2);
+
+        when(productRepository.findByIdAndDeletedFalse(any())).thenReturn(Optional.of(product));
         boolean result = orderProductService.reduceProducts(invoiceOrderProductsList);
-        Assertions.assertEquals(result, true);
+        assertTrue(result);
+        verify(productRepository, times(2)).save(product);
+        assertTrue(result);
     }
     @Test
     void testValidateOrderProductDTO_ValidOrder() {

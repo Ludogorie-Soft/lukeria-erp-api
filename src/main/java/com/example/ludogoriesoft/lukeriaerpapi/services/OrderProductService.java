@@ -91,19 +91,12 @@ public class OrderProductService {
     private final CartonRepository cartonRepository;
     public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList){
         for (InvoiceOrderProduct invoiceOrderProduct : invoiceOrderProductsList) {
-            Optional<Package> packageForReduce = packageRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
-            int sellingPackageForReduce = invoiceOrderProduct.getOrderProductId().getNumber();
-            if (packageForReduce.isPresent()) {
-                Package aPackage = packageForReduce.get();
-                aPackage.setAvailableQuantity(aPackage.getAvailableQuantity() - sellingPackageForReduce);
-                Optional<Carton> carton = cartonRepository.findByIdAndDeletedFalse(aPackage.getCartonId().getId());
-                double cartonStock = (double) sellingPackageForReduce / aPackage.getPiecesCarton();
-                carton.get().setAvailableQuantity((int) Math.ceil(carton.get().getAvailableQuantity() - cartonStock));
-                Optional<Plate> plate = plateRepository.findByIdAndDeletedFalse(aPackage.getPlateId().getId());
-                plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() - sellingPackageForReduce);
-                Optional<Product> product = productRepository.findByPackageIdAndDeletedFalse(aPackage);
-                product.get().setAvailableQuantity(product.get().getAvailableQuantity() - sellingPackageForReduce);
-                packageRepository.save(aPackage);
+            Optional<Product> productForReduce = productRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
+            int sellingProductForReduce = invoiceOrderProduct.getOrderProductId().getNumber();
+            if (productForReduce.isPresent()) {
+                Product product = productForReduce.get();
+                product.setAvailableQuantity(product.getAvailableQuantity() - sellingProductForReduce);
+                productRepository.save(product);
             } else return false;
         }
         return true;
