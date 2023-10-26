@@ -449,15 +449,10 @@ class MaterialOrderServiceTest {
         when(modelMapper.map(updatedMaterialOrder, MaterialOrderDTO.class)).thenReturn(updatedMaterialOrderDTO);
 
         MaterialOrderDTO result = materialOrderService.updateMaterialOrder(existingMaterialOrderId, materialOrderDTO);
-
         verify(materialOrderRepository).findByIdAndDeletedFalse(existingMaterialOrderId);
-
         verify(plateRepository).existsById(materialOrderDTO.getMaterialId());
-
         verify(materialOrderRepository).save(updatedMaterialOrder);
-
         verify(modelMapper).map(materialOrderDTO, MaterialOrder.class);
-
         verify(modelMapper).map(updatedMaterialOrder, MaterialOrderDTO.class);
 
         assertEquals(materialOrderDTO.getMaterialId(), result.getMaterialId());

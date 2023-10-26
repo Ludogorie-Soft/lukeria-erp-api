@@ -4,7 +4,9 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -35,11 +37,15 @@ class ProductServiceTest {
     private ModelMapper modelMapper;
     @Mock
     private ProductService productService;
+    @Mock
+    private PlateRepository plateRepository;
+    @Mock
+    private CartonRepository cartonRepository;
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.initMocks(this);
-        productService = new ProductService(productRepository, packageRepository, modelMapper);
+        productService = new ProductService(productRepository, packageRepository, modelMapper, plateRepository, cartonRepository);
     }
 
     @Test
