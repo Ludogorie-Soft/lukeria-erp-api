@@ -2,6 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -25,6 +26,7 @@ public class Product {
     private int availableQuantity;
     @Column(name = "is_deleted")
     private boolean deleted;
-
+    @Size(min=2, max=10, message = "Кода на продукта трябда да бъде между 2 и 10 символа!")
+    private String productCode;
 }
 
