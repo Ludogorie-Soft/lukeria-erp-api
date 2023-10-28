@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-
+//TODO: decide what you are gonna do with that dto
     private Long id;
     @NotNull(message = "Моля въведете потребителско име")
     @Size(min = 4)

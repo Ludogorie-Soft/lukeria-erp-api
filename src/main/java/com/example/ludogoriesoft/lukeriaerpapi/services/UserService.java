@@ -33,7 +33,7 @@ public class UserService {
         if (StringUtils.isBlank(user.getUsername())) {
             throw new ValidationException("Username is required");
         }
-        if (StringUtils.isBlank(user.getFullName())) {
+        if (StringUtils.isBlank(user.getFirstname())) {
             throw new ValidationException("Full Name is required");
         }
         if (StringUtils.isBlank(user.getEmail())) {
@@ -63,8 +63,8 @@ public class UserService {
         if (StringUtils.isBlank(userDTO.getRole().toString())) {
             throw new ValidationException("Role is required");
         }
-        existingUser.setUsername(userDTO.getUsername());
-        existingUser.setFullName(userDTO.getFullName());
+        existingUser.setUsernameField(userDTO.getUsername());
+        existingUser.setFirstname(userDTO.getFullName());
         existingUser.setEmail(userDTO.getEmail());
         existingUser.setRole(userDTO.getRole());
         User updatedUser = userRepository.save(existingUser);
