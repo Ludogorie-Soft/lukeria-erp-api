@@ -6,7 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface MonthlyOrderRepository extends JpaRepository<MonthlyOrder,Long> {
+public interface MonthlyOrderRepository extends JpaRepository<MonthlyOrder, Long> {
     List<MonthlyOrder> findByDeletedFalse();
+
     Optional<MonthlyOrder> findByIdAndDeletedFalse(Long id);
+
+    MonthlyOrder findFirstByDeletedFalseOrderByIdDesc();
 }

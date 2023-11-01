@@ -15,8 +15,8 @@ public class MonthlyOrderProduct {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product productId;
+    @JoinColumn(name = "package_id")
+    private Package packageId;
     private Integer orderedQuantity;
     private Integer sentQuantity;
     @ManyToOne

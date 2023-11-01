@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MonthlyOrderProductDTO {
     private Long id;
-    private Long productId;
+    private Long packageId;
     private Integer orderedQuantity;
     private Integer sentQuantity;
     private Long monthlyOrderId;

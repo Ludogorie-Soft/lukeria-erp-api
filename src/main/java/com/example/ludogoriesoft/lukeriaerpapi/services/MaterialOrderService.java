@@ -134,7 +134,7 @@ public class MaterialOrderService {
     }
 
     public List<MaterialOrderDTO> getAllOrderProductsByOrderId(Long orderId) {
-        List<OrderProduct> filteredOrderProducts = orderProductRepository.findAll().stream()
+        List<OrderProduct> filteredOrderProducts = orderProductRepository.findByDeletedFalse().stream()
                 .filter(orderProduct -> orderProduct.getOrderId().getId().equals(orderId)).toList();
         return getProductsByPackageId(filteredOrderProducts);
     }
@@ -254,6 +254,5 @@ public class MaterialOrderService {
             createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, allMaterialsForAllOrders);
         }
     }
-
 
 }

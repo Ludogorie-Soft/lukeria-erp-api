@@ -22,6 +22,8 @@ public class OrderProductService {
     private final OrderProductRepository orderProductRepository;
     private final OrderRepository orderRepository;
     private final PackageRepository packageRepository;
+    private final PlateRepository plateRepository;
+    private final CartonRepository cartonRepository;
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
 
@@ -87,8 +89,6 @@ public class OrderProductService {
                 .filter(orderProduct -> orderProduct.getInvoiceId() != null && orderProduct.getInvoiceId().getId().equals(invoiceId))
                 .toList();
     }
-    private final PlateRepository plateRepository;
-    private final CartonRepository cartonRepository;
     public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList){
         for (InvoiceOrderProduct invoiceOrderProduct : invoiceOrderProductsList) {
             Optional<Product> productForReduce = productRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());

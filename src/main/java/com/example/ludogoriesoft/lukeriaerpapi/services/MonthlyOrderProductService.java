@@ -41,10 +41,10 @@ public class MonthlyOrderProductService {
         } else {
             throw new ValidationException("Monthly Order cannot be null");
         }
-        if (monthlyOrderProduct.getProductId() != null) {
-            boolean orderExists = productRepository.existsById(monthlyOrderProduct.getProductId());
+        if (monthlyOrderProduct.getPackageId() != null) {
+            boolean orderExists = productRepository.existsById(monthlyOrderProduct.getPackageId());
             if (!orderExists) {
-                throw new ValidationException("Product does not exist with ID: " + monthlyOrderProduct.getProductId());
+                throw new ValidationException("Product does not exist with ID: " + monthlyOrderProduct.getPackageId());
             }
         } else {
             throw new ValidationException("Product cannot be null");

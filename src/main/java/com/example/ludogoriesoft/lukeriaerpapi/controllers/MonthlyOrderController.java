@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MonthlyOrderDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.MonthlyOrder;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MonthlyOrderService;
 import jakarta.validation.Valid;
@@ -42,5 +43,8 @@ public class MonthlyOrderController {
         monthlyOrderService.deleteMonthlyOrder(id);
         return ResponseEntity.ok("Monthly order with id: " + id + " has been deleted successfully!");
     }
-
+    @GetMapping("/findLastMonthlyOrder")
+    public ResponseEntity<MonthlyOrderDTO> findFirstByOrderByIdDesc(){
+        return ResponseEntity.ok(monthlyOrderService.findFirstByOrderByIdDesc());
+    }
 }
