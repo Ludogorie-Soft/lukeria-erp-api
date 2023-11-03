@@ -2,6 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MonthlyOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MonthlyOrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.MonthlyOrder;
 import com.example.ludogoriesoft.lukeriaerpapi.models.MonthlyOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.MonthlyOrderProductRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.MonthlyOrderRepository;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -37,7 +39,10 @@ class MonthlyOrderProductServiceTest {
     @Mock
     private MonthlyOrderRepository monthlyOrderRepository;
     @Mock
+    private MonthlyOrder monthlyOrder;
+    @Mock
     private ProductRepository productRepository;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
@@ -53,7 +58,6 @@ class MonthlyOrderProductServiceTest {
         Assertions.assertNotNull(monthlyOrders);
         Assertions.assertEquals(0, monthlyOrders.size());
     }
-
 
     @Test
     void testGetOrderById_NonExistingId() {
@@ -78,7 +82,7 @@ class MonthlyOrderProductServiceTest {
 
         Assertions.assertNotNull(result);
 
-        Assertions.assertDoesNotThrow(() -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProductDTO));
+        assertDoesNotThrow(() -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProductDTO));
 
         MonthlyOrderProductDTO invalidMonthlyOrderProduct = new MonthlyOrderProductDTO();
         invalidMonthlyOrderProduct.setOrderedQuantity(-1);
@@ -107,5 +111,71 @@ class MonthlyOrderProductServiceTest {
         when(monthlyOrderProductRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> monthlyOrderProductService.deleteMonthlyOrderProduct(1L));
         verify(monthlyOrderProductRepository, times(1)).findByIdAndDeletedFalse(1L);
+    }
+
+    @Test
+    void testValidateMonthlyOrderProductValidData() {
+        MonthlyOrderProductDTO monthlyOrderProduct = new MonthlyOrderProductDTO();
+        monthlyOrderProduct.setMonthlyOrderId(1L);
+        monthlyOrderProduct.setPackageId(2L);
+        monthlyOrderProduct.setOrderedQuantity(5);
+        when(monthlyOrderRepository.existsById(any())).thenReturn(true);
+        when(productRepository.existsById(any())).thenReturn(true);
+        assertDoesNotThrow(() -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProduct));
+    }
+
+    @Test
+    void testValidateMonthlyOrderProductNullMonthlyOrder() {
+        MonthlyOrderProductDTO monthlyOrderProduct = new MonthlyOrderProductDTO();
+        monthlyOrderProduct.setPackageId(2L);
+        monthlyOrderProduct.setOrderedQuantity(5);
+        assertThrows(ValidationException.class, () -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProduct));
+    }
+
+    @Test
+    void testValidateMonthlyOrderProductNonExistentMonthlyOrder() {
+        MonthlyOrderProductDTO monthlyOrderProduct = new MonthlyOrderProductDTO();
+        monthlyOrderProduct.setMonthlyOrderId(1L);
+        monthlyOrderProduct.setPackageId(2L);
+        monthlyOrderProduct.setOrderedQuantity(5);
+        when(monthlyOrderRepository.existsById(any())).thenReturn(true);
+        when(monthlyOrderRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(ValidationException.class, () -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProduct));
+    }
+
+    @Test
+    void testValidateMonthlyOrderProductNullProduct() {
+        MonthlyOrderProductDTO monthlyOrderProduct = new MonthlyOrderProductDTO();
+        monthlyOrderProduct.setMonthlyOrderId(1L);
+        monthlyOrderProduct.setOrderedQuantity(5);
+        when(monthlyOrderRepository.existsById(any())).thenReturn(true);
+        assertThrows(ValidationException.class, () -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProduct));
+    }
+
+    @Test
+    void testValidateMonthlyOrderProductNonExistentProduct() {
+        MonthlyOrderProductDTO monthlyOrderProduct = new MonthlyOrderProductDTO();
+        monthlyOrderProduct.setMonthlyOrderId(1L);
+        monthlyOrderProduct.setPackageId(2L);
+        monthlyOrderProduct.setOrderedQuantity(5);
+
+        when(monthlyOrderRepository.existsById(1L)).thenReturn(true);
+        when(productRepository.existsById(2L)).thenReturn(false);
+
+        assertThrows(ValidationException.class, () -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProduct));
+    }
+
+    @Test
+    void testValidateMonthlyOrderProductInvalidOrderedQuantity() {
+        MonthlyOrderProductDTO monthlyOrderProduct = new MonthlyOrderProductDTO();
+        monthlyOrderProduct.setMonthlyOrderId(1L);
+        monthlyOrderProduct.setPackageId(2L);
+        monthlyOrderProduct.setOrderedQuantity(0);
+
+        when(monthlyOrderRepository.existsById(1L)).thenReturn(true);
+        when(productRepository.existsById(2L)).thenReturn(true);
+
+        assertThrows(ValidationException.class, () -> monthlyOrderProductService.validateMonthlyOrderProduct(monthlyOrderProduct));
     }
 }

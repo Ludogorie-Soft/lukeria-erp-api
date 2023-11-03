@@ -17,6 +17,7 @@ import java.util.List;
 public class ClientService {
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
+    private static String REGEX_FOR_ENGLISH_FIELDS = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$";
 
     public List<ClientDTO> getAllClients() {
         List<Client> clients = clientRepository.findByDeletedFalse();
@@ -44,13 +45,13 @@ public class ClientService {
         if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
             throw new ValidationException("Business name is english is required!");
         }
-        if (!clientDTO.getEnglishBusinessName().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
+        if (!clientDTO.getEnglishBusinessName().matches(REGEX_FOR_ENGLISH_FIELDS)) {
             throw new ValidationException("English name can contain only letters in English");
         }
-        if (!clientDTO.getEnglishMol().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
+        if (!clientDTO.getEnglishMol().matches(REGEX_FOR_ENGLISH_FIELDS)) {
             throw new ValidationException("English MOL can contain only letters in English");
         }
-        if (!clientDTO.getEnglishAddress().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
+        if (!clientDTO.getEnglishAddress().matches(REGEX_FOR_ENGLISH_FIELDS)) {
             throw new ValidationException("English address can contain only letters in English");
         }
         Client clientEntity = clientRepository.save(modelMapper.map(clientDTO, Client.class));
@@ -71,13 +72,13 @@ public class ClientService {
         if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
             throw new ValidationException("Business name is english is required!");
         }
-        if (!clientDTO.getEnglishBusinessName().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
+        if (!clientDTO.getEnglishBusinessName().matches(REGEX_FOR_ENGLISH_FIELDS)) {
             throw new ValidationException("English name can contain only letters in English");
         }
-        if (!clientDTO.getEnglishAddress().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
+        if (!clientDTO.getEnglishAddress().matches(REGEX_FOR_ENGLISH_FIELDS)) {
             throw new ValidationException("English address can contain only letters in English");
         }
-        if (!clientDTO.getEnglishMol().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
+        if (!clientDTO.getEnglishMol().matches(REGEX_FOR_ENGLISH_FIELDS)) {
             throw new ValidationException("English MOL can contain only letters in English");
         }
         if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
