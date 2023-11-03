@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.time.LocalDate;
@@ -23,7 +23,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 class MonthlyOrderServiceTest {
 
     @InjectMocks
@@ -37,6 +36,10 @@ class MonthlyOrderServiceTest {
 
     @Mock
     private ModelMapper modelMapper;
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     void testGetAllMonthlyOrders() {

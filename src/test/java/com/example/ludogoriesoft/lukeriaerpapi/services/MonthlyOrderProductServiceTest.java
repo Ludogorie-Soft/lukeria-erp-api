@@ -8,12 +8,13 @@ import com.example.ludogoriesoft.lukeriaerpapi.repository.MonthlyOrderRepository
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.Collections;
@@ -23,7 +24,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
 class MonthlyOrderProductServiceTest {
 
     @InjectMocks
@@ -38,6 +38,10 @@ class MonthlyOrderProductServiceTest {
     private MonthlyOrderRepository monthlyOrderRepository;
     @Mock
     private ProductRepository productRepository;
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
 
 
     @Test
