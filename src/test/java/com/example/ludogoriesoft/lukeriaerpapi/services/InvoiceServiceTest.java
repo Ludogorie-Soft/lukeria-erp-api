@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.ludogoriesoft.lukeriaerpapi.services.InvoiceService.FIRST_INVOICE_NUMBER_ABROAD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -249,5 +250,33 @@ class InvoiceServiceTest {
         assertEquals(invoiceDTO.getTotalPrice(), result.getTotalPrice());
 
         verify(invoiceRepository).save(invoiceEntity);
+    }
+    @Test
+    void testFindLastInvoiceNumberStartingWithOneWithNullResult() {
+        when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(null);
+
+        Long result = invoiceService.findLastInvoiceNumberStartingWithOne();
+
+        assertEquals(FIRST_INVOICE_NUMBER_ABROAD, result);
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithOneWithLessThanFirst() {
+        Long lessThanFirst = FIRST_INVOICE_NUMBER_ABROAD - 1;
+        when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(lessThanFirst);
+
+        Long result = invoiceService.findLastInvoiceNumberStartingWithOne();
+
+        assertEquals(FIRST_INVOICE_NUMBER_ABROAD, result);
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithOneWithGreaterThanFirst() {
+        Long greaterThanFirst = FIRST_INVOICE_NUMBER_ABROAD + 10;
+        when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(greaterThanFirst);
+
+        Long result = invoiceService.findLastInvoiceNumberStartingWithOne();
+
+        assertEquals(greaterThanFirst + 1, result);
     }
 }

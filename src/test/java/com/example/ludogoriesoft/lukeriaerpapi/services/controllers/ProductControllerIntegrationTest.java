@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -234,6 +235,18 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/product/{id}", productId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
+    }
+
+    @Test
+    public void testProduceProduct() throws Exception {
+        Long productId = 1L;
+        int producedQuantity = 10;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product/produce")
+                        .param("productId", String.valueOf(productId))
+                        .param("producedQuantity", String.valueOf(producedQuantity))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
 
