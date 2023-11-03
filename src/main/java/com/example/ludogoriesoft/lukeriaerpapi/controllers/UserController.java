@@ -25,8 +25,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
-            UserDTO user = userService.getUserById(id);
-            return ResponseEntity.ok(user);
+        UserDTO user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping
@@ -42,8 +42,8 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
-            userService.deleteUser(id);
-            return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
     }
 
     @PutMapping("restore/{id}")

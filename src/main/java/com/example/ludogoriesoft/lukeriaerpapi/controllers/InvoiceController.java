@@ -48,6 +48,7 @@ public class InvoiceController {
     public ResponseEntity<Long> findLastInvoiceNumberStartingWith() {
         return ResponseEntity.ok(invoiceService.findLastInvoiceNumberStartingWithTwo());
     }
+
     @GetMapping("/number/abroad")
     public ResponseEntity<Long> findLastInvoiceNumberStartingWithOne() {
         return ResponseEntity.ok(invoiceService.findLastInvoiceNumberStartingWithOne());

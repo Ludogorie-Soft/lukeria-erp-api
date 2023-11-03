@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/v1/images")
 @AllArgsConstructor
@@ -21,21 +22,25 @@ public class ImageController {
         String imagePath = imageService.saveImageForPackage(file);
         return ResponseEntity.ok(imagePath);
     }
+
     @PostMapping("/editImageForPackage")
     public ResponseEntity<String> editImageForPackage(MultipartFile file, Long packageId) throws IOException {
         String imagePath = imageService.editImageForPackage(file, packageId);
         return ResponseEntity.ok(imagePath);
     }
+
     @PostMapping("/uploadImageForPlate")
     public ResponseEntity<String> uploadImageForPlate(MultipartFile file) throws IOException {
         String imagePath = imageService.saveImageForPlate(file);
         return ResponseEntity.ok(imagePath);
     }
+
     @PostMapping("/editImageForPlate")
     public ResponseEntity<String> editImageForPlate(MultipartFile file, Long plateId) throws IOException {
         String imagePath = imageService.editImageForPlate(file, plateId);
         return ResponseEntity.ok(imagePath);
     }
+
     @GetMapping("/{imageName}")
     public ResponseEntity<byte[]> getImage(@PathVariable String imageName) throws IOException {
         byte[] imageBytes = imageService.getImageBytes(imageName);

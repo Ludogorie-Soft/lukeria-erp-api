@@ -1,7 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MonthlyOrderDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.MonthlyOrder;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.MonthlyOrderRepository;
@@ -66,7 +65,8 @@ public class MonthlyOrderService {
         order.setDeleted(true);
         monthlyOrderRepository.save(order);
     }
-    public MonthlyOrderDTO findFirstByOrderByIdDesc(){
+
+    public MonthlyOrderDTO findFirstByOrderByIdDesc() {
         return modelMapper.map(monthlyOrderRepository.findFirstByDeletedFalseOrderByIdDesc(), MonthlyOrderDTO.class);
     }
 }

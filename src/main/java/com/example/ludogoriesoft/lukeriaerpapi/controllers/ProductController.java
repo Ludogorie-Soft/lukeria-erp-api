@@ -43,6 +43,7 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok("Product with id: " + id + " has been deleted successfully!");
     }
+
     @PostMapping("/produce")
     public ResponseEntity<ProductDTO> produceProduct(@RequestParam("productId") Long productId, @RequestParam("producedQuantity") int producedQuantity) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(productService.produceProduct(productId, producedQuantity));

@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderProductController {
     private final OrderProductService orderProductService;
+
     @GetMapping
     public ResponseEntity<List<OrderProductDTO>> getAllOrderProducts() {
         return ResponseEntity.ok(orderProductService.getAllOrderProducts());
@@ -42,9 +43,10 @@ public class OrderProductController {
         orderProductService.deleteOrderProduct(id);
         return ResponseEntity.ok("Order with id: " + id + " has been deleted successfully!");
     }
+
     @GetMapping("/lessening")
-    public ResponseEntity<Boolean> findInvoiceOrderProductsByInvoiceId(@RequestParam Long invoiceId)  {
-        List<InvoiceOrderProduct> invoiceOrderProductsList= orderProductService.findInvoiceOrderProductsByInvoiceId(invoiceId);
+    public ResponseEntity<Boolean> findInvoiceOrderProductsByInvoiceId(@RequestParam Long invoiceId) {
+        List<InvoiceOrderProduct> invoiceOrderProductsList = orderProductService.findInvoiceOrderProductsByInvoiceId(invoiceId);
         return ResponseEntity.ok(orderProductService.reduceProducts(invoiceOrderProductsList));
     }
 

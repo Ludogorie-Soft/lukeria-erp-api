@@ -49,7 +49,7 @@ public class MonthlyOrderProductService {
         } else {
             throw new ValidationException("Product cannot be null");
         }
-        if(monthlyOrderProduct.getOrderedQuantity()<=0){
+        if (monthlyOrderProduct.getOrderedQuantity() <= 0) {
             throw new ValidationException("Ordered Quantity cannot lower than 0!");
         }
 

@@ -2,7 +2,6 @@ package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MonthlyOrderProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.MonthlyOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MonthlyOrderProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

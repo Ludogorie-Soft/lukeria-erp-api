@@ -91,6 +91,7 @@ class ImageControllerTest {
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
     }
+
     @Test
     void testUpdateImageForPlate() throws Exception {
         byte[] content = "Sample file content".getBytes();

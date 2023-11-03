@@ -1,8 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MonthlyOrderDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.MonthlyOrder;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MonthlyOrderService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -38,13 +36,15 @@ public class MonthlyOrderController {
     public ResponseEntity<MonthlyOrderDTO> updateMonthlyOrder(@PathVariable("id") Long id, @Valid @RequestBody MonthlyOrderDTO monthlyOrderDTO) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(monthlyOrderService.updateMonthlyOrder(id, monthlyOrderDTO));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMonthlyOrder(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
         monthlyOrderService.deleteMonthlyOrder(id);
         return ResponseEntity.ok("Monthly order with id: " + id + " has been deleted successfully!");
     }
+
     @GetMapping("/findLastMonthlyOrder")
-    public ResponseEntity<MonthlyOrderDTO> findFirstByOrderByIdDesc(){
+    public ResponseEntity<MonthlyOrderDTO> findFirstByOrderByIdDesc() {
         return ResponseEntity.ok(monthlyOrderService.findFirstByOrderByIdDesc());
     }
 }
