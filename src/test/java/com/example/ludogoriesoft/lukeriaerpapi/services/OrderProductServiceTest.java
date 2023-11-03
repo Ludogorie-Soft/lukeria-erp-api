@@ -77,11 +77,11 @@ class OrderProductServiceTest {
         assertEquals(3, result.size());
     }
     @Test
-    public void testReduceProducts_Failure() {
+    void testReduceProducts_Failure() {
         List<InvoiceOrderProduct> invoiceOrderProductsList = new ArrayList<>();
         Mockito.when(packageRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.empty());
         boolean result = orderProductService.reduceProducts(invoiceOrderProductsList);
-        Assertions.assertEquals(result, true);
+        Assertions.assertEquals(true,result);
     }
     @Mock
     private CartonRepository cartonRepository;

@@ -17,7 +17,7 @@ import java.util.List;
 public class ClientService {
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
-    private static String REGEX_FOR_ENGLISH_FIELDS = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$";
+    private static final String REGEX_FOR_ENGLISH_FIELDS = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$";
 
     public List<ClientDTO> getAllClients() {
         List<Client> clients = clientRepository.findByDeletedFalse();

@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 )
         }
 )
-public class MonthlyOrderProductControllerIntegrationTest {
+class MonthlyOrderProductControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 

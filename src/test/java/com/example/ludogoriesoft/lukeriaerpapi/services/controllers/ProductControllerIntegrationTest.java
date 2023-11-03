@@ -238,7 +238,7 @@ class ProductControllerIntegrationTest {
     }
 
     @Test
-    public void testProduceProduct() throws Exception {
+    void testProduceProduct() throws Exception {
         Long productId = 1L;
         int producedQuantity = 10;
 
