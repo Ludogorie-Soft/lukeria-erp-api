@@ -42,11 +42,12 @@ class InvoiceServiceTest {
 
 
     @Test
-     void testGenerateNextInvoiceNumber() {
+    void testGenerateNextInvoiceNumber() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(2000000001L);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
         assertEquals(Long.valueOf(2000000002L), nextInvoiceNumber);
     }
+
     @Test
     void testGenerateNextInvoiceNumberWithIdOne() {
         Mockito.when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(1000000000L);
@@ -55,14 +56,14 @@ class InvoiceServiceTest {
     }
 
     @Test
-     void testGenerateNextInvoiceNumberWhenNoLastNumber() {
+    void testGenerateNextInvoiceNumberWhenNoLastNumber() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(null);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
         assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
     }
 
     @Test
-     void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
+    void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(1999999999L);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
         assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
@@ -102,6 +103,7 @@ class InvoiceServiceTest {
 
         verify(modelMapper, times(mockInvoices.size())).map(any(Invoice.class), eq(InvoiceDTO.class));
     }
+
     @Test
     void testGetInvoiceById_ExistingId() throws ChangeSetPersister.NotFoundException {
         Invoice invoice = new Invoice();
@@ -147,6 +149,7 @@ class InvoiceServiceTest {
 
         verifyNoInteractions(invoiceRepository);
     }
+
     @Test
     void testCreateInvoice_InvalidInvoiceDTO_SizePrice() {
         InvoiceDTO invoiceDTO = new InvoiceDTO();
@@ -173,6 +176,7 @@ class InvoiceServiceTest {
         verify(invoiceRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testUpdateInvoice_InvalidPrice() {
         InvoiceDTO invoiceDTO = new InvoiceDTO();
@@ -251,6 +255,7 @@ class InvoiceServiceTest {
 
         verify(invoiceRepository).save(invoiceEntity);
     }
+
     @Test
     void testFindLastInvoiceNumberStartingWithOneWithNullResult() {
         when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(null);

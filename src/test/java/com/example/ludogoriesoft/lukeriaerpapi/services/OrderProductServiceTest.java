@@ -1,8 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -14,20 +14,17 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
+
 class OrderProductServiceTest {
     @Mock
     private OrderProductRepository orderProductRepository;
@@ -49,7 +46,10 @@ class OrderProductServiceTest {
     private PackageService packageService;
     @InjectMocks
     private OrderService orderService;
-
+    @Mock
+    private CartonRepository cartonRepository;
+    @Mock
+    private PlateRepository plateRepository;
 
     @BeforeEach
     void setup() {
@@ -57,16 +57,15 @@ class OrderProductServiceTest {
     }
 
     @Test
-     void testFindInvoiceOrderProductsByInvoiceId() {
-        Invoice invoice=new Invoice();
+    void testFindInvoiceOrderProductsByInvoiceId() {
+        Invoice invoice = new Invoice();
         invoice.setId(1L);
-        InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
+        InvoiceOrderProduct invoiceOrderProduct = new InvoiceOrderProduct();
         invoiceOrderProduct.setInvoiceId(invoice);
         List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
         mockInvoiceOrderProductsList.add(invoiceOrderProduct);
         mockInvoiceOrderProductsList.add(invoiceOrderProduct);
         mockInvoiceOrderProductsList.add(invoiceOrderProduct);
-
 
 
         Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
@@ -76,28 +75,26 @@ class OrderProductServiceTest {
 
         assertEquals(3, result.size());
     }
+
     @Test
     void testReduceProducts_Failure() {
         List<InvoiceOrderProduct> invoiceOrderProductsList = new ArrayList<>();
         Mockito.when(packageRepository.findByIdAndDeletedFalse(Mockito.anyLong())).thenReturn(Optional.empty());
         boolean result = orderProductService.reduceProducts(invoiceOrderProductsList);
-        Assertions.assertEquals(true,result);
+        Assertions.assertEquals(true, result);
     }
-    @Mock
-    private CartonRepository cartonRepository;
-    @Mock
-    private PlateRepository plateRepository;
+
     @Test
     void testReduceProducts() {
-        Invoice invoice=new Invoice();
+        Invoice invoice = new Invoice();
         invoice.setId(1L);
-        Order order=new Order();
+        Order order = new Order();
         order.setId(1L);
-        Package packageEntity=new Package();
+        Package packageEntity = new Package();
         packageEntity.setId(1L);
-        Product product=new Product();
+        Product product = new Product();
         product.setId(1L);
-        OrderProduct orderProduct=new OrderProduct();
+        OrderProduct orderProduct = new OrderProduct();
         orderProduct.setId(1L);
         orderProduct.setNumber(20);
         orderProduct.setOrderId(order);
@@ -114,6 +111,7 @@ class OrderProductServiceTest {
         verify(productRepository, times(2)).save(product);
         assertTrue(result);
     }
+
     @Test
     void testValidateOrderProductDTO_ValidOrder() {
         OrderProductDTO orderDTO = new OrderProductDTO();
@@ -129,6 +127,7 @@ class OrderProductServiceTest {
 
         orderProductService.validateOrderProductDTO(orderDTO);
     }
+
     @Test
     void testCreateOrderProduct_ValidInput() {
         OrderProductDTO orderDTO = new OrderProductDTO();
@@ -163,6 +162,7 @@ class OrderProductServiceTest {
 
         assertThrows(ValidationException.class, () -> orderProductService.validateOrderProductDTO(orderDTO));
     }
+
     @Test
     void testValidateOrderProductDTO_NullProductId() {
         OrderProductDTO orderDTO = new OrderProductDTO();
@@ -173,6 +173,7 @@ class OrderProductServiceTest {
 
         assertThrows(ValidationException.class, () -> orderProductService.validateOrderProductDTO(orderDTO));
     }
+
     @Test
     void testValidateOrderProductDTO_InvalidOrder() {
         OrderProductDTO orderDTO = new OrderProductDTO();
@@ -307,6 +308,7 @@ class OrderProductServiceTest {
         OrderProductDTO orderDTO = new OrderProductDTO();
         assertThrows(ValidationException.class, () -> orderProductService.createOrderProduct(orderDTO));
     }
+
     @Test
     void testUpdateOrderProduct_ValidInput() throws ChangeSetPersister.NotFoundException {
         Long id = 1L;
@@ -342,6 +344,7 @@ class OrderProductServiceTest {
         verify(modelMapper, times(1)).map(updatedOrderProduct, OrderProductDTO.class);
         assertEquals(expectedDTO, updatedOrderDTO);
     }
+
     @Test
     void testUpdateOrderProduct_EntityNotFound() {
         Long id = 1L;
@@ -360,6 +363,7 @@ class OrderProductServiceTest {
 
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> orderProductService.updateOrderProduct(id, orderDTO));
     }
+
     @Test
     void testDeleteOrderProduct_ValidId() throws ChangeSetPersister.NotFoundException {
         Long orderId = 1L;

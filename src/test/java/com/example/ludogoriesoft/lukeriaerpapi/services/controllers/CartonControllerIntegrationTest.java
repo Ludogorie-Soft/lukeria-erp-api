@@ -52,6 +52,14 @@ class CartonControllerIntegrationTest {
     @MockBean
     private CartonService cartonService;
 
+    private static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
@@ -223,14 +231,6 @@ class CartonControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedCarton)))
                 .andExpect(status().isNotFound());
-    }
-
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test

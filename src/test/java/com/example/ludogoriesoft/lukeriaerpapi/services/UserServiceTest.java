@@ -21,7 +21,8 @@ import java.util.Optional;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class UserServiceTest {
     @Mock
@@ -326,7 +327,7 @@ class UserServiceTest {
     }
 
     @Test
-     void testCreateUser_WithInvalidUsernameLength() {
+    void testCreateUser_WithInvalidUsernameLength() {
 
         User user = new User();
         user.setUsername("abc"); // Подаваме потребителско име с по-малка дължина от 4 символа

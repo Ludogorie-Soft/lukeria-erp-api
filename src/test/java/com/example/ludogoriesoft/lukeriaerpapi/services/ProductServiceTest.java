@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -64,8 +63,8 @@ class ProductServiceTest {
 
         when(productRepository.findByDeletedFalse()).thenReturn(products);
 
-        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 5,"L111"));
-        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, BigDecimal.valueOf(15.0), aPackage.getId(), 3,"L111"));
+        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 5, "L111"));
+        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, BigDecimal.valueOf(15.0), aPackage.getId(), 3, "L111"));
 
         // Act
         List<ProductDTO> result = productService.getAllProducts();
@@ -124,6 +123,7 @@ class ProductServiceTest {
         // Act and Assert
         assertThrows(jakarta.validation.ValidationException.class, () -> productService.createProduct(productDTO));
     }
+
     @Test
     void testUpdateProduct_ReturnsUpdatedProductDTO() throws ChangeSetPersister.NotFoundException {
         // Arrange
@@ -152,7 +152,7 @@ class ProductServiceTest {
     }
 
     @Test
-     void testCreateProduct_ZeroPrice_ValidationException() {
+    void testCreateProduct_ZeroPrice_ValidationException() {
         // Arrange
         ProductDTO productDTO = new ProductDTO();
         productDTO.setPrice(BigDecimal.ZERO);
@@ -188,7 +188,7 @@ class ProductServiceTest {
     }
 
     @Test
-     void testUpdateProduct_ProductNotFound_ChangeSetPersisterNotFoundException() {
+    void testUpdateProduct_ProductNotFound_ChangeSetPersisterNotFoundException() {
         // Arrange
         Long productId = 1L;
         ProductDTO productDTO = new ProductDTO();
@@ -289,6 +289,7 @@ class ProductServiceTest {
         verify(product).setDeleted(true);
         verify(productRepository).save(product);
     }
+
     @Test
     void testProduceProduct() throws ChangeSetPersister.NotFoundException {
         Long productId = 1L;

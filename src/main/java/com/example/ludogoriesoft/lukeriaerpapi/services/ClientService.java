@@ -15,9 +15,9 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ClientService {
+    private static final String REGEX_FOR_ENGLISH_FIELDS = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$";
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
-    private static final String REGEX_FOR_ENGLISH_FIELDS = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$";
 
     public List<ClientDTO> getAllClients() {
         List<Client> clients = clientRepository.findByDeletedFalse();

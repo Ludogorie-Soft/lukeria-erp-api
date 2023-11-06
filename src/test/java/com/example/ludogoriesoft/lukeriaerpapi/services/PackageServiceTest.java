@@ -155,6 +155,7 @@ class PackageServiceTest {
         // Act and Assert
         assertThrows(ValidationException.class, () -> packageService.updatePackage(packageId, packageDTO));
     }
+
     @Test
     void testUpdatePackage_ThrowsValidationException_WhenPlateNull() {
         // Arrange
@@ -261,6 +262,7 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
+
     @Test
     void testCreatePackage_InvalidPackageDTO_EnglishNameMissing() {
         PackageDTO packageDTO = new PackageDTO();
@@ -314,6 +316,7 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
+
     @Test
     void testCreatePackage_InvalidPackageDTO_InvalidEnglishName() {
         PackageDTO packageDTO = new PackageDTO();

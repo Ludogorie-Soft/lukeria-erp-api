@@ -36,6 +36,7 @@ class MonthlyOrderServiceTest {
 
     @Mock
     private ModelMapper modelMapper;
+
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);

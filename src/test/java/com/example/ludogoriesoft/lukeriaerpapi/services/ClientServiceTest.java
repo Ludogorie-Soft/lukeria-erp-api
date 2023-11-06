@@ -71,6 +71,7 @@ class ClientServiceTest {
 
         verify(modelMapper, times(mockClients.size())).map(any(Client.class), eq(ClientDTO.class));
     }
+
     @Test
     void testGetClientById_ExistingId() throws ChangeSetPersister.NotFoundException {
         Client client = new Client();
@@ -116,6 +117,7 @@ class ClientServiceTest {
 
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testCreateClient_InvalidClientDTO_IsNumEIKMissing() {
         ClientDTO clientDTO = new ClientDTO();
@@ -128,6 +130,7 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testCreateClient_InvalidClientDTO_AddressMissing() {
         ClientDTO clientDTO = new ClientDTO();
@@ -140,6 +143,7 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testCreateClient_InvalidClientDTO_EnglishAddressMissing() {
         ClientDTO clientDTO = new ClientDTO();
@@ -153,6 +157,7 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testCreateClient_InvalidClientDTO_EnglishNameError() {
         ClientDTO clientDTO = new ClientDTO();
@@ -167,6 +172,7 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testCreateClient_InvalidClientDTO_EnglishAddressError() {
         ClientDTO clientDTO = new ClientDTO();
@@ -182,6 +188,7 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testCreateClient_InvalidClientDTO_EnglishMolError() {
         ClientDTO clientDTO = new ClientDTO();
@@ -197,6 +204,7 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testCreateClient_InvalidClientDTO_EnglishNameMissing() {
         ClientDTO clientDTO = new ClientDTO();
@@ -210,6 +218,7 @@ class ClientServiceTest {
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
     }
+
     @Test
     void testUpdateClient_MissingBusinessName() {
         ClientDTO clientDTO = new ClientDTO();
@@ -227,6 +236,7 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testUpdateClient_MissingNumEIK() {
         ClientDTO clientDTO = new ClientDTO();
@@ -245,6 +255,7 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testUpdateClient_MissingAddress() {
         ClientDTO clientDTO = new ClientDTO();
@@ -262,6 +273,7 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testUpdateClient_MissingEnglishAddress() {
         ClientDTO clientDTO = new ClientDTO();
@@ -280,6 +292,7 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testUpdateClient_MissingEnglishName() {
         ClientDTO clientDTO = new ClientDTO();
@@ -297,6 +310,7 @@ class ClientServiceTest {
         verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testDeleteClient_ExistingId() throws ChangeSetPersister.NotFoundException {
         Client existingClient = new Client();
@@ -377,8 +391,6 @@ class ClientServiceTest {
         // Verify that clientRepository.save() is called with the expected Client object
         verify(clientRepository).save(clientEntity);
     }
-
-
 
 
 }
