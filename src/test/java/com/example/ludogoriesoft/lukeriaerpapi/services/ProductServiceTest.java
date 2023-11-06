@@ -312,7 +312,7 @@ class ProductServiceTest {
         aPackage.setId(1L);
         aPackage.setCartonId(carton);
         aPackage.setPlateId(plate);
-
+        aPackage.setPiecesCarton(1);
         product.setPackageId(aPackage);
 
         Mockito.when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(product));
@@ -325,7 +325,7 @@ class ProductServiceTest {
         assertEquals(60, product.getAvailableQuantity());
         assertEquals(-10, aPackage.getAvailableQuantity());
         assertEquals(90, plate.getAvailableQuantity());
-        assertEquals(100, carton.getAvailableQuantity());
+        assertEquals(90, carton.getAvailableQuantity());
     }
 
 
