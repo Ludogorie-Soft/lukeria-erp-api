@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -67,16 +66,15 @@ class InvoiceOrderProductServiceTest {
 
 
     @Test
-     void testFindInvoiceOrderProductsByInvoiceId() {
-        Invoice invoice=new Invoice();
+    void testFindInvoiceOrderProductsByInvoiceId() {
+        Invoice invoice = new Invoice();
         invoice.setId(1L);
-        InvoiceOrderProduct invoiceOrderProduct=new InvoiceOrderProduct();
+        InvoiceOrderProduct invoiceOrderProduct = new InvoiceOrderProduct();
         invoiceOrderProduct.setInvoiceId(invoice);
         List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
         mockInvoiceOrderProductsList.add(invoiceOrderProduct);
         mockInvoiceOrderProductsList.add(invoiceOrderProduct);
         mockInvoiceOrderProductsList.add(invoiceOrderProduct);
-
 
 
         Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
@@ -88,7 +86,7 @@ class InvoiceOrderProductServiceTest {
     }
 
     @Test
-     void testFindInvoiceOrderProductsByInvoiceIdWhenNoMatchingProducts() {
+    void testFindInvoiceOrderProductsByInvoiceIdWhenNoMatchingProducts() {
         List<InvoiceOrderProduct> mockInvoiceOrderProductsList = new ArrayList<>();
 
         Mockito.when(invoiceOrderProductRepository.findAll()).thenReturn(mockInvoiceOrderProductsList);
@@ -97,6 +95,7 @@ class InvoiceOrderProductServiceTest {
 
         Assertions.assertTrue(result.isEmpty());
     }
+
     @Test
     void testValidateInvoiceOrderProduct_ThrowsValidationExceptionWhenOrderProductIdIsNull() {
         // Arrange

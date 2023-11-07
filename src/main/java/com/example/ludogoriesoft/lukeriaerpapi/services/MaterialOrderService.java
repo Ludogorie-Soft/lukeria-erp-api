@@ -2,9 +2,8 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
-import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -41,14 +40,36 @@ public class MaterialOrderService {
 
     public MaterialOrderDTO updateMaterialOrder(Long id, MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
         validate(materialOrderDTO);
-
+        Optional<Package> aPackage = Optional.empty();
+        Optional<Plate> plate = Optional.empty();
+        Optional<Carton> carton = Optional.empty();
         MaterialOrder existingMaterialOrder = materialOrderRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
-
+        if (existingMaterialOrder.getReceivedQuantity() != null) {
+            if (existingMaterialOrder.getMaterialType().equals(MaterialType.PACKAGE)) {
+                aPackage = packageRepository.findByIdAndDeletedFalse(existingMaterialOrder.getMaterialId());
+            } else if (existingMaterialOrder.getMaterialType().equals(MaterialType.PLATE)) {
+                plate = plateRepository.findByIdAndDeletedFalse(existingMaterialOrder.getMaterialId());
+            } else if (existingMaterialOrder.getMaterialType().equals(MaterialType.CARTON)) {
+                carton = cartonRepository.findByIdAndDeletedFalse(existingMaterialOrder.getMaterialId());
+            }
+            if (aPackage.isPresent()) {
+                aPackage.get().setAvailableQuantity(aPackage.get().getAvailableQuantity() - existingMaterialOrder.getReceivedQuantity() + materialOrderDTO.getReceivedQuantity());
+                packageRepository.save(aPackage.get());
+            } else if (plate.isPresent()) {
+                plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() - existingMaterialOrder.getReceivedQuantity() + materialOrderDTO.getReceivedQuantity());
+                plateRepository.save(plate.get());
+            } else if (carton.isPresent()) {
+                carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() - existingMaterialOrder.getReceivedQuantity() + materialOrderDTO.getReceivedQuantity());
+                cartonRepository.save(carton.get());
+            }
+        }
         MaterialOrder updatedMaterialOrder = modelMapper.map(materialOrderDTO, MaterialOrder.class);
         updatedMaterialOrder.setId(existingMaterialOrder.getId());
+        if (existingMaterialOrder.getReceivedQuantity() == null) {
+            increaseProductsQuantity(updatedMaterialOrder);
+        }
         materialOrderRepository.save(updatedMaterialOrder);
-        increaseProductsQuantity(updatedMaterialOrder);
         return modelMapper.map(updatedMaterialOrder, MaterialOrderDTO.class);
     }
 
@@ -70,6 +91,7 @@ public class MaterialOrderService {
             }
         }
     }
+
     public void deleteMaterialOrder(Long id) throws ChangeSetPersister.NotFoundException {
         MaterialOrder materialOrder = materialOrderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         materialOrder.setDeleted(true);
@@ -112,7 +134,7 @@ public class MaterialOrderService {
     }
 
     public List<MaterialOrderDTO> getAllOrderProductsByOrderId(Long orderId) {
-        List<OrderProduct> filteredOrderProducts = orderProductRepository.findAll().stream()
+        List<OrderProduct> filteredOrderProducts = orderProductRepository.findByDeletedFalse().stream()
                 .filter(orderProduct -> orderProduct.getOrderId().getId().equals(orderId)).toList();
         return getProductsByPackageId(filteredOrderProducts);
     }
@@ -125,7 +147,7 @@ public class MaterialOrderService {
                     .orElseThrow(() -> new RuntimeException("Продуктът не беше намерен"));
             if (product.getAvailableQuantity() < orderProduct.getNumber()) {
                 if (calculatePlateInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
-                    createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(),  calculatePlateInsufficientNumbers(packageEntity) - orderProduct.getNumber(), materialsForOrder);
+                    createMaterialOrder(MaterialType.PLATE, packageEntity.getPlateId().getId(), calculatePlateInsufficientNumbers(packageEntity) - orderProduct.getNumber(), materialsForOrder);
                 }
                 if (calculateCartonInsufficientNumbers(packageEntity) < orderProduct.getNumber()) {
                     createMaterialOrder(MaterialType.CARTON, packageEntity.getCartonId().getId(),
@@ -232,6 +254,5 @@ public class MaterialOrderService {
             createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, allMaterialsForAllOrders);
         }
     }
-
 
 }

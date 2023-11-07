@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
 @ControllerAdvice
 public class ApiExceptionHandler {
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
@@ -13,6 +14,7 @@ public class ApiExceptionHandler {
         String errorMessage = "Not found!";
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<String> handleValidationException(ValidationException ex) {
         String errorMessage = "Validation error: " + ex.getMessage();

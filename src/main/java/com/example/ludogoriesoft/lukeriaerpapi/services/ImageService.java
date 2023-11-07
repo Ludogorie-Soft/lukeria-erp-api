@@ -15,16 +15,17 @@ import java.util.UUID;
 
 @Service
 public class ImageService {
-    @Value("${image.upload.directory}")
-     private String imageDirectory;
     private final PackageRepository packageRepository;
     private final PlateRepository plateRepository;
+    @Value("${image.upload.directory}")
+    private final String imageDirectory;
 
     public ImageService(@Value("${image.upload.directory}") String imageDirectory, PackageRepository packageRepository, PlateRepository plateRepository) {
         this.imageDirectory = imageDirectory;
         this.packageRepository = packageRepository;
         this.plateRepository = plateRepository;
     }
+
     public String saveFileAndGetUniqueFilename(MultipartFile file) throws IOException {
         String uniqueFilename = generateUniqueFilename(file.getOriginalFilename());
         Path filePath = createFilePath(uniqueFilename);
@@ -33,7 +34,7 @@ public class ImageService {
     }
 
     String generateUniqueFilename(String originalFilename) {
-        return UUID.randomUUID().toString() + "_" + originalFilename;
+        return UUID.randomUUID() + "_" + originalFilename;
     }
 
     Path createFilePath(String uniqueFilename) throws IOException {
@@ -72,6 +73,7 @@ public class ImageService {
             return new byte[0];
         }
     }
+
     public String saveImageForPlate(MultipartFile file) throws IOException {
         String uniqueFilename = saveFileAndGetUniqueFilename(file);
         Plate plate = plateRepository.findFirstByDeletedFalseOrderByIdDesc();

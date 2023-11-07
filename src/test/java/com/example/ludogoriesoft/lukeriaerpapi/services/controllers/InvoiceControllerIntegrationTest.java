@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -29,7 +30,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,6 +53,14 @@ class InvoiceControllerIntegrationTest {
 
     @MockBean
     private InvoiceService invoiceService;
+
+    private static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     public void setup() {
@@ -227,14 +235,6 @@ class InvoiceControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Test
     void testDeleteInvoiceByIdWhenInvoiceDoesNotExist() throws Exception {
         long invoiceId = 1L;
@@ -244,6 +244,20 @@ class InvoiceControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoice/{id}", invoiceId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithTwo() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$").isNumber());
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithOne() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number/abroad"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$").isNumber());
     }
 }
 

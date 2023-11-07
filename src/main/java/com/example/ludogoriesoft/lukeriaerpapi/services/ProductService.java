@@ -1,8 +1,13 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -12,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -20,6 +26,8 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final PackageRepository packageRepository;
     private final ModelMapper modelMapper;
+    private final PlateRepository plateRepository;
+    private final CartonRepository cartonRepository;
 
     public List<ProductDTO> getAllProducts() {
         List<Product> products = productRepository.findByDeletedFalse();
@@ -32,6 +40,7 @@ public class ProductService {
         Product product = productRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         return modelMapper.map(product, ProductDTO.class);
     }
+
     public ProductDTO createProduct(ProductDTO productDTO) {
         validateProductDTO(productDTO);
 
@@ -65,9 +74,34 @@ public class ProductService {
             throw new ValidationException("Package ID cannot be null");
         }
     }
+
     public void deleteProduct(Long id) throws ChangeSetPersister.NotFoundException {
         Product product = productRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         product.setDeleted(true);
         productRepository.save(product);
+    }
+
+    public ProductDTO produceProduct(Long productId, int producedQuantity) throws ChangeSetPersister.NotFoundException {
+        Optional<Product> product = productRepository.findByIdAndDeletedFalse(productId);
+        if (product.isPresent()) {
+            product.get().setAvailableQuantity(product.get().getAvailableQuantity() + producedQuantity);
+            productRepository.save(product.get());
+            Optional<Package> aPackage = packageRepository.findByIdAndDeletedFalse(product.get().getPackageId().getId());
+            if (aPackage.isPresent()) {
+                aPackage.get().setAvailableQuantity(aPackage.get().getAvailableQuantity() - producedQuantity);
+                packageRepository.save(aPackage.get());
+            }
+            Optional<Plate> plate = plateRepository.findByIdAndDeletedFalse(aPackage.get().getPlateId().getId());
+            if (plate.isPresent()) {
+                plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() - producedQuantity);
+                plateRepository.save(plate.get());
+            }
+            Optional<Carton> carton = cartonRepository.findByIdAndDeletedFalse(aPackage.get().getCartonId().getId());
+            if (carton.isPresent()) {
+                carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() - producedQuantity / aPackage.get().getPiecesCarton());
+                cartonRepository.save(carton.get());
+            }
+        }
+        return modelMapper.map(product, ProductDTO.class);
     }
 }

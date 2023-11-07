@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MaterialOrderController {
     private final MaterialOrderService materialOrderService;
+
     @GetMapping
     public ResponseEntity<List<MaterialOrderDTO>> getAllMaterialOrders() {
         return ResponseEntity.ok(materialOrderService.getAllMaterialOrders());
@@ -49,12 +50,13 @@ public class MaterialOrderController {
 
     @GetMapping("/all-ordered-products")
     public List<MaterialOrderDTO> allOrderedProducts() {
-        return  materialOrderService.allOrderedProducts();
+        return materialOrderService.allOrderedProducts();
 
     }
+
     @GetMapping("/all-missing-materials")
-    public List<MaterialOrderDTO>  allAvailableProducts() {
-        List<MaterialOrderDTO> allOrderedProducts= materialOrderService.allOrderedProducts();
+    public List<MaterialOrderDTO> allAvailableProducts() {
+        List<MaterialOrderDTO> allOrderedProducts = materialOrderService.allOrderedProducts();
         return materialOrderService.allMissingMaterials(allOrderedProducts);
     }
 

@@ -36,10 +36,12 @@ public class OrderController {
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable("id") Long id, @Valid @RequestBody OrderDTO orderDTO) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
     }
+
     @GetMapping("/findLastOrder")
-    public ResponseEntity<OrderDTO> findFirstByOrderByIdDesc(){
+    public ResponseEntity<OrderDTO> findFirstByOrderByIdDesc() {
         return ResponseEntity.ok(orderService.findFirstByOrderByIdDesc());
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrderById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
         orderService.deleteOrder(id);

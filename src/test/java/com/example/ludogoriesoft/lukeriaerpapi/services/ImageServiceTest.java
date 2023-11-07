@@ -105,7 +105,6 @@ class ImageServiceTest {
     }
 
 
-
     @Test
     void testGenerateUniqueFilename() {
         String originalFilename = "example.jpg";
@@ -116,7 +115,7 @@ class ImageServiceTest {
     @Test
     void testGetImageBytes() throws IOException {
         String imageName = "test-image.jpg";
-        String imageDirectory="src/main/resources/static/uploads/";
+        String imageDirectory = "src/main/resources/static/uploads/";
         Path imagePath = Path.of(imageDirectory, imageName);
         Files.createDirectories(imagePath.getParent());
         Files.write(imagePath, "Test image content".getBytes());
@@ -134,6 +133,7 @@ class ImageServiceTest {
 
         Assertions.assertArrayEquals(new byte[0], imageBytes);
     }
+
     @Test
     void testEditImageForPlate() throws IOException {
         Long plateId = 1L;

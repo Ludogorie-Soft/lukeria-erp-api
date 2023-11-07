@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,7 +29,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,6 +53,14 @@ class ProductControllerIntegrationTest {
 
     @MockBean
     private ProductService productService;
+
+    private static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     public void setup() {
@@ -217,14 +225,6 @@ class ProductControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Test
     void testDeleteProductByIdWhenProductDoesNotExist() throws Exception {
         long productId = 1L;
@@ -234,6 +234,18 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/product/{id}", productId))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
+    }
+
+    @Test
+    void testProduceProduct() throws Exception {
+        Long productId = 1L;
+        int producedQuantity = 10;
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product/produce")
+                        .param("productId", String.valueOf(productId))
+                        .param("producedQuantity", String.valueOf(producedQuantity))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk());
     }
 }
 

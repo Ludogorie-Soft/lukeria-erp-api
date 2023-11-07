@@ -15,9 +15,10 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class InvoiceService {
+    public static final Long FIRST_INVOICE_NUMBER = 2000000000L;
+    public static final Long FIRST_INVOICE_NUMBER_ABROAD = 1000000000L;
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
-    public static final Long FIRST_INVOICE_NUMBER = 2000000000L;
 
     public Long findLastInvoiceNumberStartingWithTwo() {
         Long lastInvoiceNumber = invoiceRepository.findLastInvoiceNumber();
@@ -26,6 +27,15 @@ public class InvoiceService {
         }
         return lastInvoiceNumber + 1;
     }
+
+    public Long findLastInvoiceNumberStartingWithOne() {
+        Long lastInvoiceNumber = invoiceRepository.findLastInvoiceNumberAbroad();
+        if (lastInvoiceNumber == null || lastInvoiceNumber < FIRST_INVOICE_NUMBER_ABROAD) {
+            return FIRST_INVOICE_NUMBER_ABROAD;
+        }
+        return lastInvoiceNumber + 1;
+    }
+
     public List<InvoiceDTO> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findByDeletedFalse();
         return invoices.stream().map(invoice -> modelMapper.map(invoice, InvoiceDTO.class)).toList();
