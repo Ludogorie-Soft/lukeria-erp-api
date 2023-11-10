@@ -1,7 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.models;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 

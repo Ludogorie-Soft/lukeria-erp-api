@@ -82,9 +82,8 @@ public class UserService {
         User user = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         user.setDeleted(false);
         userRepository.save(user);
-        return modelMapper.map(user,UserDTO.class);
+        return modelMapper.map(user, UserDTO.class);
     }
-
 
 
 }

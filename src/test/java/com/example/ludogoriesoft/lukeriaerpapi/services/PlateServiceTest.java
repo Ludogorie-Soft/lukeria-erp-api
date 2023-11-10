@@ -102,6 +102,7 @@ class PlateServiceTest {
         verify(plateRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testCreatePlate_ValidPlate() {
         PlateDTO plateDTO = new PlateDTO();

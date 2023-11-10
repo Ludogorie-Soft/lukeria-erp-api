@@ -53,7 +53,7 @@ public class MaterialOrderService {
             } else if (existingMaterialOrder.getMaterialType().equals(MaterialType.CARTON)) {
                 carton = cartonRepository.findByIdAndDeletedFalse(existingMaterialOrder.getMaterialId());
             }
-            if(aPackage.isPresent()){
+            if (aPackage.isPresent()) {
                 aPackage.get().setAvailableQuantity(aPackage.get().getAvailableQuantity() - existingMaterialOrder.getReceivedQuantity() + materialOrderDTO.getReceivedQuantity());
                 packageRepository.save(aPackage.get());
             } else if (plate.isPresent()) {
@@ -66,7 +66,7 @@ public class MaterialOrderService {
         }
         MaterialOrder updatedMaterialOrder = modelMapper.map(materialOrderDTO, MaterialOrder.class);
         updatedMaterialOrder.setId(existingMaterialOrder.getId());
-        if(existingMaterialOrder.getReceivedQuantity() == null) {
+        if (existingMaterialOrder.getReceivedQuantity() == null) {
             increaseProductsQuantity(updatedMaterialOrder);
         }
         materialOrderRepository.save(updatedMaterialOrder);
@@ -134,7 +134,7 @@ public class MaterialOrderService {
     }
 
     public List<MaterialOrderDTO> getAllOrderProductsByOrderId(Long orderId) {
-        List<OrderProduct> filteredOrderProducts = orderProductRepository.findAll().stream()
+        List<OrderProduct> filteredOrderProducts = orderProductRepository.findByDeletedFalse().stream()
                 .filter(orderProduct -> orderProduct.getOrderId().getId().equals(orderId)).toList();
         return getProductsByPackageId(filteredOrderProducts);
     }
@@ -254,6 +254,5 @@ public class MaterialOrderService {
             createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, allMaterialsForAllOrders);
         }
     }
-
 
 }

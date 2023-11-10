@@ -9,9 +9,10 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDTO {
+public class MonthlyOrderDTO {
     private Long id;
     private Long clientId;
-    private LocalDate orderDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private boolean invoiced;
 }

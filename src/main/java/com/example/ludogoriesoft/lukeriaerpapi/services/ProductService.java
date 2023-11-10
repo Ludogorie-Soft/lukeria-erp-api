@@ -98,7 +98,7 @@ public class ProductService {
             }
             Optional<Carton> carton = cartonRepository.findByIdAndDeletedFalse(aPackage.get().getCartonId().getId());
             if (carton.isPresent()) {
-                carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() - producedQuantity * aPackage.get().getPiecesCarton());
+                carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() - producedQuantity / aPackage.get().getPiecesCarton());
                 cartonRepository.save(carton.get());
             }
         }

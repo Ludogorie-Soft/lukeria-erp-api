@@ -4,14 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderDTO {
+public class MonthlyOrderProductDTO {
     private Long id;
-    private Long clientId;
-    private LocalDate orderDate;
-    private boolean invoiced;
+    private Long packageId;
+    private Integer orderedQuantity;
+    private Integer sentQuantity;
+    private Long monthlyOrderId;
 }

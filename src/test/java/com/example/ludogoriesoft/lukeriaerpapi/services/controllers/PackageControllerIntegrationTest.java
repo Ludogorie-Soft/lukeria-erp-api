@@ -28,7 +28,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -52,6 +51,14 @@ class PackageControllerIntegrationTest {
 
     @MockBean
     private PackageService packageService;
+
+    private static String asJsonString(final Object obj) {
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     public void setup() {
@@ -224,14 +231,6 @@ class PackageControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedPackage)))
                 .andExpect(status().isNotFound());
-    }
-
-    private static String asJsonString(final Object obj) {
-        try {
-            return new ObjectMapper().writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test

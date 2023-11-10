@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.ludogoriesoft.lukeriaerpapi.services.InvoiceService.FIRST_INVOICE_NUMBER_ABROAD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,11 +42,12 @@ class InvoiceServiceTest {
 
 
     @Test
-     void testGenerateNextInvoiceNumber() {
+    void testGenerateNextInvoiceNumber() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(2000000001L);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
         assertEquals(Long.valueOf(2000000002L), nextInvoiceNumber);
     }
+
     @Test
     void testGenerateNextInvoiceNumberWithIdOne() {
         Mockito.when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(1000000000L);
@@ -54,14 +56,14 @@ class InvoiceServiceTest {
     }
 
     @Test
-     void testGenerateNextInvoiceNumberWhenNoLastNumber() {
+    void testGenerateNextInvoiceNumberWhenNoLastNumber() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(null);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
         assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
     }
 
     @Test
-     void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
+    void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(1999999999L);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
         assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
@@ -101,6 +103,7 @@ class InvoiceServiceTest {
 
         verify(modelMapper, times(mockInvoices.size())).map(any(Invoice.class), eq(InvoiceDTO.class));
     }
+
     @Test
     void testGetInvoiceById_ExistingId() throws ChangeSetPersister.NotFoundException {
         Invoice invoice = new Invoice();
@@ -146,6 +149,7 @@ class InvoiceServiceTest {
 
         verifyNoInteractions(invoiceRepository);
     }
+
     @Test
     void testCreateInvoice_InvalidInvoiceDTO_SizePrice() {
         InvoiceDTO invoiceDTO = new InvoiceDTO();
@@ -172,6 +176,7 @@ class InvoiceServiceTest {
         verify(invoiceRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
+
     @Test
     void testUpdateInvoice_InvalidPrice() {
         InvoiceDTO invoiceDTO = new InvoiceDTO();
@@ -249,5 +254,34 @@ class InvoiceServiceTest {
         assertEquals(invoiceDTO.getTotalPrice(), result.getTotalPrice());
 
         verify(invoiceRepository).save(invoiceEntity);
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithOneWithNullResult() {
+        when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(null);
+
+        Long result = invoiceService.findLastInvoiceNumberStartingWithOne();
+
+        assertEquals(FIRST_INVOICE_NUMBER_ABROAD, result);
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithOneWithLessThanFirst() {
+        Long lessThanFirst = FIRST_INVOICE_NUMBER_ABROAD - 1;
+        when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(lessThanFirst);
+
+        Long result = invoiceService.findLastInvoiceNumberStartingWithOne();
+
+        assertEquals(FIRST_INVOICE_NUMBER_ABROAD, result);
+    }
+
+    @Test
+    void testFindLastInvoiceNumberStartingWithOneWithGreaterThanFirst() {
+        Long greaterThanFirst = FIRST_INVOICE_NUMBER_ABROAD + 10;
+        when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(greaterThanFirst);
+
+        Long result = invoiceService.findLastInvoiceNumberStartingWithOne();
+
+        assertEquals(greaterThanFirst + 1, result);
     }
 }

@@ -20,8 +20,8 @@ public class QueryController {
     ModelMapper modelMapper;
 
     @GetMapping("/order_product/{id}")
-    public List<OrderProductDTO> getOrderProductsByOrderId(@PathVariable(name = "id") Long id){
-        List<OrderProduct> orderProductDTOS=  clientQueryService.getOrderProductsByOrderId(id);
+    public List<OrderProductDTO> getOrderProductsByOrderId(@PathVariable(name = "id") Long id) {
+        List<OrderProduct> orderProductDTOS = clientQueryService.getOrderProductsByOrderId(id);
         return orderProductDTOS.stream().map(orderProduct -> modelMapper.map(orderProduct, OrderProductDTO.class)).toList();
 
     }

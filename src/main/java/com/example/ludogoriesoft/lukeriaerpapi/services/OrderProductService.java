@@ -1,9 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.*;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -22,6 +22,8 @@ public class OrderProductService {
     private final OrderProductRepository orderProductRepository;
     private final OrderRepository orderRepository;
     private final PackageRepository packageRepository;
+    private final PlateRepository plateRepository;
+    private final CartonRepository cartonRepository;
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
 
@@ -87,9 +89,8 @@ public class OrderProductService {
                 .filter(orderProduct -> orderProduct.getInvoiceId() != null && orderProduct.getInvoiceId().getId().equals(invoiceId))
                 .toList();
     }
-    private final PlateRepository plateRepository;
-    private final CartonRepository cartonRepository;
-    public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList){
+
+    public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList) {
         for (InvoiceOrderProduct invoiceOrderProduct : invoiceOrderProductsList) {
             Optional<Product> productForReduce = productRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
             int sellingProductForReduce = invoiceOrderProduct.getOrderProductId().getNumber();

@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -61,8 +63,8 @@ class ProductServiceTest {
 
         when(productRepository.findByDeletedFalse()).thenReturn(products);
 
-        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 5,"L111"));
-        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, BigDecimal.valueOf(15.0), aPackage.getId(), 3,"L111"));
+        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 5, "L111"));
+        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, BigDecimal.valueOf(15.0), aPackage.getId(), 3, "L111"));
 
         // Act
         List<ProductDTO> result = productService.getAllProducts();
@@ -121,6 +123,7 @@ class ProductServiceTest {
         // Act and Assert
         assertThrows(jakarta.validation.ValidationException.class, () -> productService.createProduct(productDTO));
     }
+
     @Test
     void testUpdateProduct_ReturnsUpdatedProductDTO() throws ChangeSetPersister.NotFoundException {
         // Arrange
@@ -149,7 +152,7 @@ class ProductServiceTest {
     }
 
     @Test
-     void testCreateProduct_ZeroPrice_ValidationException() {
+    void testCreateProduct_ZeroPrice_ValidationException() {
         // Arrange
         ProductDTO productDTO = new ProductDTO();
         productDTO.setPrice(BigDecimal.ZERO);
@@ -185,7 +188,7 @@ class ProductServiceTest {
     }
 
     @Test
-     void testUpdateProduct_ProductNotFound_ChangeSetPersisterNotFoundException() {
+    void testUpdateProduct_ProductNotFound_ChangeSetPersisterNotFoundException() {
         // Arrange
         Long productId = 1L;
         ProductDTO productDTO = new ProductDTO();
@@ -285,6 +288,44 @@ class ProductServiceTest {
         // Assert
         verify(product).setDeleted(true);
         verify(productRepository).save(product);
+    }
+
+    @Test
+    void testProduceProduct() throws ChangeSetPersister.NotFoundException {
+        Long productId = 1L;
+        int producedQuantity = 10;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setAvailableQuantity(50);
+
+
+        Plate plate = new Plate();
+        plate.setId(1L);
+        plate.setAvailableQuantity(100);
+
+        Carton carton = new Carton();
+        carton.setId(1L);
+        carton.setAvailableQuantity(100);
+
+        Package aPackage = new Package();
+        aPackage.setId(1L);
+        aPackage.setCartonId(carton);
+        aPackage.setPlateId(plate);
+        aPackage.setPiecesCarton(1);
+        product.setPackageId(aPackage);
+
+        Mockito.when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(product));
+        Mockito.when(packageRepository.findByIdAndDeletedFalse(aPackage.getId())).thenReturn(Optional.of(aPackage));
+        Mockito.when(plateRepository.findByIdAndDeletedFalse(plate.getId())).thenReturn(Optional.of(plate));
+        Mockito.when(cartonRepository.findByIdAndDeletedFalse(carton.getId())).thenReturn(Optional.of(carton));
+
+        ProductDTO result = productService.produceProduct(productId, producedQuantity);
+
+        assertEquals(60, product.getAvailableQuantity());
+        assertEquals(-10, aPackage.getAvailableQuantity());
+        assertEquals(90, plate.getAvailableQuantity());
+        assertEquals(90, carton.getAvailableQuantity());
     }
 
 
