@@ -28,7 +28,7 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<ClientDTO> createClient(@Valid @RequestBody ClientDTO clientDTO) {
+    public ResponseEntity<ClientDTO> createClient(@Valid @RequestBody ClientDTO clientDTO, @RequestHeader("Authorization") String auth) {
         ClientDTO cratedClient = clientService.createClient(clientDTO);
         return new ResponseEntity<>(cratedClient, HttpStatus.CREATED);
     }
