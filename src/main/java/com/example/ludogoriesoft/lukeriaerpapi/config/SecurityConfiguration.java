@@ -18,7 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import static com.example.ludogoriesoft.lukeriaerpapi.enums.Role.*;
-import static org.springframework.http.HttpMethod.GET;
 
 
 @Configuration
@@ -45,42 +44,28 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers(
                         "/api/v1/images/uploadImageForPackage",
-                        "/api/v1/carton/**",
-                        "/api/v1/client/**",
-                        "/api/v1/plate/**",
                         "/test/**",
-                        "/api/v1/invoice/**",
                         "/api/v1/images/**",
-                        "/api/v1/invoiceOrderProduct/**",
-                        "/api/v1/material-order/**",
-                        "/api/v1/monthlyOrder/**",
-                        "/api/v1/monthlyOrderProduct/**",
-                        "/api/v1/order/**",
-                        "/api/v1/orderProduct/**",
-                        "/api/v1/user/**",
-                        "/api/v1/auth/**",
-                        "/v2/api-docs",
-                        "/v3/api-docs",
-                        "/v3/api-docs/**",
-                        "/swagger-resources",
-                        "/swagger-resources/**",
-                        "/configuration/ui",
-                        "/configuration/security",
-                        "/swagger-ui/**",
-                        "/webjars/**",
-                        "/swagger-ui.html"
+                        "/api/v1/auth/**"
                 )
                 .permitAll()
+                .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
+                .requestMatchers("/api/v1/client/**").hasAnyRole(ADMIN.name())
+                .requestMatchers("/api/v1/invoice/**").hasAnyRole(ADMIN.name())
+                .requestMatchers("/api/v1/invoiceOrderProduct/**").hasAnyRole(ADMIN.name())
 
+                .requestMatchers("/api/v1/carton/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers("/api/v1/plate/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers("/api/v1/package/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers("/api/v1/product/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers("/api/v1/material-order/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers("/api/v1/monthlyOrderProduct/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers("/api/v1/monthlyOrderProduct/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers("/api/v1/monthlyOrder/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
 
-                .requestMatchers(GET,"/api/v1/package/**").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name())
-//                .requestMatchers(GET, "/api/v1/management/**").hasAnyAuthority(ADMIN_READ.name(), MANAGER_READ.name())
-//                .requestMatchers(POST, "/api/v1/management/**").hasAnyAuthority(ADMIN_CREATE.name(), MANAGER_CREATE.name())
-//                .requestMatchers(PUT, "/api/v1/management/**").hasAnyAuthority(ADMIN_UPDATE.name(), MANAGER_UPDATE.name())
-//                .requestMatchers(DELETE, "/api/v1/management/**").hasAnyAuthority(ADMIN_DELETE.name(), MANAGER_DELETE.name())
-//                .requestMatchers(POST, "/api/v1/categories/**").hasAnyAuthority(ADMIN_CREATE.name())
-//                .requestMatchers(PUT, "/api/v1/categories/**").hasAnyAuthority(ADMIN_UPDATE.name())
-//                .requestMatchers(DELETE, "/api/v1/categories/**").hasAnyAuthority(ADMIN_DELETE.name())
+                .requestMatchers("/api/v1/order/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers("/api/v1/orderProduct/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
+
                 .anyRequest()
                 .authenticated()
                 .and()
