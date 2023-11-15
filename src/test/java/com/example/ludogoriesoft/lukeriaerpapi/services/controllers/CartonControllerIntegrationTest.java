@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -78,6 +79,8 @@ class CartonControllerIntegrationTest {
         when(cartonService.getAllCartons()).thenReturn(cartonDTOList);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -100,6 +103,8 @@ class CartonControllerIntegrationTest {
         when(cartonService.getCartonById(anyLong())).thenReturn(cartonDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -119,6 +124,8 @@ class CartonControllerIntegrationTest {
         when(cartonService.createCarton(any(CartonDTO.class))).thenReturn(cartonDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/carton")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1, \"name\": \"New Carton\"}"))
                 .andExpect(status().isCreated())
@@ -140,6 +147,8 @@ class CartonControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/carton/{id}", 1)
                         .content("{\"id\": 1, \"name\": \"Updated Carton\"}")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -152,7 +161,9 @@ class CartonControllerIntegrationTest {
 
     @Test
     void testDeleteCartonById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/carton/{id}", 1))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/carton/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Carton with id: 1 has been deleted successfully!"));
     }
@@ -162,6 +173,7 @@ class CartonControllerIntegrationTest {
         when(cartonService.getAllCartons()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
@@ -176,6 +188,7 @@ class CartonControllerIntegrationTest {
         when(cartonService.getCartonById(cartonId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/{id}", cartonId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -203,6 +216,7 @@ class CartonControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/{id}", invalidId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -229,7 +243,9 @@ class CartonControllerIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/carton/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(updatedCarton)))
+                        .content(asJsonString(updatedCarton))
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -239,7 +255,9 @@ class CartonControllerIntegrationTest {
         doThrow(new ChangeSetPersister.NotFoundException())
                 .when(cartonService).deleteCarton(cartonId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/carton/{id}", cartonId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/carton/{id}", cartonId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }

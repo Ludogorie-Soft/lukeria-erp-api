@@ -50,10 +50,11 @@ public class SecurityConfiguration {
                 )
                 .permitAll()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
-                .requestMatchers("/api/v1/client/**").hasAnyRole(ADMIN.name())
+                .requestMatchers("/api/v1/client/{id}").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers("/api/v1/invoice/**").hasAnyRole(ADMIN.name())
                 .requestMatchers("/api/v1/invoiceOrderProduct/**").hasAnyRole(ADMIN.name())
 
+                .requestMatchers("/api/v1/client/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers("/api/v1/carton/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
                 .requestMatchers("/api/v1/plate/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
                 .requestMatchers("/api/v1/package/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())

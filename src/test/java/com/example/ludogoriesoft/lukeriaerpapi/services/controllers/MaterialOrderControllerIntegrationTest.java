@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -82,6 +83,7 @@ class MaterialOrderControllerIntegrationTest {
         when(materialOrderService.getAllMaterialOrders()).thenReturn(materialOrderDTOList);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/material-order")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -100,6 +102,7 @@ class MaterialOrderControllerIntegrationTest {
         when(materialOrderService.getMaterialOrderById(anyLong())).thenReturn(materialOrderDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/material-order/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -117,6 +120,7 @@ class MaterialOrderControllerIntegrationTest {
         when(materialOrderService.createMaterialOrder(any(MaterialOrderDTO.class))).thenReturn(materialOrderDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/material-order")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1, \"name\": \"New MaterialOrder\"}"))
                 .andExpect(status().isCreated())
@@ -136,6 +140,7 @@ class MaterialOrderControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/material-order/{id}", 1)
                         .content("{\"id\": 1, \"name\": \"Updated MaterialOrder\"}")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -147,7 +152,9 @@ class MaterialOrderControllerIntegrationTest {
 
     @Test
     void testDeleteMaterialOrderById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/material-order/{id}", 1))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/material-order/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Material Order with id: 1 has been deleted successfully!"));
     }
@@ -157,6 +164,7 @@ class MaterialOrderControllerIntegrationTest {
         when(materialOrderService.getAllMaterialOrders()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/material-order")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
@@ -171,6 +179,7 @@ class MaterialOrderControllerIntegrationTest {
         when(materialOrderService.getMaterialOrderById(materialOrderId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/material-order/{id}", materialOrderId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -198,6 +207,7 @@ class MaterialOrderControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/material-order/{id}", invalidId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -223,6 +233,7 @@ class MaterialOrderControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/material-order/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedMaterialOrder)))
                 .andExpect(status().isNotFound());
@@ -234,7 +245,9 @@ class MaterialOrderControllerIntegrationTest {
         doThrow(new ChangeSetPersister.NotFoundException())
                 .when(materialOrderService).deleteMaterialOrder(materialOrderId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/material-order/{id}", materialOrderId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/material-order/{id}", materialOrderId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }
@@ -255,6 +268,7 @@ class MaterialOrderControllerIntegrationTest {
         when(materialOrderService.getAllOrderProductsByOrderId(orderId)).thenReturn(mockOrderProducts);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/material-order/products/{id}", orderId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(2))
@@ -275,7 +289,9 @@ class MaterialOrderControllerIntegrationTest {
         when(materialOrderService.allOrderedProducts()).thenReturn(allOrderedProducts);
         when(materialOrderService.allMissingMaterials(allOrderedProducts)).thenReturn(expectedMissingMaterials);
 
-        mockMvc.perform(get("/api/v1/material-order/all-missing-materials"))
+        mockMvc.perform(get("/api/v1/material-order/all-missing-materials")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 }

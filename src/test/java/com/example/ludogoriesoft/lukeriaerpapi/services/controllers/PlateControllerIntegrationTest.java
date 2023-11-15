@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -78,6 +79,8 @@ class PlateControllerIntegrationTest {
         when(plateService.getAllPlates()).thenReturn(plateDTOList);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -100,6 +103,8 @@ class PlateControllerIntegrationTest {
         when(plateService.getPlateById(anyLong())).thenReturn(plateDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -119,6 +124,8 @@ class PlateControllerIntegrationTest {
         when(plateService.createPlate(any(PlateDTO.class))).thenReturn(plateDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/plate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1, \"name\": \"New Plate\"}"))
                 .andExpect(status().isCreated())
@@ -140,6 +147,8 @@ class PlateControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/plate/{id}", 1)
                         .content("{\"id\": 1, \"name\": \"Updated Plate\"}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -152,7 +161,9 @@ class PlateControllerIntegrationTest {
 
     @Test
     void testDeletePlateById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/plate/{id}", 1))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/plate/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Plate with id: 1 has been deleted successfully!"));
     }
@@ -162,6 +173,8 @@ class PlateControllerIntegrationTest {
         when(plateService.getAllPlates()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
@@ -176,6 +189,8 @@ class PlateControllerIntegrationTest {
         when(plateService.getPlateById(plateId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", plateId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -203,6 +218,8 @@ class PlateControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", invalidId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -229,6 +246,8 @@ class PlateControllerIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/plate/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedPlate)))
                 .andExpect(status().isNotFound());
     }
@@ -239,7 +258,9 @@ class PlateControllerIntegrationTest {
         doThrow(new ChangeSetPersister.NotFoundException())
                 .when(plateService).deletePlate(plateId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/plate/{id}", plateId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/plate/{id}", plateId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }

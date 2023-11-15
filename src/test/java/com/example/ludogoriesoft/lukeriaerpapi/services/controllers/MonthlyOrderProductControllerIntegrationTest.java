@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -50,14 +51,18 @@ class MonthlyOrderProductControllerIntegrationTest {
 
     @Test
     void testGetAllMonthlyProductOrders() throws Exception {
-        mockMvc.perform(get("/api/v1/monthlyOrderProduct"))
+        mockMvc.perform(get("/api/v1/monthlyOrderProduct")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testGetMonthlyOrderProductById() throws Exception {
         Long id = 1L;
-        mockMvc.perform(get("/api/v1/monthlyOrderProduct/{id}", id))
+        mockMvc.perform(get("/api/v1/monthlyOrderProduct/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
@@ -67,7 +72,9 @@ class MonthlyOrderProductControllerIntegrationTest {
 
         mockMvc.perform(post("/api/v1/monthlyOrderProduct")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(monthlyOrderProductDTO)))
+                        .content(objectMapper.writeValueAsString(monthlyOrderProductDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
     }
 
@@ -79,14 +86,18 @@ class MonthlyOrderProductControllerIntegrationTest {
 
         mockMvc.perform(put("/api/v1/monthlyOrderProduct/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(monthlyOrderProductDTO)))
+                        .content(objectMapper.writeValueAsString(monthlyOrderProductDTO))
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testDeleteMonthlyProductOrder() throws Exception {
         Long id = 1L;
-        mockMvc.perform(delete("/api/v1/monthlyOrderProduct/{id}", id))
+        mockMvc.perform(delete("/api/v1/monthlyOrderProduct/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 }

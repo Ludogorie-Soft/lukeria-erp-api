@@ -24,30 +24,30 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         UserDTO user = userService.getUserById(id);
         return ResponseEntity.ok(user);
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody User user, @RequestHeader("Authorization") String auth) {
         UserDTO createdUser = userService.createUser(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(userService.updateUser(id, userDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         userService.deleteUser(id);
         return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
     }
 
     @PutMapping("restore/{id}")
-    public ResponseEntity<UserDTO> restoreUser(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<UserDTO> restoreUser(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(userService.restoreUser(id));
     }
 

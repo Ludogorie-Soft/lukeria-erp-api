@@ -79,6 +79,7 @@ class ClientControllerIntegrationTest {
         when(clientService.getAllClients()).thenReturn(clientDTOList);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -101,6 +102,7 @@ class ClientControllerIntegrationTest {
         when(clientService.getClientById(anyLong())).thenReturn(clientDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -122,7 +124,9 @@ class ClientControllerIntegrationTest {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/client")
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\": 1, \"businessName\": \"New Client\"}"))
+                        .content("{\"id\": 1, \"businessName\": \"New Client\"}")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.businessName").value("New Client"))
@@ -142,6 +146,7 @@ class ClientControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/client/{id}", 1)
                         .content("{\"id\": 1, \"businessName\": \"Updated Client\"}")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -154,7 +159,9 @@ class ClientControllerIntegrationTest {
 
     @Test
     void testDeleteClientById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/client/{id}", 1))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/client/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Client with id: 1 has been deleted successfully!"));
     }
@@ -164,6 +171,7 @@ class ClientControllerIntegrationTest {
         when(clientService.getAllClients()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
@@ -178,6 +186,7 @@ class ClientControllerIntegrationTest {
         when(clientService.getClientById(clientId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client/{id}", clientId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -205,6 +214,7 @@ class ClientControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client/{id}", invalidId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -231,7 +241,9 @@ class ClientControllerIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/client/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(updatedClient)))
+                        .content(asJsonString(updatedClient))
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -241,7 +253,9 @@ class ClientControllerIntegrationTest {
         doThrow(new ChangeSetPersister.NotFoundException())
                 .when(clientService).deleteClient(clientId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/client/{id}", clientId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/client/{id}", clientId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }

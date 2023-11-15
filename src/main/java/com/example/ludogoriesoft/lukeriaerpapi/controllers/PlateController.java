@@ -18,28 +18,28 @@ public class PlateController {
     private final PlateService plateService;
 
     @GetMapping
-    public ResponseEntity<List<PlateDTO>> getAllPlates() {
+    public ResponseEntity<List<PlateDTO>> getAllPlates(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(plateService.getAllPlates());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PlateDTO> getPlateById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<PlateDTO> getPlateById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(plateService.getPlateById(id));
     }
 
     @PostMapping
-    public ResponseEntity<PlateDTO> createPlate(@Valid @RequestBody PlateDTO plateDTO) {
+    public ResponseEntity<PlateDTO> createPlate(@Valid @RequestBody PlateDTO plateDTO, @RequestHeader("Authorization") String auth) {
         PlateDTO cratedPlate = plateService.createPlate(plateDTO);
         return new ResponseEntity<>(cratedPlate, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlateDTO> updatePlate(@PathVariable("id") Long id, @Valid @RequestBody PlateDTO plateDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<PlateDTO> updatePlate(@PathVariable("id") Long id, @Valid @RequestBody PlateDTO plateDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(plateService.updatePlate(id, plateDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePlateById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deletePlateById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         plateService.deletePlate(id);
         return ResponseEntity.ok("Plate with id: " + id + " has been deleted successfully!");
     }

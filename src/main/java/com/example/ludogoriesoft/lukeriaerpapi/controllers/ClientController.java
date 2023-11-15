@@ -18,12 +18,12 @@ public class ClientController {
     private final ClientService clientService;
 
     @GetMapping
-    public ResponseEntity<List<ClientDTO>> getAllClients() {
+    public ResponseEntity<List<ClientDTO>> getAllClients(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(clientService.getAllClients());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDTO> getClientById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<ClientDTO> getClientById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(clientService.getClientById(id));
     }
 
@@ -34,12 +34,12 @@ public class ClientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClientDTO> updateClient(@PathVariable("id") Long id, @Valid @RequestBody ClientDTO clientDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<ClientDTO> updateClient(@PathVariable("id") Long id, @Valid @RequestBody ClientDTO clientDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(clientService.updateClient(id, clientDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteClientById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteClientById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         clientService.deleteClient(id);
         return ResponseEntity.ok("Client with id: " + id + " has been deleted successfully!");
     }

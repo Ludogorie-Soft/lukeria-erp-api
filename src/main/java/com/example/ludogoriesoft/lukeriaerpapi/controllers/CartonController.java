@@ -18,28 +18,28 @@ public class CartonController {
     private final CartonService cartonService;
 
     @GetMapping
-    public ResponseEntity<List<CartonDTO>> getAllCartons() {
+    public ResponseEntity<List<CartonDTO>> getAllCartons(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(cartonService.getAllCartons());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CartonDTO> getCartonById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<CartonDTO> getCartonById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(cartonService.getCartonById(id));
     }
 
     @PostMapping
-    public ResponseEntity<CartonDTO> createCarton(@Valid @RequestBody CartonDTO cartonDTO) {
+    public ResponseEntity<CartonDTO> createCarton(@Valid @RequestBody CartonDTO cartonDTO, @RequestHeader("Authorization") String auth) {
         CartonDTO cratedCarton = cartonService.createCarton(cartonDTO);
         return new ResponseEntity<>(cratedCarton, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CartonDTO> updateCarton(@PathVariable("id") Long id, @Valid @RequestBody CartonDTO cartonDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<CartonDTO> updateCarton(@PathVariable("id") Long id, @Valid @RequestBody CartonDTO cartonDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(cartonService.updateCarton(id, cartonDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCartonById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteCartonById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         cartonService.deleteCarton(id);
         return ResponseEntity.ok("Carton with id: " + id + " has been deleted successfully!");
     }

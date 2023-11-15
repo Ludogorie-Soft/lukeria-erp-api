@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -80,6 +81,7 @@ class InvoiceControllerIntegrationTest {
         when(invoiceService.getAllInvoices()).thenReturn(invoiceDTOList);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -102,6 +104,7 @@ class InvoiceControllerIntegrationTest {
         when(invoiceService.getInvoiceById(anyLong())).thenReturn(invoiceDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -121,6 +124,7 @@ class InvoiceControllerIntegrationTest {
         when(invoiceService.createInvoice(any(InvoiceDTO.class))).thenReturn(invoiceDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/invoice")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1, \"invoiceNumber\": \"1\"}"))
                 .andExpect(status().isCreated())
@@ -142,6 +146,7 @@ class InvoiceControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/invoice/{id}", 1)
                         .content("{\"id\": 1, \"invoiceNumber\": \"1\"}")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -154,7 +159,9 @@ class InvoiceControllerIntegrationTest {
 
     @Test
     void testDeleteInvoiceById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoice/{id}", 1))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoice/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Invoice with id: 1 has been deleted successfully!"));
     }
@@ -164,6 +171,7 @@ class InvoiceControllerIntegrationTest {
         when(invoiceService.getAllInvoices()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
@@ -178,6 +186,7 @@ class InvoiceControllerIntegrationTest {
         when(invoiceService.getInvoiceById(invoiceId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/{id}", invoiceId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -205,6 +214,7 @@ class InvoiceControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/{id}", invalidId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -230,6 +240,7 @@ class InvoiceControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/invoice/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedInvoice)))
                 .andExpect(status().isNotFound());
@@ -241,21 +252,27 @@ class InvoiceControllerIntegrationTest {
         doThrow(new ChangeSetPersister.NotFoundException())
                 .when(invoiceService).deleteInvoice(invoiceId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoice/{id}", invoiceId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/invoice/{id}", invoiceId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }
 
     @Test
     void testFindLastInvoiceNumberStartingWithTwo() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$").isNumber());
     }
 
     @Test
     void testFindLastInvoiceNumberStartingWithOne() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number/abroad"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/invoice/number/abroad")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$").isNumber());
     }
