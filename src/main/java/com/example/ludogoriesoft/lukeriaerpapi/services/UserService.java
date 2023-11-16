@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import io.micrometer.common.util.StringUtils;
@@ -47,6 +48,10 @@ public class UserService {
         }
         userRepository.save(user);
         return modelMapper.map(user, UserDTO.class);
+    }
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("email"));
     }
 
     public UserDTO updateUser(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
