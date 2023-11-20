@@ -92,18 +92,21 @@ public class SecurityConfiguration {
 
                 .requestMatchers(HttpMethod.GET,"/api/v1/monthlyOrder/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST,"/api/v1/monthlyOrder").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
-                .requestMatchers(HttpMethod.PUT,"/api/v1/monthlyOrder/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.PUT,"/api/v1/monthlyOrder/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE,"/api/v1/monthlyOrder/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET,"/api/v1/monthlyOrderProduct/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST,"/api/v1/monthlyOrderProduct").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
-                .requestMatchers(HttpMethod.PUT,"/api/v1/monthlyOrderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.PUT,"/api/v1/monthlyOrderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE,"/api/v1/monthlyOrderProduct/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers("/api/v1/material-order/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
 
-                .requestMatchers("/api/v1/invoice/**").hasAnyRole(ADMIN.name())
-                .requestMatchers("/api/v1/invoiceOrderProduct/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/invoice/**").hasAnyRole(ADMIN.name(),TRANSPORT_MANAGER.name(),PRODUCTION_MANAGER.name())
+                .requestMatchers(HttpMethod.POST, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.PUT, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
+                .requestMatchers("/api/v1/invoiceOrderProduct/**").hasAnyRole(ADMIN.name(),TRANSPORT_MANAGER.name(),PRODUCTION_MANAGER.name())
 
                 .anyRequest()
                 .authenticated()
