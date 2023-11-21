@@ -12,14 +12,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-//TODO: decide what you are gonna do with that dto
+    //TODO: decide what you are gonna do with that dto
     private Long id;
-    @NotNull(message = "Моля въведете потребителско име")
-    @Size(min = 4)
+    @NotNull(message = "The name should not be null!")
+    private String firstname;
     private String username;
+    @NotNull(message = "The name should not be null!")
+    private String lastname;
+    private String password;
     @Size(min = 5)
-    @NotNull(message = "Моля въведете име и фамилия")
-    private String fullName;
+    private String address;
     @Email
     private String email;
     private Role role;

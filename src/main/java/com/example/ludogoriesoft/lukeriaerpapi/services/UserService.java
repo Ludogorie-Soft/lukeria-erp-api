@@ -9,6 +9,7 @@ import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,12 +31,18 @@ public class UserService {
         return modelMapper.map(user, UserDTO.class);
     }
 
-    public UserDTO createUser(User user) {
+    public UserDTO createUser(UserDTO user) {
         if (StringUtils.isBlank(user.getUsername())) {
             throw new ValidationException("Username is required");
         }
         if (StringUtils.isBlank(user.getFirstname())) {
             throw new ValidationException("Full Name is required");
+        }
+        if (StringUtils.isBlank(user.getLastname())) {
+            throw new ValidationException("Last Name is required");
+        }
+        if (StringUtils.isBlank(user.getAddress())) {
+            throw new ValidationException("Address is required");
         }
         if (StringUtils.isBlank(user.getEmail())) {
             throw new ValidationException("Email is required");
@@ -46,7 +53,12 @@ public class UserService {
         if (StringUtils.isBlank(user.getRole().toString())) {
             throw new ValidationException("Role is required");
         }
-        userRepository.save(user);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        User user1 = modelMapper.map(user, User.class);
+        user1.setPassword(encodedPassword);
+        user1.setUsernameField(user.getUsername());
+        userRepository.save(user1);
         return modelMapper.map(user, UserDTO.class);
     }
     public User findByEmail(String email) {
@@ -59,8 +71,14 @@ public class UserService {
         if (StringUtils.isBlank(userDTO.getUsername())) {
             throw new ValidationException("Username is required");
         }
-        if (StringUtils.isBlank(userDTO.getFullName())) {
-            throw new ValidationException("Full Name is required");
+        if (StringUtils.isBlank(userDTO.getAddress())) {
+            throw new ValidationException("Address is required");
+        }
+        if (StringUtils.isBlank(userDTO.getFirstname())) {
+            throw new ValidationException("First Name is required");
+        }
+        if (StringUtils.isBlank(userDTO.getLastname())) {
+            throw new ValidationException("Last name is required");
         }
         if (StringUtils.isBlank(userDTO.getEmail())) {
             throw new ValidationException("Email is required");
@@ -69,7 +87,10 @@ public class UserService {
             throw new ValidationException("Role is required");
         }
         existingUser.setUsernameField(userDTO.getUsername());
-        existingUser.setFirstname(userDTO.getFullName());
+        existingUser.setFirstname(userDTO.getFirstname());
+        existingUser.setLastname(userDTO.getLastname());
+        existingUser.setAddress(userDTO.getAddress());
+        existingUser.setUsernameField(userDTO.getUsername());
         existingUser.setEmail(userDTO.getEmail());
         existingUser.setRole(userDTO.getRole());
         User updatedUser = userRepository.save(existingUser);

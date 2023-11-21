@@ -121,7 +121,7 @@ class UserControllerIntegrationTest {
         userDTO.setId(1L);
         userDTO.setUsername("New User");
 
-        when(userService.createUser(any(User.class))).thenReturn(userDTO);
+        when(userService.createUser(any(UserDTO.class))).thenReturn(userDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user")
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
@@ -196,7 +196,7 @@ class UserControllerIntegrationTest {
         String blankUserName = "";
 
         doThrow(new ValidationException())
-                .when(userService).createUser(any(User.class));
+                .when(userService).createUser(any(UserDTO.class));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user")
                         .content("{\"id\": 1, \"username\": \"" + blankUserName + "\"}")

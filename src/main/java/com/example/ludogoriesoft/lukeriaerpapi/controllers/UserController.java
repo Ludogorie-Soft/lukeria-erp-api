@@ -30,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody User user, @RequestHeader("Authorization") String auth) {
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody UserDTO user, @RequestHeader("Authorization") String auth) {
         UserDTO createdUser = userService.createUser(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }

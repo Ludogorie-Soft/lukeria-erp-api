@@ -60,7 +60,7 @@ class AuthenticationServiceImplTest {
         RegisterRequest registerRequest = new RegisterRequest();
         UserDTO userDTO = new UserDTO();
         User user = new User();
-        when(userService.createUser(any(User.class))).thenReturn(userDTO);
+        when(userService.createUser(any(UserDTO.class))).thenReturn(userDTO);
         when(jwtService.generateToken(user)).thenReturn("mockedAccessToken");
         when(jwtService.generateRefreshToken(user)).thenReturn("mockedRefreshToken");
 
