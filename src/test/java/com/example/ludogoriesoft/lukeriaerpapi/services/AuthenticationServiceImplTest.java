@@ -1,6 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
+
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.*;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.InvalidTokenException;
@@ -18,17 +18,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 class AuthenticationServiceImplTest {
     @Mock
-    private UserService userService;
-    @Mock
-    private UserServiceAuthentication userServiceAuthentication;
+    private UserServiceImpl userService;
 
     @Mock
     private TokenService tokenService;
@@ -47,7 +47,7 @@ class AuthenticationServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         authenticationService = new AuthenticationServiceImpl(
-                userServiceAuthentication,
+                userService,
                 tokenService,
                 jwtService,
                 authenticationManager,
@@ -58,15 +58,17 @@ class AuthenticationServiceImplTest {
     @Test
     void testRegister() {
         RegisterRequest registerRequest = new RegisterRequest();
-        UserDTO userDTO = new UserDTO();
         User user = new User();
-        when(userService.createUser(any(UserDTO.class))).thenReturn(userDTO);
+
+        when(userService.createUser(any(RegisterRequest.class))).thenReturn(user);
         when(jwtService.generateToken(user)).thenReturn("mockedAccessToken");
         when(jwtService.generateRefreshToken(user)).thenReturn("mockedRefreshToken");
 
         AuthenticationResponse response = authenticationService.register(registerRequest);
 
         Assertions.assertNotNull(response);
+        assertEquals("mockedAccessToken", response.getAccessToken());
+        assertEquals("mockedRefreshToken", response.getRefreshToken());
     }
 
     @Test
@@ -88,6 +90,30 @@ class AuthenticationServiceImplTest {
         AuthenticationResponse response = authenticationService.authenticate(authenticationRequest);
 
         Assertions.assertNotNull(response);
+    }
+
+    @Test
+    public void testRefreshToken() throws IOException {
+        RefreshTokenBodyDTO refreshTokenBodyDTO = new RefreshTokenBodyDTO("mockRefreshToken");
+        User mockUser = new User();
+        Token mockToken = new Token();
+        mockToken.setToken("mockRefreshToken");
+        mockToken.setTokenType(TokenType.REFRESH);
+
+        when(jwtService.extractUsername(refreshTokenBodyDTO.getRefreshToken())).thenReturn("test@example.com");
+        when(tokenService.findByToken("mockRefreshToken")).thenReturn(mockToken);
+        when(userService.findByEmail("test@example.com")).thenReturn(mockUser);
+        when(jwtService.isTokenValid("mockRefreshToken", mockUser)).thenReturn(true);
+        when(jwtService.generateToken(mockUser)).thenReturn("mockAccessToken");
+
+        AuthenticationResponse response = authenticationService.refreshToken(refreshTokenBodyDTO);
+
+        assertEquals("mockAccessToken", response.getAccessToken());
+        assertEquals("mockRefreshToken", response.getRefreshToken());
+
+        Mockito.verify(tokenService, Mockito.times(1)).revokeAllUserTokens(mockUser);
+        Mockito.verify(tokenService, Mockito.times(1)).saveToken(mockUser, "mockAccessToken", TokenType.ACCESS);
+        Mockito.verify(tokenService, Mockito.times(1)).saveToken(mockUser, "mockRefreshToken", TokenType.REFRESH);
     }
 
     @Test
@@ -147,6 +173,9 @@ class AuthenticationServiceImplTest {
         assertThrows(InvalidTokenException.class, () -> {
             authenticationService.refreshToken(refreshTokenBodyDTO);
         });
+
+        Mockito.verify(jwtService, Mockito.times(1)).isTokenValid("mockRefreshToken", mockUser);
+        Mockito.verify(tokenService, Mockito.times(1)).revokeToken(mockToken);
     }
 
     @Test
@@ -187,4 +216,3 @@ class AuthenticationServiceImplTest {
         Mockito.verify(tokenService, Mockito.times(1)).revokeAllUserTokens(mockUser);
     }
 }
-
