@@ -58,6 +58,7 @@ public class UserService {
         userRepository.save(user1);
         return modelMapper.map(user, UserDTO.class);
     }
+
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("email"));
@@ -97,13 +98,4 @@ public class UserService {
         user.setDeleted(true);
         userRepository.save(user);
     }
-
-    public UserDTO restoreUser(Long id) throws ChangeSetPersister.NotFoundException {
-        User user = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        user.setDeleted(false);
-        userRepository.save(user);
-        return modelMapper.map(user, UserDTO.class);
-    }
-
-
 }

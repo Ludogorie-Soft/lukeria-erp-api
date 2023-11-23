@@ -1,7 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -45,10 +44,4 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
     }
-
-    @PutMapping("restore/{id}")
-    public ResponseEntity<UserDTO> restoreUser(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
-        return ResponseEntity.ok(userService.restoreUser(id));
-    }
-
 }

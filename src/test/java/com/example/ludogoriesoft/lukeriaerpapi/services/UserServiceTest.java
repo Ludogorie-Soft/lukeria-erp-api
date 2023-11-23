@@ -196,11 +196,13 @@ class UserServiceTest {
         when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
         assertThrows(ValidationException.class, () -> userService.updateUser(1L, userDTO));
     }
+
     @Test
     void deleteUser_UserExists_UserDeletedSuccessfully() {
         Long userId = 1L;
         User userToDelete = new User();
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(userToDelete));
+
         assertDoesNotThrow(() -> userService.deleteUser(userId));
         verify(userRepository, times(1)).save(userToDelete);
         assertTrue(userToDelete.isDeleted());
@@ -213,13 +215,4 @@ class UserServiceTest {
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.deleteUser(userId));
         verify(userRepository, never()).save(any(User.class));
     }
-
-    @Test
-    void restoreUser_UserNotFound_ThrowsNotFoundException() {
-        Long userId = 1L;
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.empty());
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.restoreUser(userId));
-        verify(userRepository, never()).save(any(User.class));
-    }
-
 }
