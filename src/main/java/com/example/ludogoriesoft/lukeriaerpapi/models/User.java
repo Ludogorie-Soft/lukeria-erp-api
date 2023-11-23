@@ -21,6 +21,7 @@ import java.util.Collection;
 @Table(name = "_users")
 public class User implements UserDetails {
 
+    public static Object Role;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -50,9 +50,6 @@ public class UserService {
         if (StringUtils.isBlank(user.getPassword())) {
             throw new ValidationException("Password is required");
         }
-        if (StringUtils.isBlank(user.getRole().toString())) {
-            throw new ValidationException("Role is required");
-        }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         User user1 = modelMapper.map(user, User.class);
@@ -82,9 +79,6 @@ public class UserService {
         }
         if (StringUtils.isBlank(userDTO.getEmail())) {
             throw new ValidationException("Email is required");
-        }
-        if (StringUtils.isBlank(userDTO.getRole().toString())) {
-            throw new ValidationException("Role is required");
         }
         existingUser.setUsernameField(userDTO.getUsername());
         existingUser.setFirstname(userDTO.getFirstname());
