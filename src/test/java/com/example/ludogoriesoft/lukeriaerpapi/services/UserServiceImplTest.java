@@ -5,9 +5,12 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.RegisterRequest;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserCreateException;
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.AccessDeniedException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.UserServiceImpl;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -87,7 +90,50 @@ class UserServiceImplTest {
 
         assertThrows(UserCreateException.class, () -> userService.createUser(request));
     }
+    @Test
+    void testUpdateUser() {
+        Long userId = 1L;
+        AdminUserDTO userDTO = new AdminUserDTO();
+        PublicUserDTO currentUser = new PublicUserDTO();
+        User userToUpdate = new User();
+        userToUpdate.setId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(userToUpdate));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(modelMapper.map(any(), any())).thenReturn(new AdminUserDTO());
+        AdminUserDTO result = userService.updateUser(userId, userDTO, currentUser);
+        Assertions.assertNotNull(result);
+        verify(userRepository).findById(userId);
+        verify(userRepository).save(any(User.class));
 
+    }
+    @Test
+    void testFindByEmail() {
+        String userEmail = "test@example.com";
+        User user = new User();
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
+        User result = userService.findByEmail(userEmail);
+        Assertions.assertNotNull(result);
+        verify(userRepository).findByEmail(userEmail);
+    }
+
+    @Test
+    void testFindByEmail_UserNotFound() {
+        String userEmail = "nonexistent@example.com";
+        when(userRepository.findByEmail(userEmail)).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.findByEmail(userEmail));
+        verify(userRepository).findByEmail(userEmail);
+    }
+    @Test
+    void testDeleteUserById_AccessDeniedException() {
+        Long userId = 1L;
+        PublicUserDTO currentUser = new PublicUserDTO();
+        currentUser.setId(1L);
+        User user = new User();
+        user.setId(currentUser.getId());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        assertThrows(AccessDeniedException.class, () -> userService.deleteUserById(userId, currentUser));
+        verify(userRepository).findById(userId);
+    }
     @Test
     void getAllUsers_Success() {
         User mockUser = new User();
