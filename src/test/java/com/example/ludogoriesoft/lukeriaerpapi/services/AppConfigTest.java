@@ -5,6 +5,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.exeptions.InvalidTokenException;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserLoginException;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.AccessDeniedException;
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.InternalServerErrorException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
