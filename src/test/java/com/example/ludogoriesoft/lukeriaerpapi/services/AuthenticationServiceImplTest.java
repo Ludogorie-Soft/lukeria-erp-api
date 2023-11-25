@@ -177,42 +177,4 @@ class AuthenticationServiceImplTest {
         Mockito.verify(jwtService, Mockito.times(1)).isTokenValid("mockRefreshToken", mockUser);
         Mockito.verify(tokenService, Mockito.times(1)).revokeToken(mockToken);
     }
-
-    @Test
-    public void testMe_InvalidAccessToken() {
-        AccessTokenBodyDTO accessTokenBodyDTO = new AccessTokenBodyDTO("invalidAccessToken");
-
-        when(tokenService.findByToken("invalidAccessToken")).thenReturn(null);
-
-        assertThrows(InvalidTokenException.class, () -> {
-            authenticationService.me(accessTokenBodyDTO);
-        });
-
-        Mockito.verifyNoInteractions(jwtService, modelMapper);
-    }
-
-    @Test
-    public void testMe_InvalidTokenValidation() {
-        // Arrange
-        AccessTokenBodyDTO accessTokenBodyDTO = new AccessTokenBodyDTO("mockAccessToken");
-        User mockUser = new User(); // create a mock User object
-        Token mockAccessToken = new Token();
-        Token mockRefreshToken = new Token();
-
-        mockAccessToken.setToken("mockAccessToken");
-        mockAccessToken.setUser(mockUser);
-
-        mockRefreshToken.setToken("mockRefreshToken");
-        mockRefreshToken.setTokenType(TokenType.REFRESH);
-
-        when(tokenService.findByToken("mockAccessToken")).thenReturn(mockAccessToken);
-        when(tokenService.findByUser(mockUser)).thenReturn(List.of(mockAccessToken, mockRefreshToken));
-        when(jwtService.isTokenValid("mockAccessToken", mockUser)).thenReturn(false);
-        assertThrows(InvalidTokenException.class, () -> {
-            authenticationService.me(accessTokenBodyDTO);
-        });
-
-        Mockito.verify(jwtService, Mockito.times(1)).isTokenValid("mockAccessToken", mockUser);
-        Mockito.verify(tokenService, Mockito.times(1)).revokeAllUserTokens(mockUser);
-    }
 }

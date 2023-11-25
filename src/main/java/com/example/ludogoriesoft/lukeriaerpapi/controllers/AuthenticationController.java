@@ -35,8 +35,4 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenBody));
     }
 
-    @PostMapping("/me")
-    public ResponseEntity<AuthenticationResponse> getMe(@RequestBody AccessTokenBodyDTO accessTokenBodyDTO) {
-        return ResponseEntity.ok(authenticationService.me(accessTokenBodyDTO));
-    }
 }

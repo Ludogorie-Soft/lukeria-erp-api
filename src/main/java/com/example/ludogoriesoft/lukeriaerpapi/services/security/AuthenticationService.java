@@ -11,7 +11,4 @@ public interface AuthenticationService {
 
     AuthenticationResponse refreshToken(RefreshTokenBodyDTO refreshTokenBodyDTO) throws IOException;
 
-    AuthenticationResponse me(
-            AccessTokenBodyDTO accessTokenBodyDTO
-    );
 }
