@@ -5,9 +5,9 @@ import com.example.ludogoriesoft.lukeriaerpapi.exeptions.InvalidTokenException;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserLoginException;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.AccessDeniedException;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.InternalServerErrorException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,13 +15,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +34,10 @@ class AppConfigTest {
 
     @InjectMocks
     private AppConfig appConfig;
+    @Mock
+    private ObjectMapper objectMapper;
+    @Mock
+    private AuthenticationManager authenticationManager;
 
     @Test
     void userDetailsService_UserExists_ReturnsUserDetails() {
