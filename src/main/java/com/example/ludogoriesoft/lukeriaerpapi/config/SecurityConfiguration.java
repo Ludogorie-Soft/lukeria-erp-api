@@ -34,6 +34,8 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String packUrl = "/api/v1/package/**";
+        String monthlyUrl = "/api/v1/monthlyOrderProduct/**";
         http
                 .cors()
                 .and()
@@ -59,10 +61,10 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/client/**").hasAnyRole(ADMIN.name())
 
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/package/**").hasAnyRole(TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name(), ADMIN.name())
-                .requestMatchers(HttpMethod.POST, "/api/v1/package").hasAnyRole(ADMIN.name())
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/package/**").hasAnyRole(ADMIN.name())
-                .requestMatchers(HttpMethod.PUT, "/api/v1/package/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.GET, packUrl).hasAnyRole(TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers(HttpMethod.POST, packUrl).hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.DELETE, packUrl).hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.PUT, packUrl).hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/plate/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/plate").hasAnyRole(ADMIN.name())
@@ -95,10 +97,10 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.PUT, "/api/v1/monthlyOrder/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/monthlyOrder/**").hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/monthlyOrderProduct/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
-                .requestMatchers(HttpMethod.POST, "/api/v1/monthlyOrderProduct").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
-                .requestMatchers(HttpMethod.PUT, "/api/v1/monthlyOrderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/monthlyOrderProduct/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.GET, monthlyUrl).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.POST, monthlyUrl).hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.PUT, monthlyUrl).hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
+                .requestMatchers(HttpMethod.DELETE, monthlyUrl).hasAnyRole(ADMIN.name())
 
                 .requestMatchers("/api/v1/material-order/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
 
