@@ -90,6 +90,7 @@ class UserServiceImplTest {
 
         assertThrows(UserCreateException.class, () -> userService.createUser(request));
     }
+
     @Test
     void testUpdateUser() {
         Long userId = 1L;
@@ -106,6 +107,7 @@ class UserServiceImplTest {
         verify(userRepository).save(any(User.class));
 
     }
+
     @Test
     void testFindByEmail() {
         String userEmail = "test@example.com";
@@ -123,6 +125,7 @@ class UserServiceImplTest {
         assertThrows(UserNotFoundException.class, () -> userService.findByEmail(userEmail));
         verify(userRepository).findByEmail(userEmail);
     }
+
     @Test
     void testDeleteUserById_AccessDeniedException() {
         Long userId = 1L;
@@ -134,6 +137,7 @@ class UserServiceImplTest {
         assertThrows(AccessDeniedException.class, () -> userService.deleteUserById(userId, currentUser));
         verify(userRepository).findById(userId);
     }
+
     @Test
     void getAllUsers_Success() {
         User mockUser = new User();
@@ -176,7 +180,6 @@ class UserServiceImplTest {
         verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(1)).save(mockUser);
     }
-
 }
 
 
