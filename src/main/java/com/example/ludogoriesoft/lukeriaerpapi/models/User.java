@@ -18,7 +18,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_users")
+@Table(name = "user")
 public class User implements UserDetails {
 
     public static Object Role;

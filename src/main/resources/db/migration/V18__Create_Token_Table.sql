@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS tokens (
     revoked BOOLEAN NOT NULL,
     expired BOOLEAN NOT NULL,
     user_id BIGINT,
-    FOREIGN KEY (user_id) REFERENCES _users(id)
+    FOREIGN KEY (user_id) REFERENCES user(id)
 );

@@ -74,7 +74,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/carton/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/carton/**").hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/product/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/product/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product/produce/***").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/product/**").hasAnyRole(ADMIN.name())
@@ -86,7 +86,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/order/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/orderProduct/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
-                .requestMatchers(HttpMethod.POST, "/api/v1/orderProduct").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.POST, "/api/v1/orderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/orderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/orderProduct/**").hasAnyRole(ADMIN.name())
 
