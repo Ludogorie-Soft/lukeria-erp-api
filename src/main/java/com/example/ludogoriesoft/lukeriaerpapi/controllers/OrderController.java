@@ -18,32 +18,32 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+    public ResponseEntity<List<OrderDTO>> getAllOrders(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDTO> getOrderById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
     @PostMapping
-    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO orderDTO) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO orderDTO, @RequestHeader("Authorization") String auth) {
         return new ResponseEntity<>(orderService.createOrder(orderDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable("id") Long id, @Valid @RequestBody OrderDTO orderDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable("id") Long id, @Valid @RequestBody OrderDTO orderDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
     }
 
     @GetMapping("/findLastOrder")
-    public ResponseEntity<OrderDTO> findFirstByOrderByIdDesc() {
+    public ResponseEntity<OrderDTO> findFirstByOrderByIdDesc(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(orderService.findFirstByOrderByIdDesc());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteOrderById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteOrderById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         orderService.deleteOrder(id);
         return ResponseEntity.ok("Order with id: " + id + " has been deleted successfully!");
     }

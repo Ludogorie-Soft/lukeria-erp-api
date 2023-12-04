@@ -19,33 +19,33 @@ public class OrderProductController {
     private final OrderProductService orderProductService;
 
     @GetMapping
-    public ResponseEntity<List<OrderProductDTO>> getAllOrderProducts() {
+    public ResponseEntity<List<OrderProductDTO>> getAllOrderProducts(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(orderProductService.getAllOrderProducts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderProductDTO> getOrderProductById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<OrderProductDTO> getOrderProductById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(orderProductService.getOrderProductById(id));
     }
 
     @PostMapping
-    public ResponseEntity<OrderProductDTO> createOrderProduct(@Valid @RequestBody OrderProductDTO orderDTO) {
+    public ResponseEntity<OrderProductDTO> createOrderProduct(@Valid @RequestBody OrderProductDTO orderDTO, @RequestHeader("Authorization") String auth) {
         return new ResponseEntity<>(orderProductService.createOrderProduct(orderDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderProductDTO> updateOrderProduct(@PathVariable("id") Long id, @Valid @RequestBody OrderProductDTO orderDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<OrderProductDTO> updateOrderProduct(@PathVariable("id") Long id, @Valid @RequestBody OrderProductDTO orderDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(orderProductService.updateOrderProduct(id, orderDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteOrderProductById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteOrderProductById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         orderProductService.deleteOrderProduct(id);
         return ResponseEntity.ok("Order with id: " + id + " has been deleted successfully!");
     }
 
     @GetMapping("/lessening")
-    public ResponseEntity<Boolean> findInvoiceOrderProductsByInvoiceId(@RequestParam Long invoiceId) {
+    public ResponseEntity<Boolean> findInvoiceOrderProductsByInvoiceId(@RequestParam Long invoiceId, @RequestHeader("Authorization") String auth) {
         List<InvoiceOrderProduct> invoiceOrderProductsList = orderProductService.findInvoiceOrderProductsByInvoiceId(invoiceId);
         return ResponseEntity.ok(orderProductService.reduceProducts(invoiceOrderProductsList));
     }

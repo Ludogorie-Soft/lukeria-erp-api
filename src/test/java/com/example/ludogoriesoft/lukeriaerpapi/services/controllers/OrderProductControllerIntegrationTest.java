@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -77,6 +78,8 @@ class OrderProductControllerIntegrationTest {
         when(orderProductService.getAllOrderProducts()).thenReturn(orderProductDTOList);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -96,6 +99,8 @@ class OrderProductControllerIntegrationTest {
         when(orderProductService.getOrderProductById(anyLong())).thenReturn(orderProductDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -113,6 +118,8 @@ class OrderProductControllerIntegrationTest {
         when(orderProductService.createOrderProduct(any(OrderProductDTO.class))).thenReturn(orderProductDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orderProduct")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1}"))
                 .andExpect(status().isCreated())
@@ -132,6 +139,8 @@ class OrderProductControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/orderProduct/{id}", 1)
                         .content("{\"id\": 1}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -143,7 +152,9 @@ class OrderProductControllerIntegrationTest {
 
     @Test
     void testDeleteOrderProductById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orderProduct/{id}", 1))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orderProduct/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Order with id: 1 has been deleted successfully!"));
     }
@@ -178,6 +189,8 @@ class OrderProductControllerIntegrationTest {
         when(orderProductService.getAllOrderProducts()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0))
@@ -192,6 +205,8 @@ class OrderProductControllerIntegrationTest {
         when(orderProductService.getOrderProductById(orderProductId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/{id}", orderProductId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -219,6 +234,8 @@ class OrderProductControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/{id}", invalidId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -235,7 +252,9 @@ class OrderProductControllerIntegrationTest {
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/orderProduct/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(asJsonString(updatedOrderProduct)))
+                        .content(asJsonString(updatedOrderProduct))
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -245,7 +264,9 @@ class OrderProductControllerIntegrationTest {
         doThrow(new ChangeSetPersister.NotFoundException())
                 .when(orderProductService).deleteOrderProduct(orderProductId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orderProduct/{id}", orderProductId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/orderProduct/{id}", orderProductId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }

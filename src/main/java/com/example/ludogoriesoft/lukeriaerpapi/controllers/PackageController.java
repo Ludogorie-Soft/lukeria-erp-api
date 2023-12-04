@@ -18,28 +18,28 @@ public class PackageController {
     private final PackageService packageService;
 
     @GetMapping
-    public ResponseEntity<List<PackageDTO>> getAllPackages() {
+    public ResponseEntity<List<PackageDTO>> getAllPackages(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(packageService.getAllPackages());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PackageDTO> getPackageById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<PackageDTO> getPackageById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(packageService.getPackageById(id));
     }
 
     @PostMapping
-    public ResponseEntity<PackageDTO> createPackage(@Valid @RequestBody PackageDTO packageDTO) {
+    public ResponseEntity<PackageDTO> createPackage(@Valid @RequestBody PackageDTO packageDTO, @RequestHeader("Authorization") String auth) {
         PackageDTO cratedPackage = packageService.createPackage(packageDTO);
         return new ResponseEntity<>(cratedPackage, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PackageDTO> updatePackage(@PathVariable("id") Long id, @Valid @RequestBody PackageDTO packageDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<PackageDTO> updatePackage(@PathVariable("id") Long id, @Valid @RequestBody PackageDTO packageDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(packageService.updatePackage(id, packageDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePackageById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deletePackageById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         packageService.deletePackage(id);
         return ResponseEntity.ok("Package with id: " + id + " has been deleted successfully!");
     }

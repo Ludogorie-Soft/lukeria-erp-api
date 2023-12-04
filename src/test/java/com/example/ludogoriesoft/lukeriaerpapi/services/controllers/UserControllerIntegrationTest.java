@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -102,6 +103,8 @@ class UserControllerIntegrationTest {
         when(userService.getUserById(anyLong())).thenReturn(userDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/user/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -118,9 +121,10 @@ class UserControllerIntegrationTest {
         userDTO.setId(1L);
         userDTO.setUsername("New User");
 
-        when(userService.createUser(any(User.class))).thenReturn(userDTO);
+        when(userService.createUser(any(UserDTO.class))).thenReturn(userDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1, \"username\": \"New User\"}"))
                 .andExpect(status().isCreated())
@@ -142,6 +146,7 @@ class UserControllerIntegrationTest {
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/{id}", 1)
                         .content("{\"id\": 1, \"username\": \"Updated User\"}")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -154,7 +159,9 @@ class UserControllerIntegrationTest {
 
     @Test
     void testDeleteUserById() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/user/{id}", 1))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/user/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("User with id: 1 has been deleted successfully!"));
     }
@@ -178,6 +185,7 @@ class UserControllerIntegrationTest {
         when(userService.getUserById(userId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/user/{id}", userId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -188,7 +196,7 @@ class UserControllerIntegrationTest {
         String blankUserName = "";
 
         doThrow(new ValidationException())
-                .when(userService).createUser(any(User.class));
+                .when(userService).createUser(any(UserDTO.class));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user")
                         .content("{\"id\": 1, \"username\": \"" + blankUserName + "\"}")
@@ -205,6 +213,7 @@ class UserControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/user/{id}", invalidId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
@@ -230,6 +239,7 @@ class UserControllerIntegrationTest {
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedUser)))
                 .andExpect(status().isNotFound());
@@ -241,7 +251,9 @@ class UserControllerIntegrationTest {
         doThrow(new ChangeSetPersister.NotFoundException())
                 .when(userService).deleteUser(userId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/user/{id}", userId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/user/{id}", userId)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
     }

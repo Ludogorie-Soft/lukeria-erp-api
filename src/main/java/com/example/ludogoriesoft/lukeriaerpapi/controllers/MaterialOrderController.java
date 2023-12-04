@@ -18,44 +18,44 @@ public class MaterialOrderController {
     private final MaterialOrderService materialOrderService;
 
     @GetMapping
-    public ResponseEntity<List<MaterialOrderDTO>> getAllMaterialOrders() {
+    public ResponseEntity<List<MaterialOrderDTO>> getAllMaterialOrders(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(materialOrderService.getAllMaterialOrders());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MaterialOrderDTO> getMaterialOrderById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<MaterialOrderDTO> getMaterialOrderById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(materialOrderService.getMaterialOrderById(id));
     }
 
     @PostMapping
-    public ResponseEntity<MaterialOrderDTO> createMaterialOrder(@Valid @RequestBody MaterialOrderDTO materialOrderDTO) {
+    public ResponseEntity<MaterialOrderDTO> createMaterialOrder(@Valid @RequestBody MaterialOrderDTO materialOrderDTO, @RequestHeader("Authorization") String auth) {
         return new ResponseEntity<>(materialOrderService.createMaterialOrder(materialOrderDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MaterialOrderDTO> updateMaterialOrder(@PathVariable("id") Long id, @Valid @RequestBody MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<MaterialOrderDTO> updateMaterialOrder(@PathVariable("id") Long id, @Valid @RequestBody MaterialOrderDTO materialOrderDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(materialOrderService.updateMaterialOrder(id, materialOrderDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMaterialOrderById(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteMaterialOrderById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         materialOrderService.deleteMaterialOrder(id);
         return ResponseEntity.ok("Material Order with id: " + id + " has been deleted successfully!");
     }
 
     @GetMapping("products/{id}")
-    public List<MaterialOrderDTO> getAllProductsByOrderId(@PathVariable(name = "id") Long id) {
+    public List<MaterialOrderDTO> getAllProductsByOrderId(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) {
         return materialOrderService.getAllOrderProductsByOrderId(id);
     }
 
     @GetMapping("/all-ordered-products")
-    public List<MaterialOrderDTO> allOrderedProducts() {
+    public List<MaterialOrderDTO> allOrderedProducts(@RequestHeader("Authorization") String auth) {
         return materialOrderService.allOrderedProducts();
 
     }
 
     @GetMapping("/all-missing-materials")
-    public List<MaterialOrderDTO> allAvailableProducts() {
+    public List<MaterialOrderDTO> allAvailableProducts(@RequestHeader("Authorization") String auth) {
         List<MaterialOrderDTO> allOrderedProducts = materialOrderService.allOrderedProducts();
         return materialOrderService.allMissingMaterials(allOrderedProducts);
     }

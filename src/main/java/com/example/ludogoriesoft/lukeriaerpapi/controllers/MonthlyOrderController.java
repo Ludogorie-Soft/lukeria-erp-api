@@ -18,33 +18,33 @@ public class MonthlyOrderController {
     private final MonthlyOrderService monthlyOrderService;
 
     @GetMapping
-    public ResponseEntity<List<MonthlyOrderDTO>> getAllMonthlyOrders() {
+    public ResponseEntity<List<MonthlyOrderDTO>> getAllMonthlyOrders(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(monthlyOrderService.getAllMonthlyOrders());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MonthlyOrderDTO> getMonthlyOrderById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<MonthlyOrderDTO> getMonthlyOrderById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(monthlyOrderService.getMonthlyOrderById(id));
     }
 
     @PostMapping
-    public ResponseEntity<MonthlyOrderDTO> createMonthlyOrder(@Valid @RequestBody MonthlyOrderDTO monthlyOrderDTO) {
+    public ResponseEntity<MonthlyOrderDTO> createMonthlyOrder(@Valid @RequestBody MonthlyOrderDTO monthlyOrderDTO, @RequestHeader("Authorization") String auth) {
         return new ResponseEntity<>(monthlyOrderService.createMonthlyOrder(monthlyOrderDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MonthlyOrderDTO> updateMonthlyOrder(@PathVariable("id") Long id, @Valid @RequestBody MonthlyOrderDTO monthlyOrderDTO) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<MonthlyOrderDTO> updateMonthlyOrder(@PathVariable("id") Long id, @Valid @RequestBody MonthlyOrderDTO monthlyOrderDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(monthlyOrderService.updateMonthlyOrder(id, monthlyOrderDTO));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMonthlyOrder(@PathVariable("id") Long id) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<String> deleteMonthlyOrder(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         monthlyOrderService.deleteMonthlyOrder(id);
         return ResponseEntity.ok("Monthly order with id: " + id + " has been deleted successfully!");
     }
 
     @GetMapping("/findLastMonthlyOrder")
-    public ResponseEntity<MonthlyOrderDTO> findFirstByOrderByIdDesc() {
+    public ResponseEntity<MonthlyOrderDTO> findFirstByOrderByIdDesc(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(monthlyOrderService.findFirstByOrderByIdDesc());
     }
 }

@@ -24,8 +24,16 @@ public class ClientDTO {
     @NotNull(message = "Моля въведете адреса на бизнеса и с английски букви!")
     @Pattern(regexp = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$", message = "Адреса на английски трябва да бъде само с латински букви!")
     private String englishAddress;
-    private boolean isBulgarianClient = false;
+    private String isBulgarianClient = "false";
     private String mol;
     @Pattern(regexp = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$", message = "Името на МОЛ- на английски трябва да бъде само с латински букви!")
     private String englishMol;
+
+    public boolean isBulgarianClient() {
+        return Boolean.parseBoolean(isBulgarianClient);
+    }
+
+    public void setBulgarianClient(boolean bulgarianClient) {
+        isBulgarianClient = String.valueOf(bulgarianClient);
+    }
 }

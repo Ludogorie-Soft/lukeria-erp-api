@@ -2,29 +2,27 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
-import org.junit.jupiter.api.Assertions;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.ValidationException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class UserServiceTest {
+
     @Mock
     private UserRepository userRepository;
 
@@ -34,350 +32,187 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    private User existingUser;
+
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @BeforeEach
+    void setUp() {
+        existingUser = new User();
+        existingUser.setId(1L);
+        existingUser.setUsernameField("existingUser");
+        existingUser.setDeleted(false);
+        // Set other properties as needed
     }
 
     @Test
-    void testGetAllUsers() {
-        // Arrange
-        User user1 = new User();
-        user1.setId(1L);
-        user1.setUsername("user1");
-        user1.setFullName("User 1");
-
-        User user2 = new User();
-        user2.setId(2L);
-        user2.setUsername("user2");
-        user2.setFullName("User 2");
-
-        List<User> mockUsers = Arrays.asList(user1, user2);
-        when(userRepository.findByDeletedFalse()).thenReturn(mockUsers);
-
-        UserDTO userDTO1 = new UserDTO();
-        userDTO1.setId(1L);
-        userDTO1.setUsername("user1");
-        userDTO1.setFullName("User 1");
-
-        UserDTO userDTO2 = new UserDTO();
-        userDTO2.setId(2L);
-        userDTO2.setUsername("user2");
-        userDTO2.setFullName("User 2");
-
-        when(modelMapper.map(user1, UserDTO.class)).thenReturn(userDTO1);
-        when(modelMapper.map(user2, UserDTO.class)).thenReturn(userDTO2);
-
-        // Act
-        List<UserDTO> result = userService.getAllUsers();
-
-        // Assert
-        assertEquals(mockUsers.size(), result.size());
-        assertEquals(mockUsers.get(0).getUsername(), result.get(0).getUsername());
-        assertEquals(mockUsers.get(0).getFullName(), result.get(0).getFullName());
-        assertEquals(mockUsers.get(1).getUsername(), result.get(1).getUsername());
-        assertEquals(mockUsers.get(1).getFullName(), result.get(1).getFullName());
+    void getAllUsers() {
+        when(userRepository.findByDeletedFalse()).thenReturn(Collections.singletonList(existingUser));
+        when(modelMapper.map(existingUser, UserDTO.class)).thenReturn(new UserDTO());
+        List<UserDTO> userDTOList = userService.getAllUsers();
+        assertFalse(userDTOList.isEmpty());
+        assertEquals(1, userDTOList.size());
     }
 
     @Test
-    void testGetUserById_ExistingUser() throws ChangeSetPersister.NotFoundException {
-        // Arrange
-        Long userId = 1L;
-        User user = new User();
-        user.setId(userId);
-        user.setUsername("user1");
-        user.setFullName("User 1");
+    void getUserById_userExists() throws UserNotFoundException, ChangeSetPersister.NotFoundException {
+        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingUser));
+        when(modelMapper.map(existingUser, UserDTO.class)).thenReturn(new UserDTO());
+        UserDTO userDTO = userService.getUserById(1L);
+        assertNotNull(userDTO);
+        assertEquals(existingUser.getUsername(), userDTO.getUsername());
+    }
 
+    @Test
+    void findByEmail_userExists() {
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(new User()));
+        User user = userService.findByEmail("test@example.com");
+        assertNotNull(user);
+    }
+
+    @Test
+    void findByEmail_userNotFound() {
+        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+        assertThrows(UserNotFoundException.class, () -> userService.findByEmail("nonexistent@example.com"));
+    }
+
+    @Test
+    void updateUser_validUser() throws UserNotFoundException, ChangeSetPersister.NotFoundException {
+        User user = new User(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN, false);
+        UserDTO userDTO = new UserDTO(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN);
+        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(modelMapper.map(any(), eq(UserDTO.class))).thenReturn(new UserDTO());
+        UserDTO updatedUser = userService.updateUser(1L, userDTO);
+        assertNotNull(updatedUser);
+    }
+
+    @Test
+    void updateUser_userNotFound() {
+        when(userRepository.findByIdAndDeletedFalse(2L)).thenReturn(Optional.empty());
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.updateUser(2L, new UserDTO()));
+    }
+
+    @Test
+    void createUser_NullUsername_ValidationExceptionThrown() {
         UserDTO userDTO = new UserDTO();
-        userDTO.setId(userId);
-        userDTO.setUsername("user1");
-        userDTO.setFullName("User 1");
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(user));
-        when(modelMapper.map(user, UserDTO.class)).thenReturn(userDTO);
-
-        // Act
-        UserDTO result = userService.getUserById(userId);
-
-        // Assert
-        assertEquals(userId, result.getId());
-        assertEquals("user1", result.getUsername());
-        assertEquals("User 1", result.getFullName());
+        assertThrows(ValidationException.class, () -> userService.createUser(userDTO));
     }
 
     @Test
-    void testGetUserById_NonExistingUser() {
-        Long userId = 1L;
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.empty());
-
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.getUserById(userId));
-    }
-
-    @Test
-    void testCreateUser_ValidUser() throws ValidationException {
-        // Arrange
-        User user = new User();
-        user.setUsername("user1");
-        user.setFullName("User 1");
-        user.setEmail("user1@example.com");
-        user.setPassword("password");
-        user.setRole(Role.ADMIN);
-
+    void createUser_NullFirstName_ValidationExceptionThrown() {
         UserDTO userDTO = new UserDTO();
-        userDTO.setUsername("user1");
-        userDTO.setFullName("User 1");
-        userDTO.setEmail("user1@example.com");
-        userDTO.setRole(Role.ADMIN);
-
-        when(modelMapper.map(user, UserDTO.class)).thenReturn(userDTO);
-
-        // Act
-        UserDTO result = userService.createUser(user);
-
-        // Assert
-        assertEquals(user.getUsername(), result.getUsername());
-        assertEquals(user.getFullName(), result.getFullName());
-        assertEquals(user.getEmail(), result.getEmail());
-        assertEquals(user.getRole(), result.getRole());
-
-        verify(userRepository).save(user);
+        userDTO.setUsername("username");
+        assertThrows(ValidationException.class, () -> userService.createUser(userDTO));
     }
 
+    @Test
+    void createUser_NullLastName_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        userDTO.setFirstname("lastName");
+        assertThrows(ValidationException.class, () -> userService.createUser(userDTO));
+    }
 
     @Test
-    void testDeleteUser_ExistingUser() throws ChangeSetPersister.NotFoundException {
-        // Arrange
-        Long userId = 1L;
+    void createUser_NullAddress_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        userDTO.setFirstname("lastName");
+        userDTO.setLastname("lastName");
+        assertThrows(ValidationException.class, () -> userService.createUser(userDTO));
+    }
+
+    @Test
+    void createUser_NullEmail_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        userDTO.setFirstname("lastName");
+        userDTO.setLastname("lastName");
+        userDTO.setAddress("address");
+        assertThrows(ValidationException.class, () -> userService.createUser(userDTO));
+    }
+
+    @Test
+    void createUser_NullPassword_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        userDTO.setFirstname("lastName");
+        userDTO.setLastname("lastName");
+        userDTO.setAddress("address");
+        userDTO.setEmail("email@gmail.com");
+        assertThrows(ValidationException.class, () -> userService.createUser(userDTO));
+    }
+
+    @Test
+    void updateUser_NullUsername_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
         User user = new User();
-        user.setId(userId);
-        user.setUsername("user1");
-        user.setFullName("User 1");
-        user.setDeleted(false);
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(user));
-
-        // Act
-        userService.deleteUser(userId);
-
-        // Assert
-        assertTrue(user.isDeleted());
-        verify(userRepository).save(user);
+        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, userDTO));
     }
 
     @Test
-    void testDeleteUser_NonExistingUser() {
-        // Arrange
+    void updateUser_NullAddress_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        User user = new User();
+        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, userDTO));
+    }
+
+    @Test
+    void updateUser_NullFirstName_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        userDTO.setAddress("address");
+        User user = new User();
+        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, userDTO));
+    }
+
+    @Test
+    void updateUser_NullLastName_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        userDTO.setAddress("address");
+        userDTO.setFirstname("firstName");
+        User user = new User();
+        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, userDTO));
+    }
+
+    @Test
+    void updateUser_NullEmail_ValidationExceptionThrown() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("username");
+        userDTO.setAddress("address");
+        userDTO.setFirstname("firstName");
+        userDTO.setLastname("lastname");
+        User user = new User();
+        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
+        assertThrows(ValidationException.class, () -> userService.updateUser(1L, userDTO));
+    }
+
+    @Test
+    void deleteUser_UserExists_UserDeletedSuccessfully() {
         Long userId = 1L;
+        User userToDelete = new User();
+        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(userToDelete));
 
+        assertDoesNotThrow(() -> userService.deleteUser(userId));
+        verify(userRepository, times(1)).save(userToDelete);
+        assertTrue(userToDelete.isDeleted());
+    }
+
+    @Test
+    void deleteUser_UserNotFound_ThrowsNotFoundException() {
+        Long userId = 1L;
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.empty());
-
-        // Act and Assert
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.deleteUser(userId));
+        verify(userRepository, never()).save(any(User.class));
     }
-
-    @Test
-    void testRestoreUser_ExistingUser() throws ChangeSetPersister.NotFoundException {
-        // Arrange
-        Long userId = 1L;
-        User user = new User();
-        user.setId(userId);
-        user.setUsername("user1");
-        user.setFullName("User 1");
-        user.setDeleted(true);
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(userId);
-        userDTO.setUsername("user1");
-        userDTO.setFullName("User 1");
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(user));
-        when(modelMapper.map(user, UserDTO.class)).thenReturn(userDTO);
-
-        // Act
-        UserDTO result = userService.restoreUser(userId);
-
-        // Assert
-        assertEquals(false, user.isDeleted());
-        assertEquals(userId, result.getId());
-        assertEquals("user1", result.getUsername());
-        assertEquals("User 1", result.getFullName());
-        verify(userRepository).save(user);
-    }
-
-    @Test
-    void testRestoreUser_NonExistingUser() {
-        // Arrange
-        Long userId = 1L;
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.empty());
-
-        // Act and Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> userService.restoreUser(userId));
-    }
-
-
-    @Test
-    void testUpdateUser_ValidUser() throws ChangeSetPersister.NotFoundException {
-        // Arrange
-        Long userId = 1L;
-        User existingUser = new User();
-        existingUser.setId(userId);
-        existingUser.setUsername("user1");
-        existingUser.setFullName("User 1");
-        existingUser.setEmail("user1@example.com");
-        existingUser.setRole(Role.ADMIN);
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername("updatedUser1");
-        userDTO.setFullName("Updated User 1");
-        userDTO.setEmail("updateduser1@example.com");
-        userDTO.setRole(Role.ADMIN);
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
-        when(modelMapper.map(existingUser, UserDTO.class)).thenReturn(userDTO);
-
-        // Act
-        User updatedUser = new User(); // Създаване на обект updatedUser
-        updatedUser.setId(userId); // Задаване на id
-        when(userRepository.save(existingUser)).thenReturn(updatedUser); // Мокване на save(), връщайки updatedUser
-        UserDTO result = userService.updateUser(userId, userDTO);
-
-
-        verify(userRepository).save(existingUser);
-    }
-
-    @Test
-    void testUpdateUser_InvalidUser_UsernameBlank() {
-        // Arrange
-        Long userId = 1L;
-        User existingUser = new User();
-        existingUser.setId(userId);
-        existingUser.setUsername("user1");
-        existingUser.setFullName("User 1");
-        existingUser.setEmail("user1@example.com");
-        existingUser.setRole(Role.ADMIN);
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(""); // Празно потребителско име
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
-
-        // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> userService.updateUser(userId, userDTO));
-    }
-
-    @Test
-    void testUpdateUser_InvalidUser_FullNameBlank() {
-        // Arrange
-        Long userId = 1L;
-        User existingUser = new User();
-        existingUser.setId(userId);
-        existingUser.setUsername("user1");
-        existingUser.setFullName("User 1");
-        existingUser.setEmail("user1@example.com");
-        existingUser.setRole(Role.ADMIN);
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername("user1");
-        userDTO.setFullName(""); // Празно потребителско име
-
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
-
-        // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> userService.updateUser(userId, userDTO));
-    }
-
-    @Test
-    void testUpdateUser_InvalidUser_EmailBlank() {
-        // Arrange
-        Long userId = 1L;
-        User existingUser = new User();
-        existingUser.setId(userId);
-        existingUser.setUsername("user1");
-        existingUser.setFullName("User 1");
-        existingUser.setPassword("passs");
-        existingUser.setEmail("");
-        existingUser.setRole(Role.ADMIN);
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername("user1");
-        userDTO.setFullName("user user 1 ");
-        userDTO.setEmail(""); // Празно потребителско име
-        userDTO.setRole(Role.ADMIN);
-        when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
-
-        // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> userService.updateUser(userId, userDTO));
-    }
-
-
-    @Test
-    void testCreateUser_UsernameBlank() {
-        // Arrange
-        User user = new User();
-        user.setUsername(""); // Празно потребителско име
-        user.setFullName("User 1");
-        user.setEmail("user1@example.com");
-        user.setPassword("password");
-        user.setRole(Role.ADMIN);
-
-        // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
-    }
-
-    @Test
-    void testCreateUser_WithInvalidUsernameLength() {
-
-        User user = new User();
-        user.setUsername("abc"); // Подаваме потребителско име с по-малка дължина от 4 символа
-
-        Assertions.assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
-    }
-
-    @Test
-    void testCreateUser_FullNameBlank() {
-        // Arrange
-        User user = new User();
-        user.setUsername("User 1"); // Празно потребителско име
-        user.setFullName("");
-        user.setEmail("user1@example.com");
-        user.setPassword("password");
-        user.setRole(Role.ADMIN);
-
-        // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
-    }
-
-    @Test
-    void testCreateUser_EmailBlank() {
-        // Arrange
-        User user = new User();
-        user.setUsername("User 1"); // Празно потребителско име
-        user.setFullName("User User");
-        user.setEmail("");
-        user.setPassword("password");
-        user.setRole(Role.ADMIN);
-
-        // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
-    }
-
-    @Test
-    void testCreateUser_PasswordBlank() {
-        // Arrange
-        User user = new User();
-        user.setUsername("User 1"); // Празно потребителско име
-        user.setFullName("User User");
-        user.setEmail("mail@user.com");
-        user.setPassword("");
-        user.setRole(Role.ADMIN);
-
-        // Act and Assert
-        assertThrows(jakarta.validation.ValidationException.class, () -> userService.createUser(user));
-    }
-
-
 }
-
-
