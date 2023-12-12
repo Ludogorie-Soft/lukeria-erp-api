@@ -118,6 +118,34 @@ class ClientServiceTest {
     }
 
     @Test
+    void testCreateClient_InvalidClientDTO_BusinessNameMissing() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setIsBulgarianClient("true");
+        clientDTO.setEnglishBusinessName("en name");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setAddress("address");
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("Business name is required!", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+
+    @Test
+    void testCreateClient_InvalidClientDTO_AddressMissing() {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setBusinessName("business name");
+        clientDTO.setIdNumEIK("12345");
+        clientDTO.setIsBulgarianClient("true");
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
+        assertEquals("Address is required!", exception.getMessage());
+
+        verifyNoInteractions(modelMapper);
+        verifyNoInteractions(clientRepository);
+    }
+
+    @Test
     void testCreateClient_InvalidClientDTO_EnglishAddressMissing() {
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setBusinessName("business name");

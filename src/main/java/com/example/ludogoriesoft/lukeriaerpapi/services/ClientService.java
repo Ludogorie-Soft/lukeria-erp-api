@@ -51,7 +51,8 @@ public class ClientService {
         updatedClient.setId(id);
         return modelMapper.map(updatedClient, ClientDTO.class);
     }
-    public void validations(ClientDTO clientDTO){
+
+    private void validations(ClientDTO clientDTO) {
         if (StringUtils.isBlank(clientDTO.getBusinessName()) && clientDTO.isBulgarianClient()) {
             throw new ValidationException("Business name is required!");
         }
@@ -61,7 +62,7 @@ public class ClientService {
         if (StringUtils.isBlank(clientDTO.getAddress()) && clientDTO.isBulgarianClient()) {
             throw new ValidationException("Address is required!");
         }
-        if(!clientDTO.isBulgarianClient()) {
+        if (!clientDTO.isBulgarianClient()) {
             if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
                 throw new ValidationException("Address in english is required!");
             }
@@ -79,6 +80,7 @@ public class ClientService {
             }
         }
     }
+
     public void deleteClient(Long id) throws ChangeSetPersister.NotFoundException {
         Client client = clientRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         client.setDeleted(true);

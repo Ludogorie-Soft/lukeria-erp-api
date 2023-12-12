@@ -22,7 +22,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 

@@ -1,5 +1,4 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
-import static org.mockito.Mockito.*;
 
 import com.example.ludogoriesoft.lukeriaerpapi.handler.LogoutHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.TokenService;
@@ -14,6 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
+
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class LogoutHandlerTest {
 
@@ -36,6 +38,7 @@ class LogoutHandlerTest {
         verify(tokenService, times(1)).logoutToken("mockToken");
 
     }
+
     @Test
     void testLogoutWithInvalidAuthorizationHeaderNull() throws IOException {
         HttpServletRequest request = mock(HttpServletRequest.class);
@@ -45,6 +48,7 @@ class LogoutHandlerTest {
         logoutHandler.logout(request, response, authentication);
         verify(tokenService, never()).logoutToken(any());
     }
+
     @Test
     void testLogoutWithInvalidAuthorizationHeader() throws IOException {
         HttpServletRequest request = mock(HttpServletRequest.class);

@@ -1,14 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserCreateException;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Path;
-import jakarta.validation.metadata.ConstraintDescriptor;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,6 +23,7 @@ class UserCreateExceptionTest {
         assertEquals("Invalid user data", userCreateException.getMessage());
         assertEquals(HttpStatus.BAD_REQUEST, userCreateException.getStatus());
     }
+
     @Test
     void testUserCreateExceptionWithUniqueFlag() {
         boolean isUnique = true;
