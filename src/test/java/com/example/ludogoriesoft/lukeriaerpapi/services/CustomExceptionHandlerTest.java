@@ -1,7 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ExceptionResponse;
-import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.ApiException;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.InternalServerErrorException;
 import com.example.ludogoriesoft.lukeriaerpapi.handler.CustomExceptionHandler;
 import org.junit.jupiter.api.Test;
@@ -23,6 +22,7 @@ public class CustomExceptionHandlerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
         verify(mockException, times(1)).printStackTrace();
     }
+
     @Test
     void handleInternalAuthServiceExceptions() {
         CustomExceptionHandler handler = new CustomExceptionHandler();
@@ -33,6 +33,7 @@ public class CustomExceptionHandlerTest {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
+
     @Test
     void handleBadCredentialsExceptions() {
         CustomExceptionHandler handler = new CustomExceptionHandler();

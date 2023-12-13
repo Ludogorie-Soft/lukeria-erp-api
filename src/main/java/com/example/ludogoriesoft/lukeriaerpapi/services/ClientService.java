@@ -30,60 +30,14 @@ public class ClientService {
     }
 
     public ClientDTO createClient(ClientDTO clientDTO) {
-        if (StringUtils.isBlank(clientDTO.getBusinessName())) {
-            throw new ValidationException("Business name is required!");
-        }
-        if (!clientDTO.getIdNumEIK().matches("\\d{5,}")) {
-            throw new ValidationException("The EIK number should contain at least 5 numbers!");
-        }
-        if (StringUtils.isBlank(clientDTO.getAddress())) {
-            throw new ValidationException("Address is required!");
-        }
-        if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
-            throw new ValidationException("Address in english is required!");
-        }
-        if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
-            throw new ValidationException("Business name is english is required!");
-        }
-        if (!clientDTO.getEnglishBusinessName().matches(REGEX_FOR_ENGLISH_FIELDS)) {
-            throw new ValidationException("English name can contain only letters in English");
-        }
-        if (!clientDTO.getEnglishMol().matches(REGEX_FOR_ENGLISH_FIELDS)) {
-            throw new ValidationException("English MOL can contain only letters in English");
-        }
-        if (!clientDTO.getEnglishAddress().matches(REGEX_FOR_ENGLISH_FIELDS)) {
-            throw new ValidationException("English address can contain only letters in English");
-        }
+        validations(clientDTO);
         Client clientEntity = clientRepository.save(modelMapper.map(clientDTO, Client.class));
         return modelMapper.map(clientEntity, ClientDTO.class);
     }
 
     public ClientDTO updateClient(Long id, ClientDTO clientDTO) throws ChangeSetPersister.NotFoundException {
         Client existingClient = clientRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        if (StringUtils.isBlank(clientDTO.getBusinessName())) {
-            throw new ValidationException("Business name is required!");
-        }
-        if (!clientDTO.getIdNumEIK().matches("\\d{5,}")) {
-            throw new ValidationException("The EIK number should contain at least 5 numbers!");
-        }
-        if (StringUtils.isBlank(clientDTO.getAddress())) {
-            throw new ValidationException("Address is required!");
-        }
-        if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
-            throw new ValidationException("Business name is english is required!");
-        }
-        if (!clientDTO.getEnglishBusinessName().matches(REGEX_FOR_ENGLISH_FIELDS)) {
-            throw new ValidationException("English name can contain only letters in English");
-        }
-        if (!clientDTO.getEnglishAddress().matches(REGEX_FOR_ENGLISH_FIELDS)) {
-            throw new ValidationException("English address can contain only letters in English");
-        }
-        if (!clientDTO.getEnglishMol().matches(REGEX_FOR_ENGLISH_FIELDS)) {
-            throw new ValidationException("English MOL can contain only letters in English");
-        }
-        if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
-            throw new ValidationException("Address in english is required!");
-        }
+        validations(clientDTO);
         existingClient.setBusinessName(clientDTO.getBusinessName());
         existingClient.setIdNumEIK(clientDTO.getIdNumEIK());
         existingClient.setHasIdNumDDS(clientDTO.isHasIdNumDDS());
@@ -96,6 +50,35 @@ public class ClientService {
         Client updatedClient = clientRepository.save(existingClient);
         updatedClient.setId(id);
         return modelMapper.map(updatedClient, ClientDTO.class);
+    }
+
+    private void validations(ClientDTO clientDTO) {
+        if (StringUtils.isBlank(clientDTO.getBusinessName()) && clientDTO.isBulgarianClient()) {
+            throw new ValidationException("Business name is required!");
+        }
+        if (!clientDTO.getIdNumEIK().matches("\\d{5,}")) {
+            throw new ValidationException("The EIK number should contain at least 5 numbers!");
+        }
+        if (StringUtils.isBlank(clientDTO.getAddress()) && clientDTO.isBulgarianClient()) {
+            throw new ValidationException("Address is required!");
+        }
+        if (!clientDTO.isBulgarianClient()) {
+            if (StringUtils.isBlank(clientDTO.getEnglishAddress())) {
+                throw new ValidationException("Address in english is required!");
+            }
+            if (StringUtils.isBlank(clientDTO.getEnglishBusinessName())) {
+                throw new ValidationException("Business name is english is required!");
+            }
+            if (!clientDTO.getEnglishBusinessName().matches(REGEX_FOR_ENGLISH_FIELDS)) {
+                throw new ValidationException("English name can contain only letters in English");
+            }
+            if (!clientDTO.getEnglishMol().matches(REGEX_FOR_ENGLISH_FIELDS)) {
+                throw new ValidationException("English MOL can contain only letters in English");
+            }
+            if (!clientDTO.getEnglishAddress().matches(REGEX_FOR_ENGLISH_FIELDS)) {
+                throw new ValidationException("English address can contain only letters in English");
+            }
+        }
     }
 
     public void deleteClient(Long id) throws ChangeSetPersister.NotFoundException {
