@@ -21,4 +21,5 @@ public class InvoiceDTO {
     private boolean isCashPayment;
     private LocalDate deadline;
     private boolean created;
+    private String bankAccount;
 }

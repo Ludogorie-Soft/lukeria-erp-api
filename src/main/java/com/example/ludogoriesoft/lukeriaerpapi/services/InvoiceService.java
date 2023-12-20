@@ -71,6 +71,7 @@ public class InvoiceService {
         existingInvoice.setTotalPrice(invoiceDTO.getTotalPrice());
         existingInvoice.setCashPayment(invoiceDTO.isCashPayment());
         existingInvoice.setDeadline(invoiceDTO.getDeadline());
+        existingInvoice.setBankAccount(invoiceDTO.getBankAccount());
         Invoice updatedInvoice = invoiceRepository.save(existingInvoice);
         updatedInvoice.setId(id);
         return modelMapper.map(updatedInvoice, InvoiceDTO.class);
