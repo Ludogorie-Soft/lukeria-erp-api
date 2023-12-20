@@ -121,7 +121,12 @@
 			<artifactId>ModelMapper</artifactId>
 			<version>1.0.6</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+    </dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
