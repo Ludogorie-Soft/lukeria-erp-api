@@ -28,5 +28,6 @@ public class Invoice {
     private boolean deleted;
     @Column(name = "is_created")
     private boolean created;
+    private String bankAccount;
 
 }

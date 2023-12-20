@@ -1,0 +1,2 @@
+ALTER TABLE invoice
+ADD COLUMN bank_account VARCHAR(255);
