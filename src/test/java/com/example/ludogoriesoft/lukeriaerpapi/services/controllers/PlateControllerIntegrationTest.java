@@ -100,7 +100,7 @@ class PlateControllerIntegrationTest {
         plateDTO.setId(1L);
         plateDTO.setName("Plate 1");
 
-        when(plateService.getPlateById(anyLong())).thenReturn(plateDTO);
+        when(plateService.getPlateDTOById(anyLong())).thenReturn(plateDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -186,7 +186,7 @@ class PlateControllerIntegrationTest {
     @Test
     void testGetPlateByIdWhenPlateDoesNotExist() throws Exception {
         long plateId = 1L;
-        when(plateService.getPlateById(plateId)).thenThrow(new ChangeSetPersister.NotFoundException());
+        when(plateService.getPlateDTOById(plateId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", plateId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -214,7 +214,7 @@ class PlateControllerIntegrationTest {
     void testGetPlateWithInvalidId() throws Exception {
         Long invalidId = 100000L;
 
-        when(plateService.getPlateById(invalidId))
+        when(plateService.getPlateDTOById(invalidId))
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", invalidId)

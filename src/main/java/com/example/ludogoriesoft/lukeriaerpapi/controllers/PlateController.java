@@ -24,7 +24,7 @@ public class PlateController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PlateDTO> getPlateById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
-        return ResponseEntity.ok(plateService.getPlateById(id));
+        return ResponseEntity.ok(plateService.getPlateDTOById(id));
     }
 
     @PostMapping

@@ -26,10 +26,17 @@ public class PlateService {
                 .toList();
     }
 
-    public PlateDTO getPlateById(Long id) throws ChangeSetPersister.NotFoundException {
+    public PlateDTO getPlateDTOById(Long id) throws ChangeSetPersister.NotFoundException {
         Plate plate = plateRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         return modelMapper.map(plate, PlateDTO.class);
     }
+
+  public Plate getPlateById(Long id) throws ChangeSetPersister.NotFoundException {
+    return plateRepository
+            .findByIdAndDeletedFalse(id)
+            .orElseThrow(ChangeSetPersister.NotFoundException::new);
+  }
+
 
     public PlateDTO createPlate(PlateDTO plateDTO) {
         if (StringUtils.isBlank(plateDTO.getName())) {

@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +23,8 @@ import java.math.BigDecimal;
 public class UploadFromFileService {
   private final PackageRepository packageRepository;
   private final ProductRepository productRepository;
+  private final PlateService plateService;
+  private final CartonService cartonService;
 
   public String uploadFromFile(MultipartFile file) throws IOException {
     if (file != null) {
@@ -30,11 +33,11 @@ public class UploadFromFileService {
         Sheet sheet = workbook.getSheetAt(0);
         int lastRowNum = sheet.getLastRowNum();
 
-        for (int i = 11; i <= lastRowNum; i++) {
+        for (int i = 1; i <= lastRowNum; i++) {
           Row row = sheet.getRow(i);
 
           // Проверка дали клетката с индекс 2 на реда не е null
-          Cell cell = row.getCell(2);
+          Cell cell = row.getCell(1);
           if (cell != null
               && cell.getStringCellValue() != null
               && !cell.getStringCellValue().isEmpty()) {
@@ -42,6 +45,8 @@ public class UploadFromFileService {
 
             Package packageForCreate = new Package();
             packageForCreate.setName(valueFromColumn);
+            packageForCreate.setCartonId(cartonService.getCartonByID(Long.valueOf(valueFromColumn)));
+            packageForCreate.setPlateId(plateService.getPlateById(Long.valueOf(valueFromColumn)));
             Package savedPackage = packageRepository.save(packageForCreate);
 
             Product productForCreate = new Product();
@@ -54,6 +59,8 @@ public class UploadFromFileService {
         return "Успешно добавени всички пакети.";
       } catch (NotOfficeXmlFileException e) {
         throw new IOException("Файлът не е валиден .xlsx файл.", e);
+      } catch (ChangeSetPersister.NotFoundException e) {
+          throw new RuntimeException(e);
       }
     } else {
       return "Файлът е null.";

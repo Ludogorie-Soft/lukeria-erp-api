@@ -24,7 +24,7 @@ public class CartonController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CartonDTO> getCartonById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
-        return ResponseEntity.ok(cartonService.getCartonById(id));
+        return ResponseEntity.ok(cartonService.getCartonDTOById(id));
     }
 
     @PostMapping

@@ -85,7 +85,7 @@ class CartonServiceTest {
 
         when(modelMapper.map(carton, CartonDTO.class)).thenReturn(cartonDTO);
 
-        CartonDTO result = cartonService.getCartonById(1L);
+        CartonDTO result = cartonService.getCartonDTOById(1L);
 
         assertEquals(cartonDTO.getId(), result.getId());
         assertEquals(cartonDTO.getName(), result.getName());
@@ -97,7 +97,7 @@ class CartonServiceTest {
     @Test
     void testGetCartonById_NonExistingId() {
         when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> cartonService.getCartonById(1L));
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> cartonService.getCartonDTOById(1L));
 
         verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);

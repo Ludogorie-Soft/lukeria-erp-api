@@ -24,9 +24,12 @@ public class CartonService {
         return cartons.stream().map(carton -> modelMapper.map(carton, CartonDTO.class)).toList();
     }
 
-    public CartonDTO getCartonById(Long id) throws ChangeSetPersister.NotFoundException {
+    public CartonDTO getCartonDTOById(Long id) throws ChangeSetPersister.NotFoundException {
         Carton carton = cartonRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         return modelMapper.map(carton, CartonDTO.class);
+    }
+    public Carton getCartonByID(Long id) throws ChangeSetPersister.NotFoundException {
+       return  cartonRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
     }
 
     public CartonDTO createCarton(CartonDTO cartonDTO) {

@@ -85,7 +85,7 @@ class PlateServiceTest {
 
         when(modelMapper.map(plate, PlateDTO.class)).thenReturn(plateDTO);
 
-        PlateDTO result = plateService.getPlateById(1L);
+        PlateDTO result = plateService.getPlateDTOById(1L);
 
         assertEquals(plateDTO.getId(), result.getId());
         assertEquals(plateDTO.getName(), result.getName());
@@ -97,7 +97,7 @@ class PlateServiceTest {
     @Test
     void testGetPlateById_NonExistingId() {
         when(plateRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> plateService.getPlateById(1L));
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> plateService.getPlateDTOById(1L));
 
         verify(plateRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);

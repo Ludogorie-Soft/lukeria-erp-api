@@ -100,7 +100,7 @@ class CartonControllerIntegrationTest {
         cartonDTO.setId(1L);
         cartonDTO.setName("Carton 1");
 
-        when(cartonService.getCartonById(anyLong())).thenReturn(cartonDTO);
+        when(cartonService.getCartonDTOById(anyLong())).thenReturn(cartonDTO);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/{id}", 1)
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
@@ -185,7 +185,7 @@ class CartonControllerIntegrationTest {
     @Test
     void testGetCartonByIdWhenCartonDoesNotExist() throws Exception {
         long cartonId = 1L;
-        when(cartonService.getCartonById(cartonId)).thenThrow(new ChangeSetPersister.NotFoundException());
+        when(cartonService.getCartonDTOById(cartonId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/{id}", cartonId)
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
@@ -212,7 +212,7 @@ class CartonControllerIntegrationTest {
     void testGetCartonWithInvalidId() throws Exception {
         Long invalidId = 100000L;
 
-        when(cartonService.getCartonById(invalidId))
+        when(cartonService.getCartonDTOById(invalidId))
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/{id}", invalidId)
