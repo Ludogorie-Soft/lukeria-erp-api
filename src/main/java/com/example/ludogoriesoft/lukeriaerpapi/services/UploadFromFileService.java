@@ -9,6 +9,8 @@ import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +25,7 @@ public class UploadFromFileService {
     private final PlateService plateService;
     private final CartonService cartonService;
 
-    public String uploadFromFile(MultipartFile file) throws IOException {
+    public ResponseEntity<String> uploadFromFile(MultipartFile file) throws IOException {
         if (file != null) {
             try {
                 Workbook workbook = new XSSFWorkbook(file.getInputStream());
@@ -34,51 +36,27 @@ public class UploadFromFileService {
                     Row row = sheet.getRow(i);
                     int j = 1;
 
-                    String nameValue = row.getCell(j++).getStringCellValue();
                     String productCode = row.getCell(0).getStringCellValue();
+                    String nameValue = row.getCell(j++).getStringCellValue();
 
 
                     Cell availableQuantityCell = row.getCell(j++);
                     int availableQuantityValue;
-                    if (availableQuantityCell.getCellType() == CellType.NUMERIC) {
-                        availableQuantityValue = (int) availableQuantityCell.getNumericCellValue();
-                    } else if (availableQuantityCell.getCellType() == CellType.STRING) {
-                        availableQuantityValue = Integer.parseInt(availableQuantityCell.getStringCellValue());
-                    } else if (availableQuantityCell.getCellType() == null) {
-                        continue;
-                    } else {
-                        throw new IllegalStateException("Unsupported cell type for availableQuantityValue");
-                    }
+                    availableQuantityValue = (int) availableQuantityCell.getNumericCellValue();
+
 
                     Cell cartonIdCell = row.getCell(j++);
-                    Long cartonIdValue;
-                    if (cartonIdCell.getCellType() == CellType.NUMERIC) {
-                        cartonIdValue = (long) cartonIdCell.getNumericCellValue();
-                    } else if (cartonIdCell.getCellType() == CellType.STRING) {
-                        cartonIdValue = Long.valueOf(cartonIdCell.getStringCellValue());
-                    } else {
-                        throw new IllegalStateException("Unsupported cell type for cartonIdValue");
-                    }
+                    long cartonIdValue;
+                    cartonIdValue = (long) cartonIdCell.getNumericCellValue();
 
                     Cell plateIdCell = row.getCell(j++);
-                    Long plateIdValue;
-                    if (plateIdCell.getCellType() == CellType.NUMERIC) {
-                        plateIdValue = (long) plateIdCell.getNumericCellValue();
-                    } else if (plateIdCell.getCellType() == CellType.STRING) {
-                        plateIdValue = Long.valueOf(plateIdCell.getStringCellValue());
-                    } else {
-                        throw new IllegalStateException("Unsupported cell type for plateIdValue");
-                    }
+                    long plateIdValue;
+                    plateIdValue = (long) plateIdCell.getNumericCellValue();
+
 
                     Cell piecesCartonCell = row.getCell(j++);
                     int piecesCartonValue;
-                    if (piecesCartonCell.getCellType() == CellType.NUMERIC) {
-                        piecesCartonValue = (int) piecesCartonCell.getNumericCellValue();
-                    } else if (piecesCartonCell.getCellType() == CellType.STRING) {
-                        piecesCartonValue = Integer.parseInt(piecesCartonCell.getStringCellValue());
-                    } else {
-                        throw new IllegalStateException("Unsupported cell type for piecesCartonValue");
-                    }
+                    piecesCartonValue = (int) piecesCartonCell.getNumericCellValue();
 
                     if (nameValue != null && !nameValue.isEmpty()) {
                         Package packageForCreate = new Package();
@@ -95,19 +73,16 @@ public class UploadFromFileService {
                         productForCreate.setProductCode(productCode);
                         productForCreate.setPrice(BigDecimal.valueOf(0.0));
                         productRepository.save(productForCreate);
-                        if (179 == i) {
-                            throw new IOException("File is Upload");
-                        }
                     }
                 }
-                return "Успешно добавени всички пакети.";
+                return ResponseEntity.ok("Successfully added all packages.");
             } catch (NotOfficeXmlFileException e) {
-                throw new IOException("Файлът не е валиден .xlsx файл.", e);
+                throw new IOException("The file is not a valid .xlsx file.", e);
             } catch (ChangeSetPersister.NotFoundException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            return "Файлът е null.";
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("File is null.");
         }
     }
 }

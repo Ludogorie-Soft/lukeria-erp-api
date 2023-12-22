@@ -2,6 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.services.UploadFromFileService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,7 +18,7 @@ public class UploadFileController {
   private final UploadFromFileService uploadFromFileService;
 
   @PostMapping()
-  public String uploadFromFile(@RequestParam("file") MultipartFile file) throws IOException {
+  public ResponseEntity<String> uploadFromFile(@RequestParam("file") MultipartFile file) throws IOException {
     return uploadFromFileService.uploadFromFile(file);
   }
 }
