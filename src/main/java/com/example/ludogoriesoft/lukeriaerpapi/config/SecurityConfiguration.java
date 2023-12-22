@@ -48,7 +48,7 @@ public class SecurityConfiguration {
                         "/test/**",
                         "/api/v1/images/**",
                         "/api/v1/auth/**",
-                        "/api/v1/upload"
+                        "/api/v1/upload/**"
                 )
                 .permitAll()
 

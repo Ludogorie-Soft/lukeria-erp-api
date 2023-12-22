@@ -29,5 +29,6 @@ public class PackageDTO {
     private String photo;
     @Min(value = 1, message = "Цената трябва да бъде по-голяма от 0!")
     private BigDecimal price;
+    private String productCode;
 
 }

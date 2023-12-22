@@ -31,4 +31,5 @@ public class Package {
     private BigDecimal price;
     @Column(name = "is_deleted")
     private boolean deleted;
+    private String productCode;
 }
