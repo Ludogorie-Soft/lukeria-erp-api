@@ -62,7 +62,7 @@ public class UploadFromFileService {
                     BigDecimal pricePackageValue;
                     pricePackageValue= BigDecimal.valueOf(pricePackageCell.getNumericCellValue());
 
-                    String englishNameValue = row.getCell(j++).getStringCellValue();
+                    String englishNameValue = row.getCell(++j).getStringCellValue();
 
                     if (nameValue != null && !nameValue.isEmpty()) {
                         Package packageForCreate = new Package();
