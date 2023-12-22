@@ -58,6 +58,12 @@ public class UploadFromFileService {
                     int piecesCartonValue;
                     piecesCartonValue = (int) piecesCartonCell.getNumericCellValue();
 
+                    Cell pricePackageCell = row.getCell(j++);
+                    BigDecimal pricePackageValue;
+                    pricePackageValue= BigDecimal.valueOf(pricePackageCell.getNumericCellValue());
+
+                    String englishNameValue = row.getCell(j++).getStringCellValue();
+
                     if (nameValue != null && !nameValue.isEmpty()) {
                         Package packageForCreate = new Package();
                         packageForCreate.setName(nameValue);
@@ -66,6 +72,8 @@ public class UploadFromFileService {
                         packageForCreate.setPlateId(plateService.getPlateById(plateIdValue));
                         packageForCreate.setPiecesCarton(piecesCartonValue);
                         packageForCreate.setProductCode(productCode);
+                        packageForCreate.setPrice(pricePackageValue);
+                        packageForCreate.setEnglishName(englishNameValue);
                         Package savedPackage = packageRepository.save(packageForCreate);
 
                         Product productForCreate = new Product();
