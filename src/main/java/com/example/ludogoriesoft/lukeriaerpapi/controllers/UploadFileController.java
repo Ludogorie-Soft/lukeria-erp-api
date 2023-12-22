@@ -19,6 +19,6 @@ public class UploadFileController {
 
   @PostMapping()
   public ResponseEntity<String> uploadFromFile(@RequestParam("file") MultipartFile file) throws IOException {
-    return uploadFromFileService.uploadFromFile(file);
+    return uploadFromFileService.packageUploadStatus(file);
   }
 }

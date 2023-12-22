@@ -25,7 +25,13 @@ public class UploadFromFileService {
     private final PlateService plateService;
     private final CartonService cartonService;
 
-    public ResponseEntity<String> uploadFromFile(MultipartFile file) throws IOException {
+  public ResponseEntity<String> packageUploadStatus(MultipartFile file) throws IOException {
+    if (packageRepository.findAll().isEmpty()) {
+      return uploadFromFile(file);
+    }return ResponseEntity.ok("File is already uploaded!");
+  }
+
+        private ResponseEntity<String> uploadFromFile(MultipartFile file) throws IOException {
         if (file != null) {
             try {
                 Workbook workbook = new XSSFWorkbook(file.getInputStream());
@@ -62,7 +68,7 @@ public class UploadFromFileService {
                     BigDecimal pricePackageValue;
                     pricePackageValue= BigDecimal.valueOf(pricePackageCell.getNumericCellValue());
 
-                    String englishNameValue = row.getCell(j++).getStringCellValue();
+                    String englishNameValue = row.getCell(++j).getStringCellValue();
 
                     if (nameValue != null && !nameValue.isEmpty()) {
                         Package packageForCreate = new Package();
