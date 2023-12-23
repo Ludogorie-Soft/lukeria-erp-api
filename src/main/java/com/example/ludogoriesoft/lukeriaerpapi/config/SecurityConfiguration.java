@@ -47,12 +47,12 @@ public class SecurityConfiguration {
                         "/api/v1/images/uploadImageForPackage",
                         "/test/**",
                         "/api/v1/images/**",
-                        "/api/v1/auth/**",
-                        "/api/v1/upload/**"
+                        "/api/v1/auth/**"
                 )
                 .permitAll()
 
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.POST,"/api/v1/upload/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/client/**").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client").hasAnyRole(ADMIN.name())

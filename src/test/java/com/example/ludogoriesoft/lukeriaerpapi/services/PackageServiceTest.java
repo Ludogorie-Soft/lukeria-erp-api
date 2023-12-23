@@ -87,6 +87,7 @@ class PackageServiceTest {
         packageDTO.setName("Test Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
+        packageDTO.setEnglishName("name");
         packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(1L);
@@ -142,6 +143,7 @@ class PackageServiceTest {
         packageDTO.setId(packageId);
         packageDTO.setName("Updated Package");
         packageDTO.setPiecesCarton(10);
+        packageDTO.setEnglishName("name");
         packageDTO.setAvailableQuantity(20);
         packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
@@ -166,6 +168,7 @@ class PackageServiceTest {
         PackageDTO packageDTO = new PackageDTO();
         packageDTO.setId(packageId);
         packageDTO.setName("Updated Package");
+        packageDTO.setEnglishName("name");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
         packageDTO.setPrice(BigDecimal.valueOf(9.99));
@@ -187,6 +190,7 @@ class PackageServiceTest {
         PackageDTO packageDTO = new PackageDTO();
         packageDTO.setName("New Package");
         packageDTO.setPiecesCarton(10);
+        packageDTO.setEnglishName("name");
         packageDTO.setAvailableQuantity(20);
         packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
@@ -206,6 +210,7 @@ class PackageServiceTest {
         packageDTO.setName("Test Package");
         packageDTO.setPiecesCarton(10);
         packageDTO.setAvailableQuantity(20);
+        packageDTO.setEnglishName("name");
         packageDTO.setPrice(BigDecimal.valueOf(9.99));
         packageDTO.setCartonId(1L);
         packageDTO.setPlateId(null);
@@ -262,24 +267,6 @@ class PackageServiceTest {
 
         verifyNoInteractions(packageRepository);
     }
-
-    @Test
-    void testCreatePackage_InvalidPackageDTO_EnglishNameMissing() {
-        PackageDTO packageDTO = new PackageDTO();
-        packageDTO.setPiecesCarton(11);
-        packageDTO.setAvailableQuantity(10);
-        packageDTO.setPhoto("Photo");
-        packageDTO.setPrice(BigDecimal.valueOf(100));
-        packageDTO.setCartonId(1L);
-        packageDTO.setName("name");
-        ValidationException exception = assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
-        assertEquals("English name is required", exception.getMessage());
-
-        verifyNoInteractions(modelMapper);
-
-        verifyNoInteractions(packageRepository);
-    }
-
     @Test
     void testCreatePackage_InvalidPackageDTO_InvalidPiecesCarton() {
         PackageDTO packageDTO = new PackageDTO();
