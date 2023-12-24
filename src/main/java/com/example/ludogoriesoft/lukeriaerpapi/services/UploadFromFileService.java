@@ -6,7 +6,10 @@ import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -25,13 +28,14 @@ public class UploadFromFileService {
     private final PlateService plateService;
     private final CartonService cartonService;
 
-  public ResponseEntity<String> packageUploadStatus(MultipartFile file) throws IOException {
-    if (packageRepository.findAll().isEmpty()) {
-      return uploadFromFile(file);
-    }return ResponseEntity.ok("File is already uploaded!");
-  }
+    public ResponseEntity<String> packageUploadStatus(MultipartFile file) throws IOException {
+        if (packageRepository.findAll().isEmpty()) {
+            return uploadFromFile(file);
+        }
+        return ResponseEntity.ok("File is already uploaded!");
+    }
 
-        private ResponseEntity<String> uploadFromFile(MultipartFile file) throws IOException {
+    private ResponseEntity<String> uploadFromFile(MultipartFile file) throws IOException {
         if (file != null) {
             try {
                 Workbook workbook = new XSSFWorkbook(file.getInputStream());
@@ -66,7 +70,7 @@ public class UploadFromFileService {
 
                     Cell pricePackageCell = row.getCell(j++);
                     BigDecimal pricePackageValue;
-                    pricePackageValue= BigDecimal.valueOf(pricePackageCell.getNumericCellValue());
+                    pricePackageValue = BigDecimal.valueOf(pricePackageCell.getNumericCellValue());
 
                     String englishNameValue = row.getCell(++j).getStringCellValue();
 

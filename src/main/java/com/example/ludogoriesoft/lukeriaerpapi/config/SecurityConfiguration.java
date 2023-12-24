@@ -53,7 +53,6 @@ public class SecurityConfiguration {
                 .permitAll()
 
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
-//                .requestMatchers(HttpMethod.POST,"/api/v1/upload/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/client/**").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client").hasAnyRole(ADMIN.name())

@@ -15,10 +15,10 @@ import java.io.IOException;
 @RequestMapping("/api/v1/upload")
 @AllArgsConstructor
 public class UploadFileController {
-  private final UploadFromFileService uploadFromFileService;
+    private final UploadFromFileService uploadFromFileService;
 
-  @PostMapping()
-  public ResponseEntity<String> uploadFromFile(@RequestParam("file") MultipartFile file) throws IOException {
-    return uploadFromFileService.packageUploadStatus(file);
-  }
+    @PostMapping()
+    public ResponseEntity<String> uploadFromFile(@RequestParam("file") MultipartFile file) throws IOException {
+        return uploadFromFileService.packageUploadStatus(file);
+    }
 }

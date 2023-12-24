@@ -31,11 +31,11 @@ public class PlateService {
         return modelMapper.map(plate, PlateDTO.class);
     }
 
-  public Plate getPlateById(Long id) throws ChangeSetPersister.NotFoundException {
-    return plateRepository
-            .findByIdAndDeletedFalse(id)
-            .orElseThrow(ChangeSetPersister.NotFoundException::new);
-  }
+    public Plate getPlateById(Long id) throws ChangeSetPersister.NotFoundException {
+        return plateRepository
+                .findByIdAndDeletedFalse(id)
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+    }
 
 
     public PlateDTO createPlate(PlateDTO plateDTO) {
