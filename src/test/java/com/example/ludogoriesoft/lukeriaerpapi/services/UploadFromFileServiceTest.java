@@ -64,11 +64,10 @@ class UploadFromFileServiceTest {
     when(packageRepository.findAll()).thenReturn(Collections.emptyList());
 
     assertThrows(
-        IOException.class,
-        () -> {
-          uploadFromFileService.packageUploadStatus(createMockMultipartFile());
-        },
-        "The file is not a valid .xlsx file.");
+            IOException.class,
+            this::callPackageUploadStatusWithMockFile,
+            "The file is not a valid .xlsx file."
+    );
   }
 
   @Test
@@ -81,6 +80,9 @@ class UploadFromFileServiceTest {
 
   }
 
+  private void callPackageUploadStatusWithMockFile() throws IOException {
+    uploadFromFileService.packageUploadStatus(createMockMultipartFile());
+  }
   private static MultipartFile getTestFile() throws IOException {
     InputStream inputStream =
         UploadFromFileServiceTest.class.getResourceAsStream(
