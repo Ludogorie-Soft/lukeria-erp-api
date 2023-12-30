@@ -56,8 +56,8 @@ public class ClientService {
         if (StringUtils.isBlank(clientDTO.getBusinessName()) && clientDTO.isBulgarianClient()) {
             throw new ValidationException("Business name is required!");
         }
-        if (!clientDTO.getIdNumEIK().matches("\\d{5,}")) {
-            throw new ValidationException("The EIK number should contain at least 5 numbers!");
+        if (!clientDTO.getIdNumEIK().matches(".{5,}")) {
+            throw new ValidationException("The EIK number should contain at least 5 symbols!");
         }
         if (StringUtils.isBlank(clientDTO.getAddress()) && clientDTO.isBulgarianClient()) {
             throw new ValidationException("Address is required!");
