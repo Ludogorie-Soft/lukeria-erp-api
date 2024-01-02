@@ -111,7 +111,7 @@ class ClientServiceTest {
         clientDTO.setAddress("address 1");
         clientDTO.setIdNumEIK("1");
         ValidationException exception = assertThrows(ValidationException.class, () -> clientService.createClient(clientDTO));
-        assertEquals("The EIK number should contain at least 5 numbers!", exception.getMessage());
+        assertEquals("The EIK number should contain at least 5 symbols!", exception.getMessage());
 
         verifyNoInteractions(modelMapper);
         verifyNoInteractions(clientRepository);
