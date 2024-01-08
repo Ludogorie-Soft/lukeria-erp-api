@@ -18,12 +18,12 @@ public class CartonController {
     private final CartonService cartonService;
 
     @GetMapping
-    public ResponseEntity<List<CartonDTO>> getAllCartons(@RequestHeader("Authorization") String auth) {
+    public ResponseEntity<List<CartonDTO>> getAllCartons() {
         return ResponseEntity.ok(cartonService.getAllCartons());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CartonDTO> getCartonById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<CartonDTO> getCartonById(@PathVariable(name = "id") Long id) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(cartonService.getCartonDTOById(id));
     }
 
