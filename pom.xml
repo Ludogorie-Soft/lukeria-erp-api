@@ -126,6 +126,11 @@
             <artifactId>poi-ooxml</artifactId>
             <version>5.2.3</version>
         </dependency>
+		<dependency>
+			<groupId>com.slack.api</groupId>
+			<artifactId>slack-api-client</artifactId>
+			<version>1.38.1</version>
+		</dependency>
     </dependencies>
 	<dependencyManagement>
 		<dependencies>
