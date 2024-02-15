@@ -2,7 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.exeptions;
 
 import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import jakarta.validation.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
+@RequiredArgsConstructor
 public class ApiExceptionHandler {
-    @Autowired
-    private SlackService slackService;
+
+    private final SlackService slackService;
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(ChangeSetPersister.NotFoundException ex) {
         String errorMessage = "Not found!";

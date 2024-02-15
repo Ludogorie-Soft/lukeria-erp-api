@@ -13,7 +13,7 @@ import java.io.IOException;
 @Slf4j
 public  class SlackService {
 
-    @Value("${slack.bot.token}")
+    @Value("${SLACK_BOT_TOKEN}")
     private String slackBotToken;
 
     public void publishMessage(String channelName, String message) {
