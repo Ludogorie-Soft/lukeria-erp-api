@@ -43,6 +43,8 @@ class MonthlyOrderProductControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+    @MockBean
+    private SlackService slackService;
 
     @MockBean
     private MonthlyOrderProductService monthlyOrderProductService;

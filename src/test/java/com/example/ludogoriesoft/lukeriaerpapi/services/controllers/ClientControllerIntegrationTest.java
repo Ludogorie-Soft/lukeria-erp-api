@@ -33,7 +33,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(value = ClientController.class,
         useDefaultFilters = false,
@@ -56,6 +55,8 @@ class ClientControllerIntegrationTest {
 
     @MockBean
     private ClientService clientService;
+    @MockBean
+    private SlackService slackService;
 
     private static String asJsonString(final Object obj) {
         try {

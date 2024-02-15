@@ -58,6 +58,8 @@ class OrderControllerIntegrationTest {
 
     @MockBean
     private OrderService orderService;
+    @MockBean
+    private SlackService slackService;
 
     private static String asJsonString(final Object obj) {
         try {

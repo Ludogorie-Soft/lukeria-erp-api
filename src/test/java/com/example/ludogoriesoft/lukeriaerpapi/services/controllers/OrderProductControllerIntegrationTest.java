@@ -54,6 +54,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class OrderProductControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private SlackService slackService;
 
     @MockBean
     private OrderProductService orderProductService;

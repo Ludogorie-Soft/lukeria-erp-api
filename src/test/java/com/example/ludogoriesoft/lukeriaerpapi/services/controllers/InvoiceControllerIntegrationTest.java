@@ -35,7 +35,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(value = InvoiceController.class,
         useDefaultFilters = false,
@@ -55,6 +54,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class InvoiceControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private SlackService slackService;
 
     @MockBean
     private InvoiceService invoiceService;

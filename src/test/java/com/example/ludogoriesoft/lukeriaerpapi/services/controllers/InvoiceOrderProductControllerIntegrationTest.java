@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Arrays;
 import java.util.List;
 
-
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(value = InvoiceOrderProductController.class,
         useDefaultFilters = false,
@@ -47,6 +46,8 @@ import java.util.List;
     private InvoiceOrderProductController invoiceOrderProductController;
     @MockBean
     private InvoiceOrderProductService invoiceOrderProductService;
+    @MockBean
+    private SlackService slackService;
 
     @BeforeEach
     public void setup() {

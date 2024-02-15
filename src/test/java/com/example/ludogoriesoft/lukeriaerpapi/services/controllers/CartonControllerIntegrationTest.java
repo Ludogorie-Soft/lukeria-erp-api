@@ -33,7 +33,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(value = CartonController.class,
         useDefaultFilters = false,
@@ -52,6 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class CartonControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private SlackService slackService;
 
     @MockBean
     private CartonService cartonService;

@@ -55,6 +55,8 @@ class ProductControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private SlackService slackService;
 
     @MockBean
     private ProductService productService;

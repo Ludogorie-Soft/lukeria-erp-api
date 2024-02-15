@@ -53,7 +53,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PlateControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
-
+    @MockBean
+    private SlackService slackService;
     @MockBean
     private PlateService plateService;
 
