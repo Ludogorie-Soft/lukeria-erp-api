@@ -106,6 +106,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.PUT, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
                 .requestMatchers("/api/v1/invoiceOrderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
+                .requestMatchers( "/api/v1/test/order_product/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.POST,"/api/v1/upload/**").hasAnyRole(ADMIN.name())
                 .anyRequest()
                 .authenticated()
