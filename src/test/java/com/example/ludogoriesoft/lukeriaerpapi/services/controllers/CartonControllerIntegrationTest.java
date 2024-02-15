@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.CartonController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.CartonService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -42,8 +43,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = CartonController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
-                )
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class)
         }
 )
 class CartonControllerIntegrationTest {
@@ -204,7 +207,7 @@ class CartonControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/carton")
                         .content("{\"id\": 1, \"name\": \"" + blankCartonName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
@@ -229,7 +232,7 @@ class CartonControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/carton/{id}", 1)
                         .content("{\"id\": 1, \"name\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test

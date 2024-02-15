@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.InvoiceController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.InvoiceService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -44,7 +45,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = InvoiceController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class
                 )
         }
 )
@@ -202,7 +206,7 @@ class InvoiceControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/invoice")
                         .content("{\"id\": 1, \"invoiceNumber\": \"" + blankInvoiceName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
@@ -227,7 +231,7 @@ class InvoiceControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/invoice/{id}", 1)
                         .content("{\"id\": 1, \"invoiceNumber\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test

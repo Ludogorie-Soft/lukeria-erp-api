@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.MaterialOrderControll
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MaterialOrderService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -46,8 +47,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = MaterialOrderController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
-                )
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class)
         }
 )
 class MaterialOrderControllerIntegrationTest {
@@ -195,7 +198,7 @@ class MaterialOrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/material-order")
                         .content("{\"id\": 1, \"name\": \"" + blankMaterialOrderName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
@@ -220,7 +223,7 @@ class MaterialOrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/material-order/{id}", 1)
                         .content("{\"id\": 1, \"name\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.services.UserService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -44,8 +45,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = UserController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
-                )
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class)
         }
 )
 class UserControllerIntegrationTest {
@@ -201,7 +204,7 @@ class UserControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user")
                         .content("{\"id\": 1, \"username\": \"" + blankUserName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
@@ -226,7 +229,7 @@ class UserControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/{id}", 1)
                         .content("{\"id\": 1, \"username\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test

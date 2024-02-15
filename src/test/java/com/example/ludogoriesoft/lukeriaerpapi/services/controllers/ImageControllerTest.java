@@ -3,6 +3,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.ImageController;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ImageService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,8 +36,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = ImageController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
-                )
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class)
         }
 )
 class ImageControllerTest {
