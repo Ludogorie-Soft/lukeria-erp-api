@@ -12,8 +12,8 @@ import java.io.IOException;
 @Service
 @Slf4j
 public class SlackService {
-
-    private final static String slackBotToken = "xoxb-5129333743796-6612445246756-NOyJnBZYtYVowyTcSSBYpgme";
+    @Value("${SLACK_BOT_TOKEN}")
+    private String slackBotToken ;
 
     public void publishMessage(String channelName, String message) {
         MethodsClient client = Slack.getInstance().methods();
