@@ -45,9 +45,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests()
                 .requestMatchers(
                         "/api/v1/images/uploadImageForPackage",
-                        "/api/v1/test/**",
                         "/api/v1/images/**",
-                        "/api/v1/auth/**"
+                        "/api/v1/auth/**",
+                        "/api/v1/query/**"
                 )
                 .permitAll()
 

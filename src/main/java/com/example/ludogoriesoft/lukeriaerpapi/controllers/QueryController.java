@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/test")
+@RequestMapping("/api/v1/query")
 @AllArgsConstructor
 public class QueryController {
     ClientQueryService clientQueryService;
     ModelMapper modelMapper;
 
-    @GetMapping("/order_product/{id}")
+    @GetMapping("/orderProduct/{id}")
     public List<OrderProductDTO> getOrderProductsByOrderId(@PathVariable(name = "id") Long id) {
         List<OrderProduct> orderProductDTOS = clientQueryService.getOrderProductsByOrderId(id);
         return orderProductDTOS.stream().map(orderProduct -> modelMapper.map(orderProduct, OrderProductDTO.class)).toList();
