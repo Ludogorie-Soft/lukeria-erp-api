@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.OrderController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.OrderService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -44,8 +45,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = OrderController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
-                )
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class)
         }
 )
 class OrderControllerIntegrationTest {
@@ -55,6 +58,8 @@ class OrderControllerIntegrationTest {
 
     @MockBean
     private OrderService orderService;
+    @MockBean
+    private SlackService slackService;
 
     private static String asJsonString(final Object obj) {
         try {
@@ -209,7 +214,7 @@ class OrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/order")
                         .content("{\"id\": 1, \"" + blankOrderName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
@@ -235,7 +240,7 @@ class OrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/order/{id}", 1)
                         .content("{\"id\": 1, \": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test

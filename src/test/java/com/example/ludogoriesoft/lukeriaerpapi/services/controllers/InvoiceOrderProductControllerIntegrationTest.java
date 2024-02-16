@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.InvoiceOrderProductCo
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.InvoiceOrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.InvoiceOrderProductService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Arrays;
 import java.util.List;
 
-
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(value = InvoiceOrderProductController.class,
         useDefaultFilters = false,
@@ -33,17 +33,21 @@ import java.util.List;
                         value = InvoiceOrderProductController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
-                )
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class)
         }
 )
-public class InvoiceOrderProductControllerIntegrationTest {
+ class InvoiceOrderProductControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
     private InvoiceOrderProductController invoiceOrderProductController;
     @MockBean
     private InvoiceOrderProductService invoiceOrderProductService;
+    @MockBean
+    private SlackService slackService;
 
     @BeforeEach
     public void setup() {

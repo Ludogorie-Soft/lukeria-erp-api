@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.ClientController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ClientService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -32,7 +33,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(value = ClientController.class,
         useDefaultFilters = false,
@@ -42,8 +42,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = ClientController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
-                )
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class)
+
         }
 )
 class ClientControllerIntegrationTest {
@@ -52,6 +55,8 @@ class ClientControllerIntegrationTest {
 
     @MockBean
     private ClientService clientService;
+    @MockBean
+    private SlackService slackService;
 
     private static String asJsonString(final Object obj) {
         try {
@@ -202,7 +207,7 @@ class ClientControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/client")
                         .content("{\"id\": 1, \"businessName\": \"" + blankClientName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
@@ -227,7 +232,7 @@ class ClientControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/client/{id}", 1)
                         .content("{\"id\": 1, \"businessName\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test

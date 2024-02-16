@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.ProductController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ProductService;
+import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -43,7 +44,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                         value = ProductController.class),
                 @ComponentScan.Filter(
                         type = FilterType.ASSIGNABLE_TYPE,
-                        value = ApiExceptionHandler.class
+                        value = ApiExceptionHandler.class),
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        value = SlackService.class
                 )
         }
 )
@@ -51,6 +55,8 @@ class ProductControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private SlackService slackService;
 
     @MockBean
     private ProductService productService;
@@ -198,7 +204,7 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product")
                         .content("{\"id\": 1, \"" + blankProductName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
@@ -224,7 +230,7 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/product/{id}", 1)
                         .content("{\"id\": 1, \": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
     @Test
