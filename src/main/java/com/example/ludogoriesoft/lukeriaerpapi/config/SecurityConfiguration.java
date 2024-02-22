@@ -100,6 +100,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/material-order/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/invoice/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/invoice/number/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
