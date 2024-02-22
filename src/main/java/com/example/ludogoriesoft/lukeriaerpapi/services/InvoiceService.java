@@ -15,8 +15,8 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class InvoiceService {
-    public static final Long FIRST_INVOICE_NUMBER = 2000000000L;
-    public static final Long FIRST_INVOICE_NUMBER_ABROAD = 1000000000L;
+    public static final Long FIRST_INVOICE_NUMBER = 2000001330L;
+    public static final Long FIRST_INVOICE_NUMBER_ABROAD = 1000000297L;
     private final InvoiceRepository invoiceRepository;
     private final ModelMapper modelMapper;
 
