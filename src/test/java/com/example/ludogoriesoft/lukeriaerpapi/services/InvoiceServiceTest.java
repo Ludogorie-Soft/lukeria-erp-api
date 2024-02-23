@@ -43,30 +43,30 @@ class InvoiceServiceTest {
 
     @Test
     void testGenerateNextInvoiceNumber() {
-        Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(2000000001L);
+        Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(2000001330L);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
-        assertEquals(Long.valueOf(2000000002L), nextInvoiceNumber);
+        assertEquals(Long.valueOf(2000001331L), nextInvoiceNumber);
     }
 
     @Test
     void testGenerateNextInvoiceNumberWithIdOne() {
         Mockito.when(invoiceRepository.findLastInvoiceNumberAbroad()).thenReturn(1000000000L);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithOne();
-        assertEquals(Long.valueOf(1000000001L), nextInvoiceNumber);
+        assertEquals(Long.valueOf(1000000297L), nextInvoiceNumber);
     }
 
     @Test
     void testGenerateNextInvoiceNumberWhenNoLastNumber() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(null);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
-        assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
+        assertEquals(Long.valueOf(2000001330L), nextInvoiceNumber);
     }
 
     @Test
     void testGenerateNextInvoiceNumberWhenLastNumberIsLessThanFirst() {
         Mockito.when(invoiceRepository.findLastInvoiceNumber()).thenReturn(1999999999L);
         Long nextInvoiceNumber = invoiceService.findLastInvoiceNumberStartingWithTwo();
-        assertEquals(Long.valueOf(2000000000L), nextInvoiceNumber);
+        assertEquals(Long.valueOf(2000001330L), nextInvoiceNumber);
     }
 
     @Test
