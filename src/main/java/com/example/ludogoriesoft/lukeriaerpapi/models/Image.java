@@ -21,6 +21,10 @@ public class Image {
 
     private UUID name;
 
+    @OneToOne
+    @JoinColumn(name = "package_id")
+    private Package packageImage;
+
     @CreationTimestamp
     private LocalDateTime uploadAt;
 
