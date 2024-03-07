@@ -72,4 +72,26 @@ public class ImageServiceDigitalOcean {
         }
         return null;
     }
+    public byte[] getImageBytes(String objectKey) {
+        try {
+            // Fetch the image bytes from DigitalOcean Spaces
+            GetObjectResponse objectResponse = minioClient.getObject(GetObjectArgs.builder()
+                    .bucket(digitalOceanBucketName)
+                    .object(objectKey)
+                    .build());
+
+            // Get the input stream from the object response
+            try (InputStream inputStream = objectResponse) {
+                // Read the image bytes
+                return IOUtils.toByteArray(inputStream);
+            }
+        } catch (MinioException e) {
+            // Handle Minio-specific exceptions
+            log.warn("Minio error: " + e.getMessage());
+        } catch (Exception e) {
+            // Handle other exceptions
+            log.warn("An unexpected error occurred: " + e.getMessage());
+        }
+        return null;
+    }
 }
