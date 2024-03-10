@@ -1,7 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.models.Image;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ImageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,13 +19,18 @@ import java.util.UUID;
 public class ImageService {
     private final PackageRepository packageRepository;
     private final PlateRepository plateRepository;
+    private final ImageRepository imageRepository;
+    private final ImageServiceDigitalOcean imageServiceDigitalOcean;
     @Value("${image.upload.directory}")
     private final String imageDirectory;
 
-    public ImageService(@Value("${image.upload.directory}") String imageDirectory, PackageRepository packageRepository, PlateRepository plateRepository) {
+
+    public ImageService(@Value("${image.upload.directory}") String imageDirectory, PackageRepository packageRepository, PlateRepository plateRepository, ImageRepository imageRepository, ImageServiceDigitalOcean imageServiceDigitalOcean) {
         this.imageDirectory = imageDirectory;
         this.packageRepository = packageRepository;
         this.plateRepository = plateRepository;
+        this.imageRepository = imageRepository;
+        this.imageServiceDigitalOcean = imageServiceDigitalOcean;
     }
 
     public String saveFileAndGetUniqueFilename(MultipartFile file) throws IOException {
@@ -33,8 +40,8 @@ public class ImageService {
         return uniqueFilename;
     }
 
-    String generateUniqueFilename(String originalFilename) {
-        return UUID.randomUUID() + "_" + originalFilename;
+    private String generateUniqueFilename(String originalFilename) {
+        return UUID.randomUUID().toString();
     }
 
     Path createFilePath(String uniqueFilename) throws IOException {
@@ -43,14 +50,15 @@ public class ImageService {
         return directoryPath.resolve(uniqueFilename);
     }
 
-    public String saveImageForPackage(MultipartFile file) throws IOException {
-        String uniqueFilename = saveFileAndGetUniqueFilename(file);
-
+    public String saveImageForPackage(MultipartFile file) {
+        UUID fileName = UUID.randomUUID();
+        Image image = new Image();
+        image.setName(fileName);
         Package aPackage = packageRepository.findFirstByDeletedFalseOrderByIdDesc();
-        aPackage.setPhoto(uniqueFilename);
-        packageRepository.save(aPackage);
-
-        return uniqueFilename;
+        image.setPackageImage(aPackage);
+        imageRepository.save(image);
+        String imageNameInSpace = imageServiceDigitalOcean.uploadImage(file, image.getName().toString());
+        return "Name of the Image - " + imageNameInSpace;
     }
 
     public String editImageForPackage(MultipartFile file, Long packageId) throws IOException {

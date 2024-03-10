@@ -21,6 +21,7 @@ public class MinioConfig {
     public MinioClient minioClient() {
         return MinioClient.builder()
                 .endpoint(endpoint)
+                .region("fra1")
                 .credentials(accessKey, secretKey)
                 .build();
     }

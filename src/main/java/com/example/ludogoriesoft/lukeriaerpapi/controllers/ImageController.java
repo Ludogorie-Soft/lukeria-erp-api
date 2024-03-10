@@ -18,7 +18,7 @@ public class ImageController {
     private final ImageService imageService;
 
     @PostMapping("/uploadImageForPackage")
-    public ResponseEntity<String> uploadImageForPackage(MultipartFile file) throws IOException {
+    public ResponseEntity<String> uploadImageForPackage(MultipartFile file) {
         String imagePath = imageService.saveImageForPackage(file);
         return ResponseEntity.ok(imagePath);
     }

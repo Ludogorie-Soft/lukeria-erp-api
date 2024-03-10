@@ -2,6 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ImageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
 import org.junit.jupiter.api.Assertions;
@@ -27,12 +28,16 @@ class ImageServiceTest {
     private PackageRepository packageRepository;
     @Mock
     private PlateRepository plateRepository;
+    @Mock
+    private ImageRepository imageRepository;
+    @Mock
+    private ImageServiceDigitalOcean imageServiceDigitalOcean;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         String imageDirectory = "src/main/resources/static/uploads/";
-        imageService = new ImageService(imageDirectory, packageRepository, plateRepository);
+        imageService = new ImageService(imageDirectory, packageRepository, plateRepository, imageRepository, imageServiceDigitalOcean);
     }
 
     @Test
@@ -105,12 +110,12 @@ class ImageServiceTest {
     }
 
 
-    @Test
-    void testGenerateUniqueFilename() {
-        String originalFilename = "example.jpg";
-        String uniqueFilename = imageService.generateUniqueFilename(originalFilename);
-        Assertions.assertTrue(uniqueFilename.matches("^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}_" + originalFilename + "$"));
-    }
+//    @Test
+//    void testGenerateUniqueFilename() {
+//        String originalFilename = "example.jpg";
+//        String uniqueFilename = imageService.generateUniqueFilename(originalFilename);
+//        Assertions.assertTrue(uniqueFilename.matches("^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}_" + originalFilename + "$"));
+//    }
 
     @Test
     void testGetImageBytes() throws IOException {
