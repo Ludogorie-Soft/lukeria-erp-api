@@ -25,6 +25,10 @@ public class Image {
     @JoinColumn(name = "package_id")
     private Package packageImage;
 
+    @OneToOne
+    @JoinColumn(name = "plate_id")
+    private Plate plateImage;
+
     @CreationTimestamp
     private LocalDateTime uploadAt;
 

@@ -37,7 +37,7 @@ class ImageServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         String imageDirectory = "src/main/resources/static/uploads/";
-        imageService = new ImageService(imageDirectory, packageRepository, plateRepository, imageRepository, imageServiceDigitalOcean);
+        imageService = new ImageService( packageRepository, plateRepository, imageRepository, imageServiceDigitalOcean);
     }
 
     @Test
@@ -110,12 +110,6 @@ class ImageServiceTest {
     }
 
 
-//    @Test
-//    void testGenerateUniqueFilename() {
-//        String originalFilename = "example.jpg";
-//        String uniqueFilename = imageService.generateUniqueFilename(originalFilename);
-//        Assertions.assertTrue(uniqueFilename.matches("^\\p{XDigit}{8}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{4}-\\p{XDigit}{12}_" + originalFilename + "$"));
-//    }
 
     @Test
     void testGetImageBytes() throws IOException {
@@ -194,7 +188,7 @@ class ImageServiceTest {
     @Test
     void testEditImageForPlateThrowsNullPointerException2() throws IOException {
         Long plateId = 1L;
-        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null); // Връщаме null вместо Optional.of(aPlate)
+        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null);
 
         MockMultipartFile file = new MockMultipartFile(
                 "test-image.jpg",
