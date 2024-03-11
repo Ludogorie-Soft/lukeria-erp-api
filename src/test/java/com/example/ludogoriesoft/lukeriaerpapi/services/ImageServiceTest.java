@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
-import java.io.IOException;
 import java.util.Optional;
+
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
@@ -33,7 +33,7 @@ class ImageServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        imageService = new ImageService( packageRepository, plateRepository, imageRepository, imageServiceDigitalOcean);
+        imageService = new ImageService(packageRepository, plateRepository, imageRepository, imageServiceDigitalOcean);
     }
 
     @Test
@@ -42,12 +42,7 @@ class ImageServiceTest {
         Package aPackage = new Package();
         when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.of(aPackage));
 
-        MockMultipartFile file = new MockMultipartFile(
-                "test-image.jpg",
-                "test-image.jpg",
-                "image/jpeg",
-                "Test image content".getBytes()
-        );
+        MockMultipartFile file = new MockMultipartFile("test-image.jpg", "test-image.jpg", "image/jpeg", "Test image content".getBytes());
 
         String uniqueFilename = imageService.editImageForPackage(file, packageId);
 
@@ -59,12 +54,7 @@ class ImageServiceTest {
     void testEditImageForPackageThrowsNullPointerException() {
         Long packageId = 1L;
         when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(null);
-        MockMultipartFile file = new MockMultipartFile(
-                "test-image.jpg",
-                "test-image.jpg",
-                "image/jpeg",
-                "Test image content".getBytes()
-        );
+        MockMultipartFile file = new MockMultipartFile("test-image.jpg", "test-image.jpg", "image/jpeg", "Test image content".getBytes());
 
         assertThrows(NullPointerException.class, () -> {
             imageService.editImageForPackage(file, packageId);
@@ -77,20 +67,12 @@ class ImageServiceTest {
         Long packageId = 1L;
         when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(null); // Връщаме null вместо Optional.of(aPackage)
 
-        MockMultipartFile file = new MockMultipartFile(
-                "test-image.jpg",
-                "test-image.jpg",
-                "image/jpeg",
-                "Test image content".getBytes()
-        );
+        MockMultipartFile file = new MockMultipartFile("test-image.jpg", "test-image.jpg", "image/jpeg", "Test image content".getBytes());
 
         assertThrows(NullPointerException.class, () -> {
             imageService.editImageForPackage(file, packageId);
         });
     }
-
-
-
 
 
     @Test
@@ -107,12 +89,7 @@ class ImageServiceTest {
         Plate aPlate = new Plate();
         when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(Optional.of(aPlate));
 
-        MockMultipartFile file = new MockMultipartFile(
-                "test-image.jpg",
-                "test-image.jpg",
-                "image/jpeg",
-                "Test image content".getBytes()
-        );
+        MockMultipartFile file = new MockMultipartFile("test-image.jpg", "test-image.jpg", "image/jpeg", "Test image content".getBytes());
 
         String uniqueFilename = imageService.editImageForPlate(file, plateId);
 
@@ -124,12 +101,7 @@ class ImageServiceTest {
     void testEditImageForPlateThrowsNullPointerException() {
         Long plateId = 1L;
         when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null);
-        MockMultipartFile file = new MockMultipartFile(
-                "test-image.jpg",
-                "test-image.jpg",
-                "image/jpeg",
-                "Test image content".getBytes()
-        );
+        MockMultipartFile file = new MockMultipartFile("test-image.jpg", "test-image.jpg", "image/jpeg", "Test image content".getBytes());
 
         assertThrows(NullPointerException.class, () -> {
             imageService.editImageForPlate(file, plateId);
@@ -142,12 +114,7 @@ class ImageServiceTest {
         Long plateId = 1L;
         when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null);
 
-        MockMultipartFile file = new MockMultipartFile(
-                "test-image.jpg",
-                "test-image.jpg",
-                "image/jpeg",
-                "Test image content".getBytes()
-        );
+        MockMultipartFile file = new MockMultipartFile("test-image.jpg", "test-image.jpg", "image/jpeg", "Test image content".getBytes());
 
         assertThrows(NullPointerException.class, () -> {
             imageService.editImageForPlate(file, plateId);
