@@ -186,7 +186,6 @@ class PlateServiceTest {
         Plate existingPlate = new Plate();
         existingPlate.setId(plateId);
         existingPlate.setName("Plate 1");
-        existingPlate.setPhoto("Photo 1");
         existingPlate.setAvailableQuantity(10);
         existingPlate.setPrice(BigDecimal.valueOf(10.0));
 

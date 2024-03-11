@@ -57,6 +57,7 @@ public class ImageService {
     }
 
     public void deleteImageFromSpace(String imageName) {
+        imageRepository.delete(imageRepository.findByName(UUID.fromString(imageName)));
         imageServiceDigitalOcean.deleteImage(imageName);
     }
 
