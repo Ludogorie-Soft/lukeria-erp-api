@@ -54,4 +54,17 @@ public class ImageServiceDigitalOcean {
         }
         return null;
     }
+    public void deleteImage(String objectName) {
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(digitalOceanBucketName)
+                    .object(objectName)
+                    .build());
+            log.info("Image deleted successfully: " + objectName);
+        } catch (MinioException e) {
+            log.warn("Minio error: " + e.getMessage());
+        } catch (Exception e) {
+            log.warn("An unexpected error occurred: " + e.getMessage());
+        }
+    }
 }
