@@ -38,7 +38,7 @@ class ImageServiceTest {
     }
 
     @Test
-    void testEditImageForPackage() throws IOException {
+    void testEditImageForPackage() {
         Long packageId = 1L;
         Package aPackage = new Package();
         when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.of(aPackage));
