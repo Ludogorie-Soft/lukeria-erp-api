@@ -69,6 +69,7 @@ public class PlateService {
         existingPlate.setPrice(plateDTO.getPrice());
         if (existingPlate.getPhoto() != null) {
             imageService.deleteImageFromSpace(existingPlate.getPhoto());
+            existingPlate.setPhoto(null);
         }
         Plate updatedPlate = plateRepository.save(existingPlate);
         updatedPlate.setId(id);
