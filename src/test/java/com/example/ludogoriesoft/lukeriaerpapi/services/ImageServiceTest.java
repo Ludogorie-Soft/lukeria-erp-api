@@ -33,7 +33,6 @@ class ImageServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        String imageDirectory = "src/main/resources/static/uploads/";
         imageService = new ImageService( packageRepository, plateRepository, imageRepository, imageServiceDigitalOcean);
     }
 
