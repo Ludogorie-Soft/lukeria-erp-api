@@ -47,6 +47,10 @@ public class PackageService {
         Package existingPackage = packageRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
 
+        if (existingPackage.getPhoto() != null) {
+            imageService.deleteImageFromSpace(existingPackage.getPhoto());
+        }
+
         Package updatedPackage = modelMapper.map(packageDTO, Package.class);
         updatedPackage.setId(existingPackage.getId());
         packageRepository.save(updatedPackage);

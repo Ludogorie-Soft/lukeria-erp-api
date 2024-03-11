@@ -35,8 +35,6 @@ public class ImageService {
 
     public String editImageForPackage(MultipartFile file, Long packageId) {
         Package aPackage = packageRepository.findByIdAndDeletedFalse(packageId).orElseThrow(() -> new PackageNotFoundException(packageId));
-        imageServiceDigitalOcean.deleteImage(aPackage.getPhoto());
-        imageRepository.delete(imageRepository.findByName(UUID.fromString(aPackage.getPhoto())));
         aPackage.setPhoto(createImageForSave(aPackage, null));
         imageServiceDigitalOcean.uploadImage(file, aPackage.getPhoto());
         return aPackage.getPhoto();
@@ -49,8 +47,6 @@ public class ImageService {
 
     public String editImageForPlate(MultipartFile file, Long plateId) {
         Plate plate = plateRepository.findByIdAndDeletedFalse(plateId).orElseThrow(() -> new PlateNotFoundException(plateId));
-        imageServiceDigitalOcean.deleteImage(plate.getPhoto());
-        imageRepository.delete(imageRepository.findByName(UUID.fromString(plate.getPhoto())));
         plate.setPhoto(createImageForSave(null, plate));
         imageServiceDigitalOcean.uploadImage(file, plate.getPhoto());
         return plate.getPhoto();
@@ -60,11 +56,14 @@ public class ImageService {
         return (imageServiceDigitalOcean.getImageByName(imageName));
     }
 
+    public void deleteImageFromSpace(String imageName) {
+        imageServiceDigitalOcean.deleteImage(imageName);
+    }
+
     private String createImageForSave(Package pac, Plate plate) {
         UUID fileName = UUID.randomUUID();
         Image image = new Image();
         image.setName(fileName);
-        image.setPackageImage(pac);
         imageRepository.save(image);
         if (pac != null) {
             pac.setPhoto(fileName.toString());
