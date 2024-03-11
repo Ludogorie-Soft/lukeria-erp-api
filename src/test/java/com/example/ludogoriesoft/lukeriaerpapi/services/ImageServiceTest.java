@@ -5,19 +5,14 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ImageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
-
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
-
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
@@ -57,12 +52,29 @@ class ImageServiceTest {
 
         String uniqueFilename = imageService.editImageForPackage(file, packageId);
 
-        Assertions.assertNotNull(aPackage); // Проверка за null стойност
+        Assertions.assertNotNull(aPackage);
         Assertions.assertEquals(uniqueFilename, aPackage.getPhoto());
     }
 
     @Test
-    void testEditImageForPackageThrowsNullPointerException() throws IOException {
+    void testEditImageForPackageThrowsNullPointerException() {
+        Long packageId = 1L;
+        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(null);
+        MockMultipartFile file = new MockMultipartFile(
+                "test-image.jpg",
+                "test-image.jpg",
+                "image/jpeg",
+                "Test image content".getBytes()
+        );
+
+        assertThrows(NullPointerException.class, () -> {
+            imageService.editImageForPackage(file, packageId);
+        });
+    }
+
+
+    @Test
+    void testEditImageForPackageThrowsNullPointerException2() {
         Long packageId = 1L;
         when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(null); // Връщаме null вместо Optional.of(aPackage)
 
@@ -79,38 +91,19 @@ class ImageServiceTest {
     }
 
 
-    @Test
-    void testEditImageForPackageThrowsNullPointerException2() throws IOException {
-        Long packageId = 1L;
-        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(null); // Връщаме null вместо Optional.of(aPackage)
-
-        MockMultipartFile file = new MockMultipartFile(
-                "test-image.jpg",
-                "test-image.jpg",
-                "image/jpeg",
-                "Test image content".getBytes()
-        );
-
-        assertThrows(NullPointerException.class, () -> {
-            imageService.editImageForPackage(file, packageId);
-        });
-    }
-
-
 
 
 
     @Test
-    void testGetImageBytesNonExistentImage() throws IOException {
-        String nonExistentImageName = "non-existent-image.jpg"; // Подразбира се, че това изображение не съществува
-
+    void testGetImageBytesNonExistentImage() {
+        String nonExistentImageName = "non-existent-image.jpg";
         byte[] imageBytes = imageService.getImageBytes(nonExistentImageName);
 
         assertNull(imageBytes);
     }
 
     @Test
-    void testEditImageForPlate() throws IOException {
+    void testEditImageForPlate() {
         Long plateId = 1L;
         Plate aPlate = new Plate();
         when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(Optional.of(aPlate));
@@ -124,15 +117,14 @@ class ImageServiceTest {
 
         String uniqueFilename = imageService.editImageForPlate(file, plateId);
 
-        Assertions.assertNotNull(aPlate); // Проверка за null стойност
+        Assertions.assertNotNull(aPlate);
         Assertions.assertEquals(uniqueFilename, aPlate.getPhoto());
     }
 
     @Test
-    void testEditImageForPlateThrowsNullPointerException() throws IOException {
+    void testEditImageForPlateThrowsNullPointerException() {
         Long plateId = 1L;
-        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null); // Връщаме null вместо Optional.of(aPlate)
-
+        when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null);
         MockMultipartFile file = new MockMultipartFile(
                 "test-image.jpg",
                 "test-image.jpg",
@@ -147,7 +139,7 @@ class ImageServiceTest {
 
 
     @Test
-    void testEditImageForPlateThrowsNullPointerException2() throws IOException {
+    void testEditImageForPlateThrowsNullPointerException2() {
         Long plateId = 1L;
         when(plateRepository.findByIdAndDeletedFalse(plateId)).thenReturn(null);
 
