@@ -1,97 +1,81 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.PackageNotFoundException;
+import com.example.ludogoriesoft.lukeriaerpapi.exeptions.PlateNotFoundException;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Image;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ImageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.*;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class ImageService {
     private final PackageRepository packageRepository;
     private final PlateRepository plateRepository;
-    @Value("${image.upload.directory}")
-    private final String imageDirectory;
+    private final ImageRepository imageRepository;
+    private final ImageServiceDigitalOcean imageServiceDigitalOcean;
 
-    public ImageService(@Value("${image.upload.directory}") String imageDirectory, PackageRepository packageRepository, PlateRepository plateRepository) {
-        this.imageDirectory = imageDirectory;
-        this.packageRepository = packageRepository;
-        this.plateRepository = plateRepository;
+    public String saveImageForPackage(MultipartFile file) {
+        String imageName = createImageForSave(packageRepository.findFirstByDeletedFalseOrderByIdDesc());
+        return imageServiceDigitalOcean.uploadImage(file, imageName);
     }
 
-    public String saveFileAndGetUniqueFilename(MultipartFile file) throws IOException {
-        String uniqueFilename = generateUniqueFilename(file.getOriginalFilename());
-        Path filePath = createFilePath(uniqueFilename);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        return uniqueFilename;
-    }
-
-    String generateUniqueFilename(String originalFilename) {
-        return UUID.randomUUID() + "_" + originalFilename;
-    }
-
-    Path createFilePath(String uniqueFilename) throws IOException {
-        Path directoryPath = Paths.get(imageDirectory);
-        Files.createDirectories(directoryPath);
-        return directoryPath.resolve(uniqueFilename);
-    }
-
-    public String saveImageForPackage(MultipartFile file) throws IOException {
-        String uniqueFilename = saveFileAndGetUniqueFilename(file);
-
-        Package aPackage = packageRepository.findFirstByDeletedFalseOrderByIdDesc();
-        aPackage.setPhoto(uniqueFilename);
-        packageRepository.save(aPackage);
-
-        return uniqueFilename;
-    }
-
-    public String editImageForPackage(MultipartFile file, Long packageId) throws IOException {
-        String uniqueFilename = saveFileAndGetUniqueFilename(file);
-
-        Optional<Package> aPackage = packageRepository.findByIdAndDeletedFalse(packageId);
-        aPackage.ifPresent(pkg -> {
-            pkg.setPhoto(uniqueFilename);
-            packageRepository.save(pkg);
-        });
-
-        return uniqueFilename;
-    }
-
-    public byte[] getImageBytes(String imageName) throws IOException {
-        try {
-            Path imagePath = Paths.get(imageDirectory, imageName);
-            return Files.readAllBytes(imagePath);
-        } catch (NoSuchFileException e) {
-            return new byte[0];
+    public String editImageForPackage(MultipartFile file, Long packageId) {
+        if (!file.isEmpty()) {
+            Package aPackage = packageRepository.findByIdAndDeletedFalse(packageId).orElseThrow(() -> new PackageNotFoundException(packageId));
+            aPackage.setPhoto(createImageForSave(aPackage));
+            imageServiceDigitalOcean.uploadImage(file, aPackage.getPhoto());
+            return aPackage.getPhoto();
         }
+        return null;
     }
 
-    public String saveImageForPlate(MultipartFile file) throws IOException {
-        String uniqueFilename = saveFileAndGetUniqueFilename(file);
-        Plate plate = plateRepository.findFirstByDeletedFalseOrderByIdDesc();
-        plate.setPhoto(uniqueFilename);
-        plateRepository.save(plate);
-
-        return uniqueFilename;
+    public String saveImageForPlate(MultipartFile file) {
+        String imageName = createImageForSave(plateRepository.findFirstByDeletedFalseOrderByIdDesc());
+        return imageServiceDigitalOcean.uploadImage(file, imageName);
     }
 
-    public String editImageForPlate(MultipartFile file, Long packageId) throws IOException {
-        String uniqueFilename = saveFileAndGetUniqueFilename(file);
+    public String editImageForPlate(MultipartFile file, Long plateId) {
+        if (!file.isEmpty()) {
+            Plate plate = plateRepository.findByIdAndDeletedFalse(plateId).orElseThrow(() -> new PlateNotFoundException(plateId));
+            plate.setPhoto(createImageForSave(plate));
+            imageServiceDigitalOcean.uploadImage(file, plate.getPhoto());
+            return plate.getPhoto();
+        }
+        return null;
+    }
 
-        Optional<Plate> plate = plateRepository.findByIdAndDeletedFalse(packageId);
-        plate.ifPresent(aPlate -> {
-            aPlate.setPhoto(uniqueFilename);
-            plateRepository.save(aPlate);
-        });
-        return uniqueFilename;
+    public byte[] getImageBytes(String imageName) {
+        return (imageServiceDigitalOcean.getImageByName(imageName));
+    }
+
+    public void deleteImageFromSpace(String imageName) {
+        imageRepository.delete(imageRepository.findByName(UUID.fromString(imageName)));
+        imageServiceDigitalOcean.deleteImage(imageName);
+    }
+
+    private String createImageForSave(Object entity) {
+        UUID fileName = UUID.randomUUID();
+        Image image = new Image();
+        image.setName(fileName);
+        if (entity instanceof Package pack) {
+            pack.setPhoto(fileName.toString());
+            packageRepository.save(pack);
+            image.setPackageImage(pack);
+        } else if (entity instanceof Plate plate) {
+            plate.setPhoto(fileName.toString());
+            plateRepository.save(plate);
+            image.setPlateImage(plate);
+        }
+        imageRepository.save(image);
+        return image.getName().toString();
     }
 
 }

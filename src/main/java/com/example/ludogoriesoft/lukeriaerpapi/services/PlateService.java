@@ -18,6 +18,7 @@ import java.util.List;
 public class PlateService {
     private final PlateRepository plateRepository;
     private final ModelMapper modelMapper;
+    private final ImageService imageService;
 
     public List<PlateDTO> getAllPlates() {
         List<Plate> plates = plateRepository.findByDeletedFalse();
@@ -66,6 +67,10 @@ public class PlateService {
         existingPlate.setName(plateDTO.getName());
         existingPlate.setAvailableQuantity(plateDTO.getAvailableQuantity());
         existingPlate.setPrice(plateDTO.getPrice());
+        if (existingPlate.getPhoto() != null) {
+            imageService.deleteImageFromSpace(existingPlate.getPhoto());
+            existingPlate.setPhoto(null);
+        }
         Plate updatedPlate = plateRepository.save(existingPlate);
         updatedPlate.setId(id);
         return modelMapper.map(updatedPlate, PlateDTO.class);
