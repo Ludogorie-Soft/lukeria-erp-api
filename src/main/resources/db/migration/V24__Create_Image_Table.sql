@@ -4,7 +4,6 @@ CREATE TABLE image (
     package_id BIGINT,
     plate_id BIGINT,
     upload_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    update_at DATETIME,
      FOREIGN KEY (package_id) REFERENCES package(id),
      FOREIGN KEY (plate_id) REFERENCES plate(id)
 

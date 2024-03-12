@@ -3,8 +3,6 @@ package com.example.ludogoriesoft.lukeriaerpapi.models;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -31,7 +29,4 @@ public class Image {
 
     @CreationTimestamp
     private LocalDateTime uploadAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updateAt;
 }
