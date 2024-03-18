@@ -191,7 +191,7 @@ public class MaterialOrderService {
         List<OrderProduct> orderProducts = orderProductRepository.findAll();
 
         Map<Long, Integer> packageIdToTotalNumberMap = orderProducts.stream()
-                .filter(orderProduct -> orderProduct.getPackageId() != null)
+                .filter(orderProduct -> orderProduct.getPackageId() != null && !orderProduct.getOrderId().isInvoiced())
                 .collect(Collectors.groupingBy(
                         orderProduct -> orderProduct.getPackageId().getId(),
                         Collectors.summingInt(OrderProduct::getNumber)

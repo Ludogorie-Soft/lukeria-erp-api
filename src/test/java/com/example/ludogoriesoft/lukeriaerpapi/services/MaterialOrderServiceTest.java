@@ -703,7 +703,9 @@ class MaterialOrderServiceTest {
         OrderProduct orderProduct1 = new OrderProduct();
         orderProduct1.setPackageId(entityPackage);
         orderProduct1.setNumber(5);
-
+        Order order=new Order();
+        order.setInvoiced(false);
+        orderProduct1.setOrderId(order);
 
         orderProducts.add(orderProduct1);
 
