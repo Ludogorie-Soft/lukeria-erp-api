@@ -1,0 +1,7 @@
+springdoc:
+    api-docs:
+        path: /auth/api-docs
+    swagger-ui:
+        operationsSorter: method
+        path: /auth/swagger-ui-custom.html
+
