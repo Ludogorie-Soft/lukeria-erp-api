@@ -67,7 +67,7 @@ public class PlateService {
         existingPlate.setName(plateDTO.getName());
         existingPlate.setAvailableQuantity(plateDTO.getAvailableQuantity());
         existingPlate.setPrice(plateDTO.getPrice());
-        if (existingPlate.getPhoto() != null) {
+        if (existingPlate.getPhoto() != null && plateDTO.getPhoto() != null) {
             imageService.deleteImageFromSpace(existingPlate.getPhoto());
             existingPlate.setPhoto(null);
         }
