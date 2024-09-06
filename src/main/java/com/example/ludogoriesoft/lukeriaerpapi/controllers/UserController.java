@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,5 +44,10 @@ public class UserController {
     public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         userService.deleteUser(id);
         return ResponseEntity.ok("User with id: " + id + " has been deleted successfully!");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO> findAuthenticatedUser() {
+        return ResponseEntity.ok(userService.findAuthenticatedUser());
     }
 }

@@ -9,6 +9,8 @@ import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -97,5 +99,11 @@ public class UserService {
         User user = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         user.setDeleted(true);
         userRepository.save(user);
+    }
+    public UserDTO findAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User authenticateUser = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("email"));
+        return modelMapper.map(authenticateUser, UserDTO.class);
     }
 }
