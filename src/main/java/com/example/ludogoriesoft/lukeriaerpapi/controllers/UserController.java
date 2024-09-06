@@ -50,11 +50,11 @@ public class UserController {
         return ResponseEntity.ok(userService.findAuthenticatedUser());
     }
     @GetMapping("/ifPassMatch")
-    public ResponseEntity<Boolean> ifPassMatch(UserDTO userDTO, @RequestHeader("Authorization") String auth ) throws ChangeSetPersister.NotFoundException {
-        return ResponseEntity.ok(userService.ifPasswordsMatch(userDTO));
+    public boolean ifPassMatch(@RequestParam String password, @RequestHeader("Authorization") String auth ) {
+        return userService.ifPasswordMatch(password);
     }
     @PutMapping("/change-pass")
-    public void changePassword(UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
-        userService.updatePassword(userDTO);
+    public boolean changePassword(@RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+        return userService.updatePassword(userDTO);
     }
 }

@@ -83,24 +83,31 @@ public class UserService {
         return modelMapper.map(updatedUser, UserDTO.class);
     }
 
-    public boolean ifPasswordsMatch(UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
+    public boolean ifPasswordMatch(String password) {
         UserDTO authenticateUserDTO = findAuthenticatedUser();
-        User user = modelMapper.map(authenticateUserDTO, User.class);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
-        if (user.getPassword().equals(encodedPassword)) {
+       boolean ifMatch = passwordEncoder.matches(password,authenticateUserDTO.getPassword());
+        if (ifMatch) {
             return true;
         } else {
             return false;
         }
     }
 
-    public void updatePassword(UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
-        UserDTO authenticateUserDTO = findAuthenticatedUser();  BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    public boolean updatePassword(UserDTO userDTO) {
+        UserDTO authenticateUserDTO = findAuthenticatedUser();
+        if(!(userDTO.getPassword().equals(userDTO.getRepeatPassword()))){
+            return false;
+        }
+        if(userDTO.getPassword().isEmpty()){
+            return false;
+        }
         User user = modelMapper.map(authenticateUserDTO, User.class);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
         user.setPassword(encodedPassword);
         userRepository.save(user);
+        return true;
     }
 
     public void deleteUser(Long id) throws ChangeSetPersister.NotFoundException {
