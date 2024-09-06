@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,7 +46,15 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> findAuthenticatedUser() {
+    public ResponseEntity<UserDTO> findAuthenticatedUser(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(userService.findAuthenticatedUser());
+    }
+    @GetMapping("/ifPassMatch")
+    public ResponseEntity<Boolean> ifPassMatch(UserDTO userDTO, @RequestHeader("Authorization") String auth ) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(userService.ifPasswordsMatch(userDTO));
+    }
+    @PutMapping("/change-pass")
+    public void changePassword(UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+        userService.updatePassword(userDTO);
     }
 }

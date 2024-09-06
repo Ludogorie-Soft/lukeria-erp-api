@@ -48,7 +48,11 @@ public class SecurityConfiguration {
                         "/api/v1/images/**",
                         "/api/v1/auth/**")
                 .permitAll()
-                .requestMatchers("/api/v1/user/me").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/v1/user/me").authenticated()
+                .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/v1/user/{id}").authenticated()
+                .requestMatchers(HttpMethod.GET,"/api/v1/user/ifPassMatch").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/v1/user/change-pass").authenticated()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.GET, "/api/v1/client/**").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client", "/api/v1/upload/file").hasAnyRole(ADMIN.name())
