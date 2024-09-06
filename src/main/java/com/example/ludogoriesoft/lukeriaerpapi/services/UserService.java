@@ -103,7 +103,7 @@ public class UserService {
     public UserDTO findAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        User authenticateUser = userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("email"));
+        User authenticateUser = findByEmail(email);
         return modelMapper.map(authenticateUser, UserDTO.class);
     }
 }
