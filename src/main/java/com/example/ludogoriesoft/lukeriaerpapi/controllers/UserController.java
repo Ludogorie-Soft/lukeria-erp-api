@@ -9,8 +9,6 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -51,15 +49,16 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDTO> findAuthenticatedUser(@RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<UserDTO> findAuthenticatedUser(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(userService.findAuthenticatedUser());
     }
     @GetMapping("/ifPassMatch")
     public boolean ifPassMatch(@RequestParam String password, @RequestHeader("Authorization") String auth ) {
         return userService.ifPasswordMatch(password);
     }
+
     @PutMapping("/change-pass")
-    public boolean changePassword(@RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+    public boolean changePassword(@RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) {
         return userService.updatePassword(userDTO);
     }
 }
