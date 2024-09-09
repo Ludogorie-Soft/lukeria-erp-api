@@ -50,7 +50,7 @@ public class SecurityConfiguration {
                 .permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/v1/user/me").authenticated()
                 .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}").authenticated()
-                .requestMatchers(HttpMethod.PUT,"/api/v1/user/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/v1/user/authenticated/{id}").authenticated()
                 .requestMatchers(HttpMethod.GET,"/api/v1/user/ifPassMatch").authenticated()
                 .requestMatchers(HttpMethod.PUT,"/api/v1/user/change-pass").authenticated()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())

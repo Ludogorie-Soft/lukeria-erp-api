@@ -80,14 +80,29 @@ class UserServiceTest {
     }
 
     @Test
-    void updateUser_validUser() throws UserNotFoundException, ChangeSetPersister.NotFoundException {
-        User user = new User(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN, false);
-        UserDTO userDTO = new UserDTO(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN);
-        when(userRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(any())).thenReturn(user);
-        when(modelMapper.map(any(), eq(UserDTO.class))).thenReturn(new UserDTO());
-        UserDTO updatedUser = userService.updateUser(1L, userDTO);
-        assertNotNull(updatedUser);
+    void updateUser_validUser() throws ChangeSetPersister.NotFoundException {
+        // Setup initial data
+        User existingUser = new User(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN, false);
+        UserDTO userDTO = new UserDTO(1L, "bel", "bel", "bel@gmail.com", "pass", "pass", "address", "user", Role.ADMIN);
+        User updatedUser = new User(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN, false);
+
+        // Mock repository behavior
+        when(userRepository.findByIdAndDeletedFalse(anyLong())).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(updatedUser);
+
+        // Mock modelMapper behavior
+        when(modelMapper.map(any(UserDTO.class), any())).thenReturn(updatedUser);
+        when(modelMapper.map(any(User.class), any())).thenReturn(userDTO);
+
+        // Call the service method
+        UserDTO result = userService.updateUser(1L, userDTO);
+
+        // Validate the results
+        assertEquals(userDTO.getId(), result.getId());
+        assertEquals(userDTO.getUsername(), result.getUsername());
+        assertEquals(userDTO.getEmail(), result.getEmail());
+        assertEquals(userDTO.getAddress(), result.getAddress());
+        assertEquals(userDTO.getRole(), result.getRole());
     }
 
     @Test
