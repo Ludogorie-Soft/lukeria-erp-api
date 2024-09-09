@@ -4,6 +4,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.config;
 import com.example.ludogoriesoft.lukeriaerpapi.handler.JwtAuthenticationEntryPoint;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.JwtAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.slack.api.audit.Actions;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,28 +51,28 @@ public class SecurityConfiguration {
                 .permitAll()
 
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
-                .requestMatchers(HttpMethod.GET, "/api/v1/client/**").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/client/**").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name(), USER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client", "/api/v1/upload/file").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/client/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/client/**").hasAnyRole(ADMIN.name())
 
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/package/**").hasAnyRole(TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name(), ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/package/**").hasAnyRole(TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name(), ADMIN.name(), USER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/package").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/package/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/package/**").hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/plate/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/plate/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), USER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/plate").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/plate/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/plate/**").hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/carton/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/carton/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), USER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/carton").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/carton/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/carton/**").hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/product/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/product/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), USER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product/produce/***").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/product/**").hasAnyRole(ADMIN.name())
