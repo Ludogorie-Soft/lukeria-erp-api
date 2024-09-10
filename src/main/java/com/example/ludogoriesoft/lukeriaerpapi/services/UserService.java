@@ -35,7 +35,7 @@ public class UserService {
     private final JwtService jwtService;
     private final TokenService tokenService;
 
-    public void userValidations(UserDTO user) {
+    private void userValidations(UserDTO user) {
         if (StringUtils.isBlank(user.getUsername())) {
             throw new ValidationException("Username is required");
         }
