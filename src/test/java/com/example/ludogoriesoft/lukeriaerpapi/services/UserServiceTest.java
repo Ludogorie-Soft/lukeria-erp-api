@@ -318,22 +318,26 @@ class UserServiceTest {
         userDTO.setLastname("Doe");              // Set required lastname field
         userDTO.setPassword("password123");      // Set required password field
 
+        // Mock existing user in the database
         User existingUser = new User();
         existingUser.setId(userId);
         existingUser.setEmail("old@example.com");
         existingUser.setUsernameField("oldUser");
 
+        // Mock updated user (result of mapping userDTO to User entity)
         User updatedUser = new User();
         updatedUser.setId(userId);
         updatedUser.setEmail("test@example.com");
         updatedUser.setUsernameField("testUser");
 
+        // Mock JWT and refresh token generation
         String jwtToken = "newJwtToken";
         String refreshToken = "newRefreshToken";
 
         // Mock repository and service behavior
         when(userRepository.findByIdAndDeletedFalse(userId)).thenReturn(Optional.of(existingUser));
         when(modelMapper.map(userDTO, User.class)).thenReturn(updatedUser);
+        when(userRepository.save(updatedUser)).thenReturn(updatedUser);  // Simulate user saving
         when(jwtService.generateToken(updatedUser)).thenReturn(jwtToken);
         when(jwtService.generateRefreshToken(updatedUser)).thenReturn(refreshToken);
         when(modelMapper.map(updatedUser, PublicUserDTO.class)).thenReturn(new PublicUserDTO());
@@ -342,13 +346,13 @@ class UserServiceTest {
         AuthenticationResponse response = userService.updateAuthenticateUser(userId, userDTO);
 
         // Assert
-        assertNotNull(response);
-        assertEquals(jwtToken, response.getAccessToken());
-        assertEquals(refreshToken, response.getRefreshToken());
-        verify(userRepository, times(1)).save(updatedUser);
-        verify(tokenService, times(1)).revokeAllUserTokens(updatedUser);
-        verify(tokenService, times(1)).saveToken(updatedUser, jwtToken, TokenType.ACCESS);
-        verify(tokenService, times(1)).saveToken(updatedUser, refreshToken, TokenType.REFRESH);
+        assertNotNull(response);                                     // Ensure the response is not null
+        assertEquals(jwtToken, response.getAccessToken());           // Validate access token
+        assertEquals(refreshToken, response.getRefreshToken());      // Validate refresh token
+        verify(userRepository, times(1)).save(updatedUser);          // Ensure user is saved
+        verify(tokenService, times(1)).revokeAllUserTokens(updatedUser); // Ensure tokens are revoked
+        verify(tokenService, times(1)).saveToken(updatedUser, jwtToken, TokenType.ACCESS);  // Save access token
+        verify(tokenService, times(1)).saveToken(updatedUser, refreshToken, TokenType.REFRESH);  // Save refresh token
     }
 
     @Test

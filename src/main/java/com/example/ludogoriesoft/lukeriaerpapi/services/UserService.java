@@ -56,6 +56,30 @@ public class UserService {
         }
     }
 
+    private User update(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
+        User existingUser = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        userValidations(userDTO);
+        User updatedUser = modelMapper.map(userDTO, User.class);
+        updatedUser.setId(existingUser.getId());
+        return userRepository.save(updatedUser);
+    }
+
+    private AuthenticationResponse createNewToken(User user) {
+        String jwtToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        tokenService.revokeAllUserTokens(user);
+        tokenService.saveToken(user, jwtToken, TokenType.ACCESS);
+        tokenService.saveToken(user, refreshToken, TokenType.REFRESH);
+
+        return AuthenticationResponse
+                .builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .user(modelMapper.map(user, PublicUserDTO.class))
+                .build();
+    }
+
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findByDeletedFalse();
         return users.stream().map(user -> modelMapper.map(user, UserDTO.class)).toList();
@@ -84,49 +108,19 @@ public class UserService {
     }
 
     public AuthenticationResponse updateAuthenticateUser(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
-        User existingUser = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        userValidations(userDTO);
-        User updatedUser = modelMapper.map(userDTO, User.class);
-        updatedUser.setId(existingUser.getId());
-        userRepository.save(updatedUser);
-
-
-        String jwtToken = jwtService.generateToken(updatedUser);
-        String refreshToken = jwtService.generateRefreshToken(updatedUser);
-
-        tokenService.revokeAllUserTokens(updatedUser);
-        tokenService.saveToken(updatedUser, jwtToken, TokenType.ACCESS);
-        tokenService.saveToken(updatedUser, refreshToken, TokenType.REFRESH);
-
-        return AuthenticationResponse
-                .builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .user(modelMapper.map(updatedUser, PublicUserDTO.class))
-                .build();
-
-
+        User updatedUser = update(id, userDTO);
+        return createNewToken(updatedUser);
     }
 
     public UserDTO updateUser(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
-        User existingUser = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        userValidations(userDTO);
-        User updatedUser = modelMapper.map(userDTO, User.class);
-        updatedUser.setId(existingUser.getId());
-        userRepository.save(updatedUser);
+        User updatedUser = update(id, userDTO);
         return modelMapper.map(updatedUser, UserDTO.class);
-
     }
 
     public boolean ifPasswordMatch(String password) {
         UserDTO authenticatedUserDTO = findAuthenticatedUser();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        boolean ifMatch = passwordEncoder.matches(password, authenticatedUserDTO.getPassword());
-        if (ifMatch) {
-            return true;
-        } else {
-            return false;
-        }
+        return passwordEncoder.matches(password, authenticatedUserDTO.getPassword());
     }
 
     public boolean updatePassword(UserDTO userDTO) {
