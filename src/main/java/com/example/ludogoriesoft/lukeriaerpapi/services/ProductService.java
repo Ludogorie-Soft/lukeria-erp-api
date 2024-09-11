@@ -12,9 +12,11 @@ import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +48,13 @@ public class ProductService {
 
         Product product = productRepository.save(modelMapper.map(productDTO, Product.class));
         return modelMapper.map(product, ProductDTO.class);
+    }
+
+    public List<ProductDTO> getProductsForSale() {
+        List<Product> products = productRepository.getAvailableProductsForSale();
+        Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
+        List<ProductDTO> productDTOList = modelMapper.map(products, listType);
+        return productDTOList;
     }
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) throws ChangeSetPersister.NotFoundException {

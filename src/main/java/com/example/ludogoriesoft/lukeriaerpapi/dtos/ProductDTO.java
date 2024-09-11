@@ -20,4 +20,5 @@ public class ProductDTO {
     private int availableQuantity;
     @Size(min = 2, max = 10, message = "Кода на продукта трябда да бъде между 2 и 10 символа!")
     private String productCode;
+    private boolean forSale;
 }
