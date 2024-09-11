@@ -25,6 +25,7 @@ import static com.example.ludogoriesoft.lukeriaerpapi.enums.Role.*;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity
+@SuppressWarnings("all")
 public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
