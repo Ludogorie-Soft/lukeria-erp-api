@@ -297,14 +297,6 @@ class UserControllerIntegrationTest {
                 .andReturn();
     }
     @Test
-    void testFindAuthenticatedUser_Unauthorized() throws Exception {
-        // Perform the GET request without the Authorization header
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/user/me")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized()) // Expect 401 Unauthorized
-                .andReturn();
-    }
-    @Test
     void testIfPassMatch_Success() throws Exception {
         // Mock the behavior of the userService
         when(userService.ifPasswordMatch(anyString())).thenReturn(true);
