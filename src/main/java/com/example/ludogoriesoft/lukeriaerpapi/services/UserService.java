@@ -183,9 +183,7 @@ public class UserService {
 
         String body = emailContentBuilder.buildResetPasswordEmail(frontendUrl, token);
 
-        String subject = "Приложение на Лукерия ООД : Заявка за възстановяване на парола";
-
-        emailService.sendHtmlEmail(user.getEmail(), subject, body);
+        emailService.sendHtmlEmail(user.getEmail(), "Приложение на Лукерия ООД : Заявка за възстановяване на парола", body);
 
         return true;
     }
