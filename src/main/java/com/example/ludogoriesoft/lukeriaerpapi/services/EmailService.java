@@ -17,7 +17,7 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom("berki07092@gmail.com"); // Задаване на подателя
+            helper.setFrom("berki07092@gmail.com");
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(body, true);

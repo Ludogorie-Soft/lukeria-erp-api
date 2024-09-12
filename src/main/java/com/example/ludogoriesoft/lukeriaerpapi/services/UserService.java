@@ -13,8 +13,8 @@ import com.example.ludogoriesoft.lukeriaerpapi.services.security.JwtService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.TokenService;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ValidationException;
-import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,14 +26,31 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
-    private EmailService emailService;
+    private final EmailService emailService;
+    private final String frontendUrl;
+
+    public UserService(UserRepository userRepository,
+                       ModelMapper modelMapper,
+                       JwtService jwtService,
+                       TokenService tokenService,
+                       PasswordResetTokenRepository passwordResetTokenRepository,
+                       EmailService emailService,
+                       @Value("${frontend.url}") String frontendUrl) {
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+        this.jwtService = jwtService;
+        this.tokenService = tokenService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
+        this.frontendUrl = frontendUrl;
+    }
+
 
     private void userValidations(UserDTO user) {
         if (StringUtils.isBlank(user.getUsername())) {
@@ -159,9 +176,8 @@ public class UserService {
         String token = UUID.randomUUID().toString();
         savePasswordResetToken(token, user);
 
-        String resetLink = "http://localhost:8080/user/reset-password?token=" + token;
+        String resetLink = frontendUrl + "/user/reset-password?token=" + token;
         String subject = "Приложение на Лукерия ООД : Заявка за възстановяване на парола";
-
         String body = "<html>" +
                 "<body>" +
                 "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>" +
