@@ -55,6 +55,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.PUT,"/api/v1/user/change-pass").authenticated()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
 
+                .requestMatchers("/api/v1/customerCustomPrice/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, "/api/v1/client/**").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client", "/api/v1/upload/file").hasAnyRole(ADMIN.name())
