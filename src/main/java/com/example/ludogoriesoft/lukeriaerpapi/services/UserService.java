@@ -5,6 +5,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.AuthenticationResponse;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
+import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
 import com.example.ludogoriesoft.lukeriaerpapi.models.PasswordResetToken;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PasswordResetTokenRepository;
@@ -33,7 +34,9 @@ public class UserService {
     private final TokenService tokenService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final EmailService emailService;
+    private final EmailContentBuilder emailContentBuilder;
     private final String frontendUrl;
+
 
     public UserService(UserRepository userRepository,
                        ModelMapper modelMapper,
@@ -41,6 +44,7 @@ public class UserService {
                        TokenService tokenService,
                        PasswordResetTokenRepository passwordResetTokenRepository,
                        EmailService emailService,
+                       EmailContentBuilder emailContentBuilder,
                        @Value("${frontend.url}") String frontendUrl) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
@@ -48,6 +52,7 @@ public class UserService {
         this.tokenService = tokenService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.emailService = emailService;
+        this.emailContentBuilder=emailContentBuilder;
         this.frontendUrl = frontendUrl;
     }
 
@@ -176,26 +181,12 @@ public class UserService {
         String token = UUID.randomUUID().toString();
         savePasswordResetToken(token, user);
 
-        String resetLink = frontendUrl + "/user/reset-password?token=" + token;
+        String body = emailContentBuilder.buildResetPasswordEmail(frontendUrl, token);
+
         String subject = "Приложение на Лукерия ООД : Заявка за възстановяване на парола";
-        String body = "<html>" +
-                "<body>" +
-                "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;'>" +
-                "<h2 style='text-align: center; color: #333;'>Приложение на Лукерия ООД</h2>" +
-                "<p style='font-size: 16px; color: #555;'>Здравейте,</p>" +
-                "<p style='font-size: 16px; color: #555;'>Получихме заявка за възстановяване на паролата за вашия акаунт.</p>" +
-                "<p style='font-size: 16px; color: #555;'>Моля, натиснете бутона по-долу, за да създадете нова парола:</p>" +
-                "<div style='text-align: center; margin: 20px 0;'>" +
-                "<a href='" + resetLink + "' style='background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;'>Създай нова парола</a>" +
-                "</div>" +
-                "<p style='font-size: 14px; color: #888;'>Линка ще бъде активен 60 минути след получаването му.</p>" +
-                "<p style='font-size: 14px; color: #888;'>Ако не сте заявили възстановяване на парола, игнорирайте този имейл.</p>" +
-                "<p style='font-size: 14px; color: #888;'>С уважение,<br/>Екипът на Лукерия ООД</p>" +
-                "</div>" +
-                "</body>" +
-                "</html>";
 
         emailService.sendHtmlEmail(user.getEmail(), subject, body);
+
         return true;
     }
 
