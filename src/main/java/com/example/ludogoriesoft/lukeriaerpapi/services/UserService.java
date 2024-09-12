@@ -7,7 +7,9 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.RefreshTokenBodyDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
+import com.example.ludogoriesoft.lukeriaerpapi.models.PasswordResetToken;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PasswordResetTokenRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.AuthenticationService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.JwtService;
@@ -17,6 +19,7 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,8 +27,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -34,6 +39,9 @@ public class UserService {
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
     private final TokenService tokenService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    @Autowired
+    private EmailService emailService;
 
     private void userValidations(UserDTO user) {
         if (StringUtils.isBlank(user.getUsername())) {
@@ -104,7 +112,7 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("email"));
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
 
     public AuthenticationResponse updateAuthenticateUser(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
@@ -151,4 +159,26 @@ public class UserService {
         User authenticateUser = findByEmail(email);
         return modelMapper.map(authenticateUser, UserDTO.class);
     }
+
+    public boolean processForgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+
+        String token = UUID.randomUUID().toString();
+        savePasswordResetToken(token, user);
+
+        String resetLink = "http://localhost:8080/reset-password?token=" + token;
+        String subject = "Password Reset Request";
+        String body = "To reset your password, click the following link: " + resetLink;
+
+        emailService.sendSimpleEmail(user.getEmail(), subject, body);
+
+        return true;
+    }
+
+    private void savePasswordResetToken(String token, User user) {
+        PasswordResetToken resetToken = new PasswordResetToken(token, user, LocalDateTime.now().plusHours(24));
+        passwordResetTokenRepository.save(resetToken);
+    }
 }
+
