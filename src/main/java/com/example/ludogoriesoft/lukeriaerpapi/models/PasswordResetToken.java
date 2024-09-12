@@ -1,12 +1,13 @@
 package com.example.ludogoriesoft.lukeriaerpapi.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Data
 @RequiredArgsConstructor
 public class PasswordResetToken {
 
