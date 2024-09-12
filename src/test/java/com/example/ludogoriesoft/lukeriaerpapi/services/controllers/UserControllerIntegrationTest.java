@@ -2,6 +2,8 @@ package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.UserController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.AuthenticationResponse;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.services.UserService;
@@ -273,4 +275,149 @@ class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
+    @Test
+    void testFindAuthenticatedUser_Success() throws Exception {
+        // Create a UserDTO object to be returned by the service
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(1L);
+        userDTO.setEmail("authenticated@example.com");
+        userDTO.setUsername("authenticatedUser");
+
+        // Mock the behavior of the userService
+        when(userService.findAuthenticatedUser()).thenReturn(userDTO);
+
+        // Perform the GET request to /api/v1/user/me
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/user/me")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // Expect 200 OK
+                .andExpect(jsonPath("$.id").value(1)) // Verify user ID
+                .andExpect(jsonPath("$.email").value("authenticated@example.com")) // Verify user email
+                .andExpect(jsonPath("$.username").value("authenticatedUser")) // Verify username
+                .andReturn();
+    }
+    @Test
+    void testIfPassMatch_Success() throws Exception {
+        // Mock the behavior of the userService
+        when(userService.ifPasswordMatch(anyString())).thenReturn(true);
+
+        // Perform the GET request to /api/v1/user/ifPassMatch with a password parameter
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/user/ifPassMatch")
+                        .param("password", "password123") // Add the password param
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // Expect 200 OK
+                .andExpect(content().string("true")) // Expect "true" as the response
+                .andReturn();
+    }
+    @Test
+    void testIfPassMatch_PasswordMismatch() throws Exception {
+        // Mock the behavior of the userService to return false (password doesn't match)
+        when(userService.ifPasswordMatch(anyString())).thenReturn(false);
+
+        // Perform the GET request with a mismatched password
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/user/ifPassMatch")
+                        .param("password", "wrongPassword") // Add a wrong password
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // Expect 200 OK
+                .andExpect(content().string("false")) // Expect "false" as the response
+                .andReturn();
+    }
+    @Test
+    void testChangePassword_Success() throws Exception {
+        // Create a UserDTO object to simulate the request payload
+        UserDTO userDTO = new UserDTO();
+        userDTO.setPassword("newPassword123");
+
+        // Mock the behavior of the userService
+        when(userService.updatePassword(any(UserDTO.class))).thenReturn(true);
+
+        // Perform the PUT request to /api/v1/user/change-pass
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/change-pass")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userDTO))) // Use helper method to convert object to JSON
+                .andExpect(status().isOk()) // Expect 200 OK
+                .andExpect(content().string("true")) // Expect "true" as the response
+                .andReturn();
+    }
+    @Test
+    void testChangePassword_InvalidPasswordFormat() throws Exception {
+        // Create a UserDTO object with an invalid password
+        UserDTO userDTO = new UserDTO();
+        userDTO.setPassword("short"); // Password too short
+
+        // Mock the behavior of the userService to throw a ValidationException
+        doThrow(new ValidationException("Password is too short")).when(userService).updatePassword(any(UserDTO.class));
+
+        // Perform the PUT request with the invalid password
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/change-pass")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userDTO))) // Use helper method to convert object to JSON
+                .andExpect(status().isBadRequest()) // Expect 400 Bad Request
+                .andExpect(content().string(containsString("Password is too short"))) // Expect error message
+                .andReturn();
+    }
+    @Test
+    void testUpdateAuthenticatedUser_Success() throws Exception {
+        Long userId = 1L;
+
+        // Create a UserDTO object with valid data
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail("updated@example.com");
+        userDTO.setUsername("updatedUser");
+        userDTO.setAddress("123 Test Street");
+        userDTO.setFirstname("Updated");
+        userDTO.setLastname("User");
+        userDTO.setPassword("newPassword123");
+
+        // Mock the AuthenticationResponse returned by the service
+        AuthenticationResponse authenticationResponse = AuthenticationResponse.builder()
+                .accessToken("newAccessToken")
+                .refreshToken("newRefreshToken")
+                .user(new PublicUserDTO()) // Mock the mapped PublicUserDTO
+                .build();
+
+        // Mock the behavior of the userService
+        when(userService.updateAuthenticateUser(eq(userId), any(UserDTO.class))).thenReturn(authenticationResponse);
+
+        // Perform the PUT request to /api/v1/user/authenticated/{id}
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/authenticated/{id}", userId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userDTO))) // Use helper method to convert object to JSON
+                .andExpect(status().isOk()) // Expect 200 OK
+                .andExpect(jsonPath("$.accessToken").value("newAccessToken")) // Verify accessToken
+                .andExpect(jsonPath("$.refreshToken").value("newRefreshToken")) // Verify refreshToken
+                .andReturn();
+    }
+    @Test
+    void testUpdateAuthenticatedUser_UserNotFound() throws Exception {
+        Long userId = 1L;
+
+        // Create a UserDTO object with valid data
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail("updated@example.com");
+        userDTO.setUsername("updatedUser");
+        userDTO.setAddress("123 Test Street");
+        userDTO.setFirstname("Updated");
+        userDTO.setLastname("User");
+        userDTO.setPassword("newPassword123");
+
+        // Mock the behavior of the userService to throw a NotFoundException
+        when(userService.updateAuthenticateUser(eq(userId), any(UserDTO.class)))
+                .thenThrow(new ChangeSetPersister.NotFoundException());
+
+        // Perform the PUT request to /api/v1/user/authenticated/{id} with a non-existing user
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/authenticated/{id}", userId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(userDTO))) // Use helper method to convert object to JSON
+                .andExpect(status().isNotFound()) // Expect 404 Not Found
+                .andExpect(content().string(containsString("Not found!"))) // Expect error message
+                .andReturn();
+    }
+
 }
