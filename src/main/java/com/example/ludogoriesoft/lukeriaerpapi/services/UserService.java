@@ -1,6 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.beust.ah.A;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.AuthenticationResponse;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
@@ -159,12 +158,12 @@ public class UserService {
 
         String token = UUID.randomUUID().toString();
 
-        String resetLink = "http://localhost:8080/reset-password?token=" + token; // todo rename the api link
+        String resetLink = "http://localhost:8080/reset-password?token=" + token; // todo rename the endpoint
         String subject = "Password Reset Request";
         String body = "To reset your password, click the following link: " + resetLink;
 
         emailService.sendSimpleEmail(user.getEmail(), subject, body);
-        savePasswordResetToken(token, user);
+       // savePasswordResetToken(token, user);
         return true;
     }
 
