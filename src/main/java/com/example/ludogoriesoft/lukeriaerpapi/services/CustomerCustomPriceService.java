@@ -32,8 +32,7 @@ public class CustomerCustomPriceService {
         if (customerCustomPriceDTO.getClientId() != null) {
             boolean existsClient = clientRepository.existsById(customerCustomPriceDTO.getClientId());
             if (!existsClient) {
-                throw new ValidationException("Client does not exist with ID: " + customerCustomPriceDTO.getClientId()))
-                ;
+                throw new ValidationException("Client does not exist with ID: " + customerCustomPriceDTO.getClientId());
             }
         } else {
             throw new ValidationException("Client ID cannot be null");
