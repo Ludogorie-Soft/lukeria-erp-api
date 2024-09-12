@@ -4,32 +4,26 @@ import com.beust.ah.A;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.AuthenticationResponse;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.RefreshTokenBodyDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.PasswordResetToken;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PasswordResetTokenRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.services.security.AuthenticationService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.JwtService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.TokenService;
-import com.example.ludogoriesoft.lukeriaerpapi.services.security.UserServiceImpl;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -40,7 +34,6 @@ public class UserService {
     private final JwtService jwtService;
     private final TokenService tokenService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
-    @Autowired
     private EmailService emailService;
 
     private void userValidations(UserDTO user) {
@@ -165,19 +158,18 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(email));
 
         String token = UUID.randomUUID().toString();
-        savePasswordResetToken(token, user);
 
-        String resetLink = "http://localhost:8080/reset-password?token=" + token;
+        String resetLink = "http://localhost:8080/reset-password?token=" + token; // todo rename the api link
         String subject = "Password Reset Request";
         String body = "To reset your password, click the following link: " + resetLink;
 
         emailService.sendSimpleEmail(user.getEmail(), subject, body);
-
+        savePasswordResetToken(token, user);
         return true;
     }
 
     private void savePasswordResetToken(String token, User user) {
-        PasswordResetToken resetToken = new PasswordResetToken(token, user, LocalDateTime.now().plusHours(24));
+        PasswordResetToken resetToken = new PasswordResetToken(token, user, LocalDateTime.now());
         passwordResetTokenRepository.save(resetToken);
     }
 }
