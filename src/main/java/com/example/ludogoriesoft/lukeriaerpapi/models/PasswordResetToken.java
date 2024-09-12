@@ -23,9 +23,6 @@ public class PasswordResetToken {
 
     private LocalDateTime expiryDate;
 
-    public PasswordResetToken(String token, User user, LocalDateTime localDateTime) {
-    }
-
     public boolean isExpired() {
         return expiryDate.isBefore(LocalDateTime.now());
     }

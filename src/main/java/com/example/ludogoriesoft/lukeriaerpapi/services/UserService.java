@@ -186,9 +186,6 @@ public class UserService {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-
-        passwordResetTokenRepository.delete(resetToken);
-
         return true;
     }
 }
