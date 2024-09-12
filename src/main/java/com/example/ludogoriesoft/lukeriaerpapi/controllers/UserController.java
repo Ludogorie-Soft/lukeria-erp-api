@@ -76,4 +76,9 @@ public class UserController {
         }
     }
 
+    @PostMapping("/reset-password")
+    public ResponseEntity<Boolean> processResetPassword(@RequestParam("token") String token,
+                                       @RequestParam("password") String newPassword){
+        return ResponseEntity.ok(userService.updatePasswordWithToken(token, newPassword));
+    }
 }

@@ -158,7 +158,7 @@ public class UserService {
 
         String token = UUID.randomUUID().toString();
 
-        String resetLink = "http://localhost:8080/reset-password?token=" + token; // todo rename the endpoint
+        String resetLink = "http://localhost:8080/user/reset-password?token=" + token; // todo rename the endpoint
         String subject = "Приложение на Лукерия ООД : Заявка за възтановяване на парола. ";
         String body = "Натиснете този линк за да създадете нова парола: " + resetLink;
 
@@ -173,6 +173,23 @@ public class UserService {
         resetToken.setUser(user);
         resetToken.setExpiryDate(LocalDateTime.now().plusHours(2));
         passwordResetTokenRepository.save(resetToken);
+    }
+
+    public boolean updatePasswordWithToken(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token);
+
+        if (resetToken == null || resetToken.isExpired()) {
+            return false;
+        }
+
+        User user = resetToken.getUser();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        passwordResetTokenRepository.delete(resetToken);
+
+        return true;
     }
 }
 

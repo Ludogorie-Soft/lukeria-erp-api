@@ -47,13 +47,14 @@ public class SecurityConfiguration {
                         "/api/v1/images/uploadImageForPackage",
                         "/api/v1/images/**",
                         "/api/v1/auth/**",
-                        "/api/v1/user/forgot-password")
+                        "/api/v1/user/forgot-password",
+                        "/api/v1/user/reset-password")
                 .permitAll()
-                .requestMatchers(HttpMethod.GET,"/api/v1/user/me").authenticated()
-                .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}").authenticated()
-                .requestMatchers(HttpMethod.PUT,"/api/v1/user/authenticated/{id}").authenticated()
-                .requestMatchers(HttpMethod.GET,"/api/v1/user/ifPassMatch").authenticated()
-                .requestMatchers(HttpMethod.PUT,"/api/v1/user/change-pass").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/user/me").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/user/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/user/authenticated/{id}").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/user/ifPassMatch").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/user/change-pass").authenticated()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
 
 
@@ -68,12 +69,12 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/package/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/package/**").hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/plate/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/plate/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/plate").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/plate/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/plate/**").hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/carton/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/carton/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/carton").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/carton/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, "/api/v1/carton/**").hasAnyRole(ADMIN.name())
@@ -112,7 +113,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.PUT, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/invoice/**").hasAnyRole(ADMIN.name())
                 .requestMatchers("/api/v1/invoiceOrderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
-                .requestMatchers(HttpMethod.POST,"/api/v1/upload/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.POST, "/api/v1/upload/**").hasAnyRole(ADMIN.name())
                 .anyRequest()
                 .permitAll()
                 .and()
