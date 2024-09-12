@@ -100,7 +100,7 @@ class CartonControllerIntegrationTest {
     }
     @Test
     @WithMockUser(roles = "USER")
-    void testGetAllCartonsWithUSerRole() throws Exception {
+    void testGetAllCartonsWithUserRole() throws Exception {
         CartonDTO cartonDTO1 = new CartonDTO();
         cartonDTO1.setId(1L);
         cartonDTO1.setName("Carton 1");
