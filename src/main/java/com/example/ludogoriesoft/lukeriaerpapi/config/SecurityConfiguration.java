@@ -57,7 +57,8 @@ public class SecurityConfiguration {
                 .requestMatchers(
                         "/api/v1/images/uploadImageForPackage",
                         "/api/v1/images/**",
-                        "/api/v1/auth/**")
+                        "/api/v1/auth/**",
+                        "/api/v1/user/forgot-password")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET,"/api/v1/user/me").authenticated()
                 .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}").authenticated()
