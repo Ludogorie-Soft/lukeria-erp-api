@@ -59,28 +59,28 @@ public class SecurityConfiguration {
                 .permitAll()
 
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
-                .requestMatchers(HttpMethod.GET, CLIENT_URL).hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name(), USER.name())
+                .requestMatchers(HttpMethod.GET, CLIENT_URL).hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client", "/api/v1/upload/file").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, CLIENT_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, CLIENT_URL).hasAnyRole(ADMIN.name())
 
 
-                .requestMatchers(HttpMethod.GET, PACKAGE_URL).hasAnyRole(TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name(), ADMIN.name(), USER.name())
+                .requestMatchers(HttpMethod.GET, PACKAGE_URL).hasAnyRole(TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name(), ADMIN.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/package").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, PACKAGE_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, PACKAGE_URL).hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, PLATE_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), USER.name())
+                .requestMatchers(HttpMethod.GET, PLATE_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/plate").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, PLATE_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, PLATE_URL).hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, CARTON_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), USER.name())
+                .requestMatchers(HttpMethod.GET, CARTON_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/carton").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, CARTON_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, CARTON_URL).hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), USER.name())
+                .requestMatchers(HttpMethod.GET, PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product/produce/***").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE, PRODUCT_URL).hasAnyRole(ADMIN.name())
