@@ -159,16 +159,19 @@ public class UserService {
         String token = UUID.randomUUID().toString();
 
         String resetLink = "http://localhost:8080/reset-password?token=" + token; // todo rename the endpoint
-        String subject = "Password Reset Request";
-        String body = "To reset your password, click the following link: " + resetLink;
+        String subject = "Приложение на Лукерия ООД : Заявка за възтановяване на парола. ";
+        String body = "Натиснете този линк за да създадете нова парола: " + resetLink;
 
         emailService.sendSimpleEmail(user.getEmail(), subject, body);
-       // savePasswordResetToken(token, user);
+        savePasswordResetToken(token, user);
         return true;
     }
 
     private void savePasswordResetToken(String token, User user) {
-        PasswordResetToken resetToken = new PasswordResetToken(token, user, LocalDateTime.now());
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(LocalDateTime.now().plusHours(2));
         passwordResetTokenRepository.save(resetToken);
     }
 }
