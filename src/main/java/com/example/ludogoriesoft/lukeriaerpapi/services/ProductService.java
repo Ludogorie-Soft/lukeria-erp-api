@@ -45,7 +45,6 @@ public class ProductService {
 
     public ProductDTO createProduct(ProductDTO productDTO) {
         validateProductDTO(productDTO);
-
         Product product = productRepository.save(modelMapper.map(productDTO, Product.class));
         return modelMapper.map(product, ProductDTO.class);
     }
@@ -53,8 +52,7 @@ public class ProductService {
     public List<ProductDTO> getProductsForSale() {
         List<Product> products = productRepository.getAvailableProductsForSale();
         Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
-        List<ProductDTO> productDTOList = modelMapper.map(products, listType);
-        return productDTOList;
+        return modelMapper.map(products, listType);
     }
 
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) throws ChangeSetPersister.NotFoundException {
