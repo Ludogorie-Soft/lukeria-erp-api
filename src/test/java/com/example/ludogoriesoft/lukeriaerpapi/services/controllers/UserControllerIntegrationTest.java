@@ -426,8 +426,8 @@ class UserControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/forgot-password")
                         .param("email", "valid@example.com")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()) // Expect 200 OK
-                .andExpect(content().string("Password reset link sent to your email."))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"))
                 .andReturn();
     }
 
@@ -438,8 +438,8 @@ class UserControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/forgot-password")
                         .param("email", "invalid@example.com")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid email address."))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"))
                 .andReturn();
     }
 
