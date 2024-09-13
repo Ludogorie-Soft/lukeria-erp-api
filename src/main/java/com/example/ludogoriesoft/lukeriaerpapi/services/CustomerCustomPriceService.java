@@ -54,8 +54,8 @@ public class CustomerCustomPriceService {
     }
 
     public CustomerCustomPriceDTO update(Long id, CustomerCustomPriceDTO customerCustomPriceDTO) throws ChangeSetPersister.NotFoundException {
-        validation(customerCustomPriceDTO);
         CustomerCustomPrice existingCustomPrice = customerCustomPriceRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        validation(customerCustomPriceDTO);
         CustomerCustomPrice updatedCustomPrice = modelMapper.map(customerCustomPriceDTO, CustomerCustomPrice.class);
         updatedCustomPrice.setId(existingCustomPrice.getId());
         customerCustomPriceRepository.save(updatedCustomPrice);
