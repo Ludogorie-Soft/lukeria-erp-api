@@ -1,12 +1,15 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import jakarta.mail.internet.MimeMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
+    private static final Logger logger = LogManager.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
 
@@ -23,7 +26,7 @@ public class EmailService {
             helper.setText(body, true);
             mailSender.send(message);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to send email to {} with subject {}", toEmail, subject, e);
         }
     }
 }
