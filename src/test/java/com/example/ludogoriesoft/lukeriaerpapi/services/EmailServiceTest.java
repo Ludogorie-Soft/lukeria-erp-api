@@ -13,18 +13,18 @@ import static org.mockito.Mockito.*;
 class EmailServiceTest {
 
     @Mock
-    private JavaMailSender mailSender;  // Мокваме JavaMailSender
+    private JavaMailSender mailSender;
 
     @InjectMocks
-    private EmailService emailService;  // Инжектираме мокнатия обект в EmailService
+    private EmailService emailService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);  // Инициализиране на Mockito
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void sendHtmlEmail_Success() throws Exception {
+    void sendHtmlEmail_Success() {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
@@ -38,7 +38,7 @@ class EmailServiceTest {
         verify(mailSender, times(1)).send(mimeMessage);
     }
     @Test
-    void sendHtmlEmail_Failure() throws Exception {
+    void sendHtmlEmail_Failure() {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
