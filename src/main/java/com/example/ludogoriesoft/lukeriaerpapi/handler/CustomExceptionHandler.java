@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+
 @ControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+
+    // Handling RuntimeExceptions
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExceptionResponse> handleRuntimeExceptions(RuntimeException exception) {
-        // Log data
-        exception.printStackTrace();
+        exception.printStackTrace(); // Logging the exception
         return handleApiExceptions(new InternalServerErrorException());
     }
 
@@ -45,10 +47,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ExceptionResponse> handleApiExceptions(ApiException exception) {
-        ExceptionResponse apiException = ApiExceptionParser.parseException(exception);
+        ExceptionResponse apiExceptionResponse = ApiExceptionParser.parseException(exception);
 
         return ResponseEntity
-                .status(apiException.getStatus())
-                .body(apiException);
+                .status(apiExceptionResponse.getStatus())
+                .body(apiExceptionResponse);
     }
 }
+

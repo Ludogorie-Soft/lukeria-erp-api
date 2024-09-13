@@ -17,10 +17,6 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler {
     CustomExceptionHandler customExceptionHandler;
 
-    @Autowired
-    public GlobalExceptionHandler(CustomExceptionHandler customExceptionHandler) {
-        this.customExceptionHandler = customExceptionHandler;
-    }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ExceptionResponse> handleRuntimeException(RuntimeException ex) {
