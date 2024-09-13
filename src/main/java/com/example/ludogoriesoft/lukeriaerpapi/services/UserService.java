@@ -175,8 +175,11 @@ public class UserService {
     }
 
     public boolean processForgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return false;
+        }
 
         String token = UUID.randomUUID().toString();
         savePasswordResetToken(token, user);

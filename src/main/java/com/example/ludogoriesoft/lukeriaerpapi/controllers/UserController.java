@@ -67,13 +67,8 @@ public class UserController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        boolean result = userService.processForgotPassword(email);
-        if (result) {
-            return ResponseEntity.ok("Password reset link sent to your email.");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid email address.");
-        }
+    public ResponseEntity<Boolean> forgotPassword(@RequestParam String email) {
+        return ResponseEntity.ok(userService.processForgotPassword(email));
     }
 
     @PostMapping("/reset-password")
