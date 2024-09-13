@@ -458,7 +458,6 @@ class UserControllerIntegrationTest {
 
     @Test
     void testResetPassword_InvalidToken() throws Exception {
-        // Mock the service to return false for an invalid token
         when(userService.updatePasswordWithToken(anyString(), anyString())).thenReturn(false);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/reset-password")
