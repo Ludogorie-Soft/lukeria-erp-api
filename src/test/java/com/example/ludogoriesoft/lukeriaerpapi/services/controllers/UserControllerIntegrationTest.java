@@ -419,5 +419,55 @@ class UserControllerIntegrationTest {
                 .andExpect(content().string(containsString("Not found!"))) // Expect error message
                 .andReturn();
     }
+    @Test
+    void testForgotPassword_ValidEmail() throws Exception {
+        when(userService.processForgotPassword(anyString())).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/forgot-password")
+                        .param("email", "valid@example.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // Expect 200 OK
+                .andExpect(content().string("Password reset link sent to your email."))
+                .andReturn();
+    }
+
+    @Test
+    void testForgotPassword_InvalidEmail() throws Exception {
+        when(userService.processForgotPassword(anyString())).thenReturn(false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/forgot-password")
+                        .param("email", "invalid@example.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid email address."))
+                .andReturn();
+    }
+
+    @Test
+    void testResetPassword_ValidToken() throws Exception {
+        when(userService.updatePasswordWithToken(anyString(), anyString())).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/reset-password")
+                        .param("token", "valid-token")
+                        .param("password", "newValidPassword123")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"))
+                .andReturn();
+    }
+
+    @Test
+    void testResetPassword_InvalidToken() throws Exception {
+        // Mock the service to return false for an invalid token
+        when(userService.updatePasswordWithToken(anyString(), anyString())).thenReturn(false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/reset-password")
+                        .param("token", "invalid-token")
+                        .param("password", "newValidPassword123")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"))
+                .andReturn();
+    }
 
 }
