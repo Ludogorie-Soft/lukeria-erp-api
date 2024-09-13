@@ -26,6 +26,10 @@ public class ProductController {
     public ResponseEntity<ProductDTO> getProductById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(productService.getProductById(id));
     }
+    @GetMapping("/available-products")
+    public ResponseEntity<List<ProductDTO>> getProductsForSale(@RequestHeader("Authorization") String auth) {
+        return ResponseEntity.ok(productService.getProductsForSale());
+    }
 
     @PostMapping
     public ResponseEntity<ProductDTO> createPlate(@Valid @RequestBody ProductDTO productDTO, @RequestHeader("Authorization") String auth) {

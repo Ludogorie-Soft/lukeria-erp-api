@@ -17,8 +17,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,13 +60,13 @@ class ProductServiceTest {
         List<Product> products = new ArrayList<>();
         Plate plate = new Plate();
         plate.setId(1L);
-        products.add(new Product(1L, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111"));
-        products.add(new Product(2L, aPackage, BigDecimal.valueOf(15.0), 3, false, "L111"));
+        products.add(new Product(1L, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111",true));
+        products.add(new Product(2L, aPackage, BigDecimal.valueOf(15.0), 3, false, "L111",true));
 
         when(productRepository.findByDeletedFalse()).thenReturn(products);
 
-        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 5, "L111"));
-        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, BigDecimal.valueOf(15.0), aPackage.getId(), 3, "L111"));
+        when(modelMapper.map(products.get(0), ProductDTO.class)).thenReturn(new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 5, "L111",true));
+        when(modelMapper.map(products.get(1), ProductDTO.class)).thenReturn(new ProductDTO(2L, BigDecimal.valueOf(15.0), aPackage.getId(), 3, "L111",true));
 
         // Act
         List<ProductDTO> result = productService.getAllProducts();
@@ -88,10 +90,10 @@ class ProductServiceTest {
         Long productId = 1L;
         Plate plate = new Plate();
         plate.setId(1L);
-        Product product = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111");
+        Product product = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111",true);
         when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(product));
 
-        ProductDTO expectedProductDTO = new ProductDTO(productId, BigDecimal.valueOf(10.0), aPackage.getId(), 5, "L111");
+        ProductDTO expectedProductDTO = new ProductDTO(productId, BigDecimal.valueOf(10.0), aPackage.getId(), 5, "L111",true);
         when(modelMapper.map(product, ProductDTO.class)).thenReturn(expectedProductDTO);
 
         // Act
@@ -118,7 +120,7 @@ class ProductServiceTest {
         aPackage.setId(1L);
         Plate plate = new Plate();
         plate.setId(1L);
-        ProductDTO productDTO = new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 0, "L111");
+        ProductDTO productDTO = new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 0, "L111",true);
 
         // Act and Assert
         assertThrows(jakarta.validation.ValidationException.class, () -> productService.createProduct(productDTO));
@@ -208,8 +210,8 @@ class ProductServiceTest {
         Package aPackage = new Package();
         aPackage.setId(1L);
         Long productId = 1L;
-        ProductDTO productDTO = new ProductDTO(productId, BigDecimal.valueOf(0.0), aPackage.getId(), 10, "L111");
-        Product existingProduct = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111");
+        ProductDTO productDTO = new ProductDTO(productId, BigDecimal.valueOf(0.0), aPackage.getId(), 10, "L111",true);
+        Product existingProduct = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111",true);
 
         when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
 
@@ -226,8 +228,8 @@ class ProductServiceTest {
         Plate plate = new Plate();
         plate.setId(1L);
         Long productId = 1L;
-        ProductDTO productDTO = new ProductDTO(productId, BigDecimal.valueOf(20.0), aPackage.getId(), 0, "L111");
-        Product existingProduct = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111");
+        ProductDTO productDTO = new ProductDTO(productId, BigDecimal.valueOf(20.0), aPackage.getId(), 0, "L111",true);
+        Product existingProduct = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111",true);
 
         when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
 
@@ -244,8 +246,8 @@ class ProductServiceTest {
         Plate plate = new Plate();
         plate.setId(1L);
         Long productId = 1L;
-        ProductDTO productDTO = new ProductDTO(productId, BigDecimal.valueOf(20.0), aPackage.getId(), 10, "L111");
-        Product existingProduct = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111");
+        ProductDTO productDTO = new ProductDTO(productId, BigDecimal.valueOf(20.0), aPackage.getId(), 10, "L111",true);
+        Product existingProduct = new Product(productId, aPackage, BigDecimal.valueOf(10.0), 5, false, "L111",true);
 
         when(productRepository.findByIdAndDeletedFalse(productId)).thenReturn(Optional.of(existingProduct));
 
@@ -261,7 +263,7 @@ class ProductServiceTest {
         Plate plate = new Plate();
         plate.setId(1L);
         Long nonExistingProductId = 10L;
-        ProductDTO productDTO = new ProductDTO(nonExistingProductId, BigDecimal.valueOf(20.0), aPackage.getId(), 10, "L111");
+        ProductDTO productDTO = new ProductDTO(nonExistingProductId, BigDecimal.valueOf(20.0), aPackage.getId(), 10, "L111",true);
 
         when(productRepository.findByIdAndDeletedFalse(nonExistingProductId)).thenReturn(Optional.empty());
 
@@ -289,6 +291,41 @@ class ProductServiceTest {
         verify(product).setDeleted(true);
         verify(productRepository).save(product);
     }
+    @Test
+    void testGetProductsForSale() {
+        // Arrange
+        Package aPackage = new Package();
+        aPackage.setId(1L);
+
+        List<Product> availableProducts = new ArrayList<>();
+        availableProducts.add(new Product(1L, aPackage, BigDecimal.valueOf(10.0), 10, false, "L111", true));
+        availableProducts.add(new Product(2L, aPackage, BigDecimal.valueOf(20.0), 15, false, "L112", true));
+
+        when(productRepository.getAvailableProductsForSale()).thenReturn(availableProducts);
+
+        // Mock the modelMapper to convert Product to ProductDTO
+        ProductDTO productDTO1 = new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 10, "L111", true);
+        ProductDTO productDTO2 = new ProductDTO(2L, BigDecimal.valueOf(20.0), aPackage.getId(), 15, "L112", true);
+
+        Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        productDTOList.add(productDTO1);
+        productDTOList.add(productDTO2);
+
+        when(modelMapper.map(availableProducts, listType)).thenReturn(productDTOList);
+
+        // Act
+        List<ProductDTO> result = productService.getProductsForSale();
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(productDTO1, result.get(0));
+        assertEquals(productDTO2, result.get(1));
+
+        verify(productRepository, times(1)).getAvailableProductsForSale();
+        verify(modelMapper, times(1)).map(availableProducts, listType);
+    }
+
 
     @Test
     void testProduceProduct() throws ChangeSetPersister.NotFoundException {
