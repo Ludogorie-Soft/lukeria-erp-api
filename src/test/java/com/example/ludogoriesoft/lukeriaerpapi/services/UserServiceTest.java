@@ -7,6 +7,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
+import com.example.ludogoriesoft.lukeriaerpapi.models.PasswordResetToken;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PasswordResetTokenRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
@@ -25,6 +26,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -621,6 +623,47 @@ class UserServiceTest {
         assertTrue(result);
         verify(userRepository, times(1)).findByEmail("test@example.com");
         verify(passwordResetTokenRepository, times(1)).save(any());
+    }
+
+    @Test
+    void updatePasswordWithToken_ValidToken_Success() {
+        String token = UUID.randomUUID().toString();
+        String newPassword = "newPassword123";
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(10));
+        User user = new User();
+        user.setPassword("oldPassword123");
+        resetToken.setUser(user);
+
+        when(passwordResetTokenRepository.findByToken(token)).thenReturn(resetToken);
+
+        boolean result = userService.updatePasswordWithToken(token, newPassword);
+
+        assertTrue(result);
+
+        verify(userRepository, times(1)).save(user);
+        verify(passwordResetTokenRepository, times(1)).findByToken(token);
+    }
+
+    @Test
+    void updatePasswordWithToken_ExpiredToken_Failure() {
+        String token = UUID.randomUUID().toString();
+        String newPassword = "newPassword123";
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setExpiryDate(LocalDateTime.now().minusMinutes(10)); // Токенът е изтекъл
+
+        when(passwordResetTokenRepository.findByToken(token)).thenReturn(resetToken);
+
+        boolean result = userService.updatePasswordWithToken(token, newPassword);
+
+        assertFalse(result);
+
+        verify(userRepository, never()).save(any(User.class));
+        verify(passwordResetTokenRepository, times(1)).findByToken(token);
     }
 
 }
