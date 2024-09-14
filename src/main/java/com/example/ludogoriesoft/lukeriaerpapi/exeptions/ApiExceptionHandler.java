@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ApiExceptionHandler {
 
     private final SlackService slackService;
+
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(ChangeSetPersister.NotFoundException ex) {
         String errorMessage = "Not found!";
@@ -26,8 +28,16 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = "Validation failed: " + ex.getBindingResult().getFieldError().getDefaultMessage();
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
-    public void alertSlackChannelWhenUnexpectedErrorOccurs(Exception ex) {
+    public ResponseEntity<String> alertSlackChannelWhenUnexpectedErrorOccurs(Exception ex) {
         slackService.publishMessage("lukeria-notifications","Error occurred from the BACKEND application ->" + ex.getMessage());
+        String errorMessage = "An unexpected error occurred: " + ex.getMessage();
+        return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
