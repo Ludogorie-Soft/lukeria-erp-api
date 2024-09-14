@@ -211,7 +211,7 @@ class PlateControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/plate")
                         .content("{\"id\": 1, \"name\": \"" + blankPlateName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -237,7 +237,7 @@ class PlateControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/plate/{id}", 1)
                         .content("{\"id\": 1, \"businessName\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

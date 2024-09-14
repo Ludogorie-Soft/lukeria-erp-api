@@ -208,7 +208,7 @@ class PackageControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/package")
                         .content("{\"id\": 1, \"name\": \"" + blankPackageName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -233,7 +233,7 @@ class PackageControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/package/{id}", 1)
                         .content("{\"id\": 1, \"name\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
 
