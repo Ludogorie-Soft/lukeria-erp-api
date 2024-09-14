@@ -1,24 +1,84 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.beust.ah.A;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.AuthenticationResponse;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.RefreshTokenBodyDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.services.security.AuthenticationService;
+import com.example.ludogoriesoft.lukeriaerpapi.services.security.JwtService;
+import com.example.ludogoriesoft.lukeriaerpapi.services.security.TokenService;
+import com.example.ludogoriesoft.lukeriaerpapi.services.security.UserServiceImpl;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final JwtService jwtService;
+    private final TokenService tokenService;
+
+    private void userValidations(UserDTO user) {
+        if (StringUtils.isBlank(user.getUsername())) {
+            throw new ValidationException("Username is required");
+        }
+        if (StringUtils.isBlank(user.getAddress())) {
+            throw new ValidationException("Address is required");
+        }
+        if (StringUtils.isBlank(user.getFirstname())) {
+            throw new ValidationException("First Name is required");
+        }
+        if (StringUtils.isBlank(user.getLastname())) {
+            throw new ValidationException("Last name is required");
+        }
+        if (StringUtils.isBlank(user.getEmail())) {
+            throw new ValidationException("Email is required");
+        }
+        if (StringUtils.isBlank(user.getPassword())) {
+            throw new ValidationException("Password is required");
+        }
+    }
+
+    private User update(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
+        User existingUser = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        userValidations(userDTO);
+        User updatedUser = modelMapper.map(userDTO, User.class);
+        updatedUser.setId(existingUser.getId());
+        return userRepository.save(updatedUser);
+    }
+
+    private AuthenticationResponse createNewToken(User user) {
+        String jwtToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        tokenService.revokeAllUserTokens(user);
+        tokenService.saveToken(user, jwtToken, TokenType.ACCESS);
+        tokenService.saveToken(user, refreshToken, TokenType.REFRESH);
+
+        return AuthenticationResponse
+                .builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .user(modelMapper.map(user, PublicUserDTO.class))
+                .build();
+    }
 
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findByDeletedFalse();
@@ -32,24 +92,7 @@ public class UserService {
     }
 
     public UserDTO createUser(UserDTO user) {
-        if (StringUtils.isBlank(user.getUsername())) {
-            throw new ValidationException("Username is required");
-        }
-        if (StringUtils.isBlank(user.getFirstname())) {
-            throw new ValidationException("Full Name is required");
-        }
-        if (StringUtils.isBlank(user.getLastname())) {
-            throw new ValidationException("Last Name is required");
-        }
-        if (StringUtils.isBlank(user.getAddress())) {
-            throw new ValidationException("Address is required");
-        }
-        if (StringUtils.isBlank(user.getEmail())) {
-            throw new ValidationException("Email is required");
-        }
-        if (StringUtils.isBlank(user.getPassword())) {
-            throw new ValidationException("Password is required");
-        }
+        userValidations(user);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         User user1 = modelMapper.map(user, User.class);
@@ -64,38 +107,48 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("email"));
     }
 
+    public AuthenticationResponse updateAuthenticateUser(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
+        User updatedUser = update(id, userDTO);
+        return createNewToken(updatedUser);
+    }
+
     public UserDTO updateUser(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
-        User existingUser = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        if (StringUtils.isBlank(userDTO.getUsername())) {
-            throw new ValidationException("Username is required");
-        }
-        if (StringUtils.isBlank(userDTO.getAddress())) {
-            throw new ValidationException("Address is required");
-        }
-        if (StringUtils.isBlank(userDTO.getFirstname())) {
-            throw new ValidationException("First Name is required");
-        }
-        if (StringUtils.isBlank(userDTO.getLastname())) {
-            throw new ValidationException("Last name is required");
-        }
-        if (StringUtils.isBlank(userDTO.getEmail())) {
-            throw new ValidationException("Email is required");
-        }
-        existingUser.setUsernameField(userDTO.getUsername());
-        existingUser.setFirstname(userDTO.getFirstname());
-        existingUser.setLastname(userDTO.getLastname());
-        existingUser.setAddress(userDTO.getAddress());
-        existingUser.setUsernameField(userDTO.getUsername());
-        existingUser.setEmail(userDTO.getEmail());
-        existingUser.setRole(userDTO.getRole());
-        User updatedUser = userRepository.save(existingUser);
-        updatedUser.setId(id);
+        User updatedUser = update(id, userDTO);
         return modelMapper.map(updatedUser, UserDTO.class);
+    }
+
+    public boolean ifPasswordMatch(String password) {
+        UserDTO authenticatedUserDTO = findAuthenticatedUser();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        return passwordEncoder.matches(password, authenticatedUserDTO.getPassword());
+    }
+
+    public boolean updatePassword(UserDTO userDTO) {
+        UserDTO authenticateUserDTO = findAuthenticatedUser();
+        if (!(userDTO.getPassword().equals(userDTO.getRepeatPassword()))) {
+            return false;
+        }
+        if (userDTO.getPassword().isEmpty()) {
+            return false;
+        }
+        User user = modelMapper.map(authenticateUserDTO, User.class);
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        return true;
     }
 
     public void deleteUser(Long id) throws ChangeSetPersister.NotFoundException {
         User user = userRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         user.setDeleted(true);
         userRepository.save(user);
+    }
+
+    public UserDTO findAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User authenticateUser = findByEmail(email);
+        return modelMapper.map(authenticateUser, UserDTO.class);
     }
 }
