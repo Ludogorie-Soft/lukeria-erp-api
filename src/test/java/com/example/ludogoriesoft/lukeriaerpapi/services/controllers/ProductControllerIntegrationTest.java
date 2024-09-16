@@ -141,6 +141,28 @@ class ProductControllerIntegrationTest {
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
     }
+    @Test
+    void testGetAvailableProductsForSale() throws Exception {
+        ProductDTO productDTO1 = new ProductDTO();
+        productDTO1.setId(1L);
+        ProductDTO productDTO2 = new ProductDTO();
+        productDTO2.setId(2L);
+        List<ProductDTO> productDTOList = Arrays.asList(productDTO1, productDTO2);
+
+        when(productService.getProductsForSale()).thenReturn(productDTOList);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/product/available-products")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
 
     @Test
     void testUpdateProduct() throws Exception {

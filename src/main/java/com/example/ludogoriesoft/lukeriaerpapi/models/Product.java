@@ -30,5 +30,8 @@ public class Product {
     private boolean deleted;
     @Size(min = 2, max = 10, message = "Кода на продукта трябда да бъде между 2 и 10 символа!")
     private String productCode;
+    @Column(name = "for_sale")
+    private boolean forSale;
+
 }
 
