@@ -20,6 +20,7 @@ public class UserDTO {
     @NotNull(message = "The name should not be null!")
     private String lastname;
     private String password;
+    private String repeatPassword;
     @Size(min = 5)
     private String address;
     @Email
