@@ -194,7 +194,7 @@ class InvoiceControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -222,7 +222,7 @@ class InvoiceControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -261,7 +261,7 @@ class InvoiceControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test

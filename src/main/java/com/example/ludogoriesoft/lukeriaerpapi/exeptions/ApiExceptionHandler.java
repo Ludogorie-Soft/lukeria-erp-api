@@ -16,7 +16,7 @@ public class ApiExceptionHandler {
     private final SlackService slackService;
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(ChangeSetPersister.NotFoundException ex) {
-        String errorMessage = "Not found: " + ex.getMessage();
+        String errorMessage = "Not found!";
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
 
