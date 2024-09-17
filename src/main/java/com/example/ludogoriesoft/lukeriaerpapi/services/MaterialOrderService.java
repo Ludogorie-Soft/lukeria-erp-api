@@ -113,17 +113,17 @@ public class MaterialOrderService {
         switch (materialTypeStr) {
             case "CARTON" -> {
                 if (!cartonRepository.existsById(materialOrderDTO.getMaterialId())) {
-                    throw new ValidationException("Invalid Carton ID");
+                    throw new ValidationException("Invalid Carton ID: "+materialOrderDTO.getMaterialId());
                 }
             }
             case "PACKAGE" -> {
                 if (!packageRepository.existsById(materialOrderDTO.getMaterialId())) {
-                    throw new ValidationException("Invalid Package ID");
+                    throw new ValidationException("Invalid Package ID: "+materialOrderDTO.getMaterialId());
                 }
             }
             case "PLATE" -> {
                 if (!plateRepository.existsById(materialOrderDTO.getMaterialId())) {
-                    throw new ValidationException("Invalid Plate ID");
+                    throw new ValidationException("Invalid Plate ID : "+materialOrderDTO.getMaterialId());
                 }
             }
             default -> throw new ValidationException("Invalid Material Type");
