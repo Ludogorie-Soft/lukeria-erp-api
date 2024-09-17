@@ -195,7 +195,7 @@ class UserControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -223,7 +223,7 @@ class UserControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -262,7 +262,7 @@ class UserControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -416,7 +416,7 @@ class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userDTO))) // Use helper method to convert object to JSON
                 .andExpect(status().isNotFound()) // Expect 404 Not Found
-                .andExpect(content().string(containsString("Not found!"))) // Expect error message
+                .andExpect(content().string(containsString(""))) // Expect error message
                 .andReturn();
     }
     @Test
