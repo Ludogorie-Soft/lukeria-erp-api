@@ -20,7 +20,7 @@ public class EmailService {
 
 
 
-    public void sendHtmlEmail(String toEmail, String subject, String body) {
+    public void sendHtmlEmailForForgotPassword(String toEmail, String subject, String body) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

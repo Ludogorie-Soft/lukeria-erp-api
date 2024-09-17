@@ -595,7 +595,7 @@ class UserServiceTest {
     @Test
     void processForgotPassword_UserNotFound_ThrowsException() {
         when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
-        verify(emailService, never()).sendHtmlEmail(anyString(), anyString(), anyString());
+        verify(emailService, never()).sendHtmlEmailForForgotPassword(anyString(), anyString(), anyString());
     }
 
     @Test
@@ -610,7 +610,7 @@ class UserServiceTest {
         String resetEmailContent = "Reset your password using this link: " + token;
         when(emailContentBuilder.buildResetPasswordEmail(anyString(), eq(token))).thenReturn(resetEmailContent);
 
-        doNothing().when(emailService).sendHtmlEmail(eq(user.getEmail()), anyString(), eq(resetEmailContent));
+        doNothing().when(emailService).sendHtmlEmailForForgotPassword(eq(user.getEmail()), anyString(), eq(resetEmailContent));
 
         boolean result = userService.processForgotPassword("test@example.com");
 

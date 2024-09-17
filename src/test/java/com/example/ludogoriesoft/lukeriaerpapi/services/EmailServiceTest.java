@@ -27,7 +27,7 @@ class EmailServiceTest {
     }
 
     @Test
-    void sendHtmlEmail_Success() {
+    void sendHtmlEmail_ForForgotPassword_Success() {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
@@ -35,13 +35,13 @@ class EmailServiceTest {
         String subject = "Test Subject";
         String body = "<h1>This is a test email</h1>";
 
-        emailService.sendHtmlEmail(toEmail, subject, body);
+        emailService.sendHtmlEmailForForgotPassword(toEmail, subject, body);
 
         verify(mailSender, times(1)).createMimeMessage();
         verify(mailSender, times(1)).send(mimeMessage);
     }
     @Test
-    void sendHtmlEmail_Failure() {
+    void sendHtmlEmail_ForForgotPassword_Failure() {
         MimeMessage mimeMessage = mock(MimeMessage.class);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
@@ -52,7 +52,7 @@ class EmailServiceTest {
         String body = "<h1>This is a test email</h1>";
 
         assertThrows(CustomEmailException.class, () -> {
-            emailService.sendHtmlEmail(toEmail, subject, body);
+            emailService.sendHtmlEmailForForgotPassword(toEmail, subject, body);
         });
 
         verify(mailSender, times(1)).createMimeMessage();
