@@ -3,32 +3,28 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.CustomEmailException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class EmailService {
     private static final Logger logger = LogManager.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
-    private final String mail;
 
-    public EmailService(JavaMailSender mailSender, @Value("${spring.mail.username}") String mail) {
-        this.mailSender = mailSender;
-        this.mail = mail;
-    }
 
 
     public void sendHtmlEmail(String toEmail, String subject, String body) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(mail);
+            helper.setFrom("berki07092@gmail.com");
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(body, true);
