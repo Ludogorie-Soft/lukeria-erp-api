@@ -207,7 +207,7 @@ class InvoiceControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/invoice")
                         .content("{\"id\": 1, \"invoiceNumber\": \"" + blankInvoiceName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -232,7 +232,7 @@ class InvoiceControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/invoice/{id}", 1)
                         .content("{\"id\": 1, \"invoiceNumber\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

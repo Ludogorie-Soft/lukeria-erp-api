@@ -208,7 +208,7 @@ class UserControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user")
                         .content("{\"id\": 1, \"username\": \"" + blankUserName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -233,7 +233,7 @@ class UserControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/user/{id}", 1)
                         .content("{\"id\": 1, \"username\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

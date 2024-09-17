@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ApiExceptionHandler {
 
     private final SlackService slackService;
+
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(ChangeSetPersister.NotFoundException ex) {
         String errorMessage = "Not found!";
@@ -27,7 +28,9 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public void alertSlackChannelWhenUnexpectedErrorOccurs(Exception ex) {
+    public ResponseEntity<String> alertSlackChannelWhenUnexpectedErrorOccurs(Exception ex) {
         slackService.publishMessage("lukeria-notifications","Error occurred from the BACKEND application ->" + ex.getMessage());
+        String errorMessage = "An unexpected error occurred: " + ex.getMessage();
+        return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

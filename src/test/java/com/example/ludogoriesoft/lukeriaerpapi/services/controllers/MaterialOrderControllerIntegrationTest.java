@@ -199,7 +199,7 @@ class MaterialOrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/material-order")
                         .content("{\"id\": 1, \"name\": \"" + blankMaterialOrderName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -224,7 +224,7 @@ class MaterialOrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/material-order/{id}", 1)
                         .content("{\"id\": 1, \"name\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

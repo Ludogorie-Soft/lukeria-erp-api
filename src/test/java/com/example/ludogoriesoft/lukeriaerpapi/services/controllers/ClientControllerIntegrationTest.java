@@ -207,7 +207,7 @@ class ClientControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/client")
                         .content("{\"id\": 1, \"businessName\": \"" + blankClientName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -232,7 +232,7 @@ class ClientControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/client/{id}", 1)
                         .content("{\"id\": 1, \"businessName\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
