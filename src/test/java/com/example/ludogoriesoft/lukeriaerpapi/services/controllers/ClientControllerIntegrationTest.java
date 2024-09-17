@@ -20,6 +20,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -97,9 +98,56 @@ class ClientControllerIntegrationTest {
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
     }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetAllClientsWithUserRole() throws Exception {
+        ClientDTO clientDTO1 = new ClientDTO();
+        clientDTO1.setId(1L);
+        clientDTO1.setBusinessName("Client 1");
+        ClientDTO clientDTO2 = new ClientDTO();
+        clientDTO2.setId(2L);
+        clientDTO2.setBusinessName("Client 2");
+        List<ClientDTO> clientDTOList = Arrays.asList(clientDTO1, clientDTO2);
+
+        when(clientService.getAllClients()).thenReturn(clientDTOList);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].businessName").value("Client 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].businessName").value("Client 2"))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
 
     @Test
     void testGetClientById() throws Exception {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setId(1L);
+        clientDTO.setBusinessName("Client 1");
+
+        when(clientService.getClientById(anyLong())).thenReturn(clientDTO);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/client/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.businessName").value("Client 1"))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetClientByIdWithUSerRole() throws Exception {
         ClientDTO clientDTO = new ClientDTO();
         clientDTO.setId(1L);
         clientDTO.setBusinessName("Client 1");

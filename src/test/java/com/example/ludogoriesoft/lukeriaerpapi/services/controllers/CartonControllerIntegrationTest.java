@@ -20,6 +20,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -97,9 +98,58 @@ class CartonControllerIntegrationTest {
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
     }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetAllCartonsWithUserRole() throws Exception {
+        CartonDTO cartonDTO1 = new CartonDTO();
+        cartonDTO1.setId(1L);
+        cartonDTO1.setName("Carton 1");
+        CartonDTO cartonDTO2 = new CartonDTO();
+        cartonDTO2.setId(2L);
+        cartonDTO2.setName("Carton 2");
+        List<CartonDTO> cartonDTOList = Arrays.asList(cartonDTO1, cartonDTO2);
+
+        when(cartonService.getAllCartons()).thenReturn(cartonDTOList);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Carton 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Carton 2"))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
 
     @Test
     void testGetCartonById() throws Exception {
+        CartonDTO cartonDTO = new CartonDTO();
+        cartonDTO.setId(1L);
+        cartonDTO.setName("Carton 1");
+
+        when(cartonService.getCartonDTOById(anyLong())).thenReturn(cartonDTO);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Carton 1"))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetCartonByIdWithUSerRole() throws Exception {
         CartonDTO cartonDTO = new CartonDTO();
         cartonDTO.setId(1L);
         cartonDTO.setName("Carton 1");

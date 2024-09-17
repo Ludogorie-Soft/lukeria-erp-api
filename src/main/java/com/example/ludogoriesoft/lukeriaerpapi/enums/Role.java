@@ -15,7 +15,10 @@ import static com.example.ludogoriesoft.lukeriaerpapi.enums.Permission.*;
 @RequiredArgsConstructor
 public enum Role {
 
-    USER(Collections.emptySet()),
+    CUSTOMER(
+            Set.of(CUSTOMER_READ
+            )
+    ),
     ADMIN(
             Set.of(
                     ADMIN_READ,
