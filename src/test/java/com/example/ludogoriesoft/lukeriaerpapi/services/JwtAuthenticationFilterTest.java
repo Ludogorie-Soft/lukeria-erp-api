@@ -75,7 +75,7 @@ public class JwtAuthenticationFilterTest {
         when(jwtService.extractUsername("validToken")).thenReturn("user@example.com");
 
         User user = new User();
-        user.setRole(Role.USER);
+        user.setRole(Role.CUSTOMER);
         when(userService.findByEmail("user@example.com")).thenReturn(user);
 
         when(tokenRepository.findByToken("validToken")).thenReturn(Optional.of(mock(Token.class)));

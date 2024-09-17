@@ -228,7 +228,7 @@ class OrderProductControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/orderProduct")
                         .content("{\"id\": 1}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 

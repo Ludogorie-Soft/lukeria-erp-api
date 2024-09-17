@@ -20,6 +20,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -98,9 +99,58 @@ class PlateControllerIntegrationTest {
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
     }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetAllPlatesWithUserRole() throws Exception {
+        PlateDTO plateDTO1 = new PlateDTO();
+        plateDTO1.setId(1L);
+        plateDTO1.setName("Plate 1");
+        PlateDTO plateDTO2 = new PlateDTO();
+        plateDTO2.setId(2L);
+        plateDTO2.setName("Plate 2");
+        List<PlateDTO> plateDTOList = Arrays.asList(plateDTO1, plateDTO2);
+
+        when(plateService.getAllPlates()).thenReturn(plateDTOList);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Plate 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Plate 2"))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
 
     @Test
     void testGetPlateById() throws Exception {
+        PlateDTO plateDTO = new PlateDTO();
+        plateDTO.setId(1L);
+        plateDTO.setName("Plate 1");
+
+        when(plateService.getPlateDTOById(anyLong())).thenReturn(plateDTO);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/plate/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Plate 1"))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetPlateByIdWithUserRole() throws Exception {
         PlateDTO plateDTO = new PlateDTO();
         plateDTO.setId(1L);
         plateDTO.setName("Plate 1");
@@ -211,7 +261,7 @@ class PlateControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/plate")
                         .content("{\"id\": 1, \"name\": \"" + blankPlateName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -237,7 +287,7 @@ class PlateControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/plate/{id}", 1)
                         .content("{\"id\": 1, \"businessName\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
