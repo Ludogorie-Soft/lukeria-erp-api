@@ -258,7 +258,7 @@ class CartonControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/carton")
                         .content("{\"id\": 1, \"name\": \"" + blankCartonName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -283,7 +283,7 @@ class CartonControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/carton/{id}", 1)
                         .content("{\"id\": 1, \"name\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test

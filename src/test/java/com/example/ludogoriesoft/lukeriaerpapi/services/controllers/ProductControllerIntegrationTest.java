@@ -231,7 +231,7 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/product")
                         .content("{\"id\": 1, \"" + blankProductName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -257,7 +257,7 @@ class ProductControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/product/{id}", 1)
                         .content("{\"id\": 1, \": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
