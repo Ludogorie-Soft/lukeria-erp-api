@@ -30,7 +30,8 @@ class OrderProductServiceTest {
     private OrderProductRepository orderProductRepository;
     @Mock
     private OrderRepository orderRepository;
-
+    @Mock
+    private UserRepository userRepository;
     @Mock
     private ProductRepository productRepository;
     @Mock
@@ -42,6 +43,10 @@ class OrderProductServiceTest {
 
     @InjectMocks
     private OrderProductService orderProductService;
+    @Mock
+    private EmailService emailService;
+    @Mock
+    private EmailContentBuilder emailContentBuilder;
     @InjectMocks
     private PackageService packageService;
     @InjectMocks
