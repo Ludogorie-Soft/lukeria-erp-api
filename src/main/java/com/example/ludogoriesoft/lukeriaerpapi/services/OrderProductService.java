@@ -114,7 +114,7 @@ public class OrderProductService {
     private boolean sendMailForQuantities(List<Product> productList) {
         List<String> emailList = userRepository.findEmailsByRoleNotCustomer();
         String body = emailContentBuilder.generateStockReportEmail(productList);
-        emailService.sendHtmlEmailWithProductReport(emailList, "Доклад за наличности на продукти", body);
+        emailService.sendHtmlEmailWithProductReport(emailList, "Доклад за наличност на продукти след изпращане на заявка", body);
         return true;
     }
 }
