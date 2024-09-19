@@ -1,8 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CustomerCustomPriceDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.models.CustomerCustomPrice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
@@ -10,12 +10,16 @@ import com.example.ludogoriesoft.lukeriaerpapi.repository.CustomerCustomPriceRep
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
+import org.apache.poi.sl.draw.geom.GuideIf;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -53,8 +57,10 @@ public class CustomerCustomPriceService {
         return modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class);
     }
 
-    public CustomerCustomPriceDTO update(Long id, CustomerCustomPriceDTO customerCustomPriceDTO) throws ChangeSetPersister.NotFoundException {
-        CustomerCustomPrice existingCustomPrice = customerCustomPriceRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+    public CustomerCustomPriceDTO update(CustomerCustomPriceDTO customerCustomPriceDTO) throws ChangeSetPersister.NotFoundException {
+        Client client = clientRepository.findByIdAndDeletedFalse(customerCustomPriceDTO.getClientId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Product product = productRepository.findByIdAndDeletedFalse(customerCustomPriceDTO.getProductId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        CustomerCustomPrice existingCustomPrice = findByClientIdAndProductId(client,product);
         validation(customerCustomPriceDTO);
         CustomerCustomPrice updatedCustomPrice = modelMapper.map(customerCustomPriceDTO, CustomerCustomPrice.class);
         updatedCustomPrice.setId(existingCustomPrice.getId());
@@ -62,15 +68,33 @@ public class CustomerCustomPriceService {
         return modelMapper.map(updatedCustomPrice, CustomerCustomPriceDTO.class);
     }
 
-    public List<CustomerCustomPriceDTO> getAllCustomPrices(){
+    public List<CustomerCustomPriceDTO> getAllCustomPrices() {
         List<CustomerCustomPrice> allCustomPrices = customerCustomPriceRepository.findByDeletedFalse();
         return allCustomPrices.stream().map(customPrice -> modelMapper.map(customPrice, CustomerCustomPriceDTO.class)).toList();
     }
-    public CustomerCustomPriceDTO delete(Long id) throws ChangeSetPersister.NotFoundException {
-        CustomerCustomPrice existingCustomPrice = customerCustomPriceRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
+
+    public CustomerCustomPriceDTO delete(Long clientId, Long productId) throws ChangeSetPersister.NotFoundException {
+        Client client = clientRepository.findByIdAndDeletedFalse(clientId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Product product = productRepository.findByIdAndDeletedFalse(productId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        CustomerCustomPrice existingCustomPrice = findByClientIdAndProductId(client,product);
         existingCustomPrice.setDeleted(true);
         customerCustomPriceRepository.save(existingCustomPrice);
         return modelMapper.map(existingCustomPrice, CustomerCustomPriceDTO.class);
+    }
+
+    private List<CustomerCustomPriceDTO> findByClientId(Client clientId) {
+        List<CustomerCustomPrice> foundByClientId = customerCustomPriceRepository.findByClientIdAndDeletedFalse(clientId);
+        return foundByClientId.stream().map(customPrice -> modelMapper.map(customPrice, CustomerCustomPriceDTO.class)).toList();
+    }
+
+    public List<CustomerCustomPriceDTO> allProductWithCustomPriceForClient(Long clientId) throws ChangeSetPersister.NotFoundException {
+        Client client = clientRepository.findByIdAndDeletedFalse(clientId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return findByClientId(client);
+    }
+
+    private CustomerCustomPrice findByClientIdAndProductId(Client clientId, Product productId) throws ChangeSetPersister.NotFoundException {
+        CustomerCustomPrice customerCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(clientId, productId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return customerCustomPrice;
     }
 
 }
