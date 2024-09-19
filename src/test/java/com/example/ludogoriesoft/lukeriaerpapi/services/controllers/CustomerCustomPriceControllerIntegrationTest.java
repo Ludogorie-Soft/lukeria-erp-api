@@ -129,7 +129,9 @@ public class CustomerCustomPriceControllerIntegrationTest {
         updatedPrice.setPrice(BigDecimal.valueOf(175.0));
 
         // Mock the update method
+
         when(customerCustomPriceService.update(any(CustomerCustomPriceDTO.class))).thenReturn(updatedPrice);
+
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/customerCustomPrice/")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
