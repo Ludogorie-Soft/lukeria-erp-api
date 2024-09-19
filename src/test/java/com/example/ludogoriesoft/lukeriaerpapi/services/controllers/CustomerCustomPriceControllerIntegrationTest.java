@@ -1,11 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.CustomerCustomPriceController;
-import com.example.ludogoriesoft.lukeriaerpapi.controllers.UserController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CustomerCustomPriceDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.CustomerCustomPriceService;
-import com.example.ludogoriesoft.lukeriaerpapi.services.UserService;
 import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,9 +120,9 @@ public class CustomerCustomPriceControllerIntegrationTest {
         updatedPrice.setId(1L);
         updatedPrice.setPrice(BigDecimal.valueOf(175.0));
 
-        when(customerCustomPriceService.update(anyLong(), any(CustomerCustomPriceDTO.class))).thenReturn(updatedPrice);
+        when(customerCustomPriceService.update(any(CustomerCustomPriceDTO.class))).thenReturn(updatedPrice);
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/customerCustomPrice/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/customerCustomPrice/")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(updatedPrice)))
@@ -139,10 +137,12 @@ public class CustomerCustomPriceControllerIntegrationTest {
         deletedPrice.setId(1L);
         deletedPrice.setPrice(BigDecimal.valueOf(100.0));
 
-        when(customerCustomPriceService.delete(anyLong())).thenReturn(deletedPrice);
+        when(customerCustomPriceService.delete(anyLong(), anyLong())).thenReturn(deletedPrice);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/customerCustomPrice/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/customerCustomPrice/")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .param("clientId", "1")
+                        .param("productId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -184,9 +184,9 @@ public class CustomerCustomPriceControllerIntegrationTest {
         priceDTO.setId(1L);
         priceDTO.setPrice(BigDecimal.valueOf(175.0));
 
-        doThrow(new ChangeSetPersister.NotFoundException()).when(customerCustomPriceService).update(anyLong(), any(CustomerCustomPriceDTO.class));
+        doThrow(new ChangeSetPersister.NotFoundException()).when(customerCustomPriceService).update(any(CustomerCustomPriceDTO.class));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/customerCustomPrice/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/customerCustomPrice/")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(priceDTO)))
@@ -196,12 +196,39 @@ public class CustomerCustomPriceControllerIntegrationTest {
 
     @Test
     void testDeleteCustomPriceWhenNotFound() throws Exception {
-        doThrow(new ChangeSetPersister.NotFoundException()).when(customerCustomPriceService).delete(anyLong());
+        doThrow(new ChangeSetPersister.NotFoundException()).when(customerCustomPriceService).delete(anyLong(), anyLong());
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/customerCustomPrice/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/customerCustomPrice/")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .param("clientId", "1")
+                        .param("productId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("Not found!")));
+    }
+
+    @Test
+    void testAllProductsWithAndWithoutCustomPrice() throws Exception {
+        CustomerCustomPriceDTO price1 = new CustomerCustomPriceDTO();
+        price1.setId(1L);
+        price1.setPrice(BigDecimal.valueOf(100.0));
+
+        CustomerCustomPriceDTO price2 = new CustomerCustomPriceDTO();
+        price2.setId(2L);
+        price2.setPrice(BigDecimal.valueOf(200.0));
+
+        List<CustomerCustomPriceDTO> prices = Arrays.asList(price1, price2);
+
+        when(customerCustomPriceService.allProductWithCustomPriceForClient(anyLong())).thenReturn(prices);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customerCustomPrice/allForClient/{id}", 1L)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].price").value(100.0))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].price").value(200.0));
     }
 }
