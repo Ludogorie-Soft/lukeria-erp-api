@@ -1,7 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CustomerCustomPriceDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.models.CustomerCustomPrice;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CustomerCustomPriceRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
@@ -20,13 +22,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerCustomPriceTest {
@@ -48,6 +46,8 @@ public class CustomerCustomPriceTest {
 
     private CustomerCustomPriceDTO customerCustomPriceDTO;
     private CustomerCustomPrice customerCustomPrice;
+    private Client client;
+    private Product product;
 
     @BeforeEach
     void setUp() {
@@ -59,21 +59,24 @@ public class CustomerCustomPriceTest {
         customerCustomPrice = new CustomerCustomPrice();
         customerCustomPrice.setId(1L);
         customerCustomPrice.setPrice(BigDecimal.valueOf(100));
+
+        client = new Client();
+        client.setId(1L);
+
+        product = new Product();
+        product.setId(1L);
     }
 
     @Test
     void create_ShouldCreateCustomPrice() throws ChangeSetPersister.NotFoundException {
-        // Arrange
         when(clientRepository.existsById(1L)).thenReturn(true);
         when(productRepository.existsById(1L)).thenReturn(true);
         when(customerCustomPriceRepository.save(any(CustomerCustomPrice.class))).thenReturn(customerCustomPrice);
         when(modelMapper.map(customerCustomPriceDTO, CustomerCustomPrice.class)).thenReturn(customerCustomPrice);
         when(modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class)).thenReturn(customerCustomPriceDTO);
 
-        // Act
         CustomerCustomPriceDTO result = customerCustomPriceService.create(customerCustomPriceDTO);
 
-        // Assert
         assertNotNull(result);
         assertEquals(result.getPrice(), BigDecimal.valueOf(100));
         verify(customerCustomPriceRepository, times(1)).save(any(CustomerCustomPrice.class));
@@ -81,61 +84,53 @@ public class CustomerCustomPriceTest {
 
     @Test
     void create_ShouldThrowException_WhenPriceIsZero() {
-        // Arrange
         customerCustomPriceDTO.setPrice(BigDecimal.ZERO);
 
-        // Act & Assert
         ValidationException exception = assertThrows(ValidationException.class, () -> customerCustomPriceService.create(customerCustomPriceDTO));
         assertEquals("Price must be greater than zero", exception.getMessage());
     }
 
     @Test
     void create_ShouldThrowException_WhenClientDoesNotExist() {
-        // Arrange
         when(clientRepository.existsById(1L)).thenReturn(false);
 
-        // Act & Assert
         ValidationException exception = assertThrows(ValidationException.class, () -> customerCustomPriceService.create(customerCustomPriceDTO));
         assertEquals("Client does not exist with ID: 1", exception.getMessage());
     }
 
     @Test
     void update_ShouldUpdateCustomPrice() throws ChangeSetPersister.NotFoundException {
-        // Arrange
-        when(clientRepository.existsById(1L)).thenReturn(true);
-        when(productRepository.existsById(1L)).thenReturn(true);
-        when(customerCustomPriceRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(customerCustomPrice));
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(product));
+        when(customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product))
+                .thenReturn(Optional.of(customerCustomPrice));
+        when(customerCustomPriceRepository.save(any(CustomerCustomPrice.class))).thenReturn(customerCustomPrice);
         when(modelMapper.map(customerCustomPriceDTO, CustomerCustomPrice.class)).thenReturn(customerCustomPrice);
-        when(customerCustomPriceRepository.save(customerCustomPrice)).thenReturn(customerCustomPrice);
         when(modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class)).thenReturn(customerCustomPriceDTO);
 
-        // Act
-        CustomerCustomPriceDTO result = customerCustomPriceService.update(1L, customerCustomPriceDTO);
+        CustomerCustomPriceDTO result = customerCustomPriceService.update(customerCustomPriceDTO);
 
-        // Assert
         assertNotNull(result);
-        verify(customerCustomPriceRepository, times(1)).save(customerCustomPrice);
+        verify(customerCustomPriceRepository, times(1)).save(any(CustomerCustomPrice.class));
     }
 
     @Test
     void update_ShouldThrowException_WhenCustomPriceNotFound() {
-        // Arrange
-        when(customerCustomPriceRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(product));
+        when(customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product))
+                .thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> customerCustomPriceService.update(1L, customerCustomPriceDTO));
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> customerCustomPriceService.update(customerCustomPriceDTO));
     }
 
     @Test
     void getAllCustomPrices_ShouldReturnAllCustomPrices() {
-        // Arrange
         when(customerCustomPriceRepository.findByDeletedFalse()).thenReturn(List.of(customerCustomPrice));
         when(modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class)).thenReturn(customerCustomPriceDTO);
 
-        // Act
         List<CustomerCustomPriceDTO> result = customerCustomPriceService.getAllCustomPrices();
 
-        // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
         verify(customerCustomPriceRepository, times(1)).findByDeletedFalse();
@@ -143,24 +138,37 @@ public class CustomerCustomPriceTest {
 
     @Test
     void delete_ShouldMarkCustomPriceAsDeleted() throws ChangeSetPersister.NotFoundException {
-        // Arrange
-        when(customerCustomPriceRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(customerCustomPrice));
-        when(modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class)).thenReturn(customerCustomPriceDTO);
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(product));
+        when(customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product))
+                .thenReturn(Optional.of(customerCustomPrice));
 
-        // Act
-        CustomerCustomPriceDTO result = customerCustomPriceService.delete(1L);
+        CustomerCustomPriceDTO result = customerCustomPriceService.delete(1L, 1L);
 
-        // Assert
         assertTrue(customerCustomPrice.isDeleted());
         verify(customerCustomPriceRepository, times(1)).save(customerCustomPrice);
     }
 
     @Test
     void delete_ShouldThrowException_WhenCustomPriceNotFound() {
-        // Arrange
-        when(customerCustomPriceRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(product));
+        when(customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product))
+                .thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> customerCustomPriceService.delete(1L));
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> customerCustomPriceService.delete(1L, 1L));
+    }
+
+    @Test
+    void allProductWithCustomPriceForClient_ShouldReturnCustomPricesForClient() throws ChangeSetPersister.NotFoundException {
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(customerCustomPriceRepository.findByClientIdAndDeletedFalse(client)).thenReturn(List.of(customerCustomPrice));
+        when(modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class)).thenReturn(customerCustomPriceDTO);
+
+        List<CustomerCustomPriceDTO> result = customerCustomPriceService.allProductWithCustomPriceForClient(1L);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(customerCustomPriceRepository, times(1)).findByClientIdAndDeletedFalse(client);
     }
 }
