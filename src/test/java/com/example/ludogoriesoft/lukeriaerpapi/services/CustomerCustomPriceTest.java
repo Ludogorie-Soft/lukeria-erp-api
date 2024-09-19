@@ -100,19 +100,40 @@ public class CustomerCustomPriceTest {
 
     @Test
     void update_ShouldUpdateCustomPrice() throws ChangeSetPersister.NotFoundException {
+        // Arrange: Set up the necessary mock behaviors
+
+        // Mock client and product repositories for existence checks in validation
+        when(clientRepository.existsById(1L)).thenReturn(true); // Mock client existence check
+        when(productRepository.existsById(1L)).thenReturn(true); // Mock product existence check
+
+        // Mock retrieval of client and product entities
         when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
         when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(product));
+
+        // Mock retrieval of existing customer custom price
         when(customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product))
                 .thenReturn(Optional.of(customerCustomPrice));
+
+        // Mock the saving and mapping of the updated customer custom price
         when(customerCustomPriceRepository.save(any(CustomerCustomPrice.class))).thenReturn(customerCustomPrice);
         when(modelMapper.map(customerCustomPriceDTO, CustomerCustomPrice.class)).thenReturn(customerCustomPrice);
         when(modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class)).thenReturn(customerCustomPriceDTO);
 
+        // Act: Call the service's update method
         CustomerCustomPriceDTO result = customerCustomPriceService.update(customerCustomPriceDTO);
 
-        assertNotNull(result);
+        // Assert: Verify the result and interactions
+        assertNotNull(result); // Ensure the result is not null
+        assertEquals(customerCustomPriceDTO, result); // Verify the returned DTO matches the mock DTO
+
+        // Verify that the repository save method was called exactly once with the expected argument
         verify(customerCustomPriceRepository, times(1)).save(any(CustomerCustomPrice.class));
+
+        // Verify that the mapping was performed from DTO to entity and back to DTO
+        verify(modelMapper, times(1)).map(customerCustomPriceDTO, CustomerCustomPrice.class);
+        verify(modelMapper, times(1)).map(customerCustomPrice, CustomerCustomPriceDTO.class);
     }
+
 
     @Test
     void update_ShouldThrowException_WhenCustomPriceNotFound() {
