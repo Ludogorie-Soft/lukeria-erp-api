@@ -100,6 +100,28 @@ public class CustomerCustomPriceControllerIntegrationTest {
                 .andExpect(jsonPath("$[1].id").value(2))
                 .andExpect(jsonPath("$[1].price").value(200.0));
     }
+    @Test
+    void testGetAllProductsWithCustomPriceForClient() throws Exception {
+        Long clientId = 1L;
+
+        CustomerCustomPriceDTO price1 = new CustomerCustomPriceDTO(1L, clientId, 1L, BigDecimal.valueOf(100.0));
+        CustomerCustomPriceDTO price2 = new CustomerCustomPriceDTO(2L, clientId, 2L, BigDecimal.valueOf(200.0));
+
+        List<CustomerCustomPriceDTO> prices = Arrays.asList(price1, price2);
+
+        when(customerCustomPriceService.allProductWithCustomPriceForClient(clientId)).thenReturn(prices);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customerCustomPrice/allForClient/{id}", clientId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].price").value(100.0))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].price").value(200.0));
+    }
+
 
     @Test
     void testCreateCustomPriceForCustomer() throws Exception {
