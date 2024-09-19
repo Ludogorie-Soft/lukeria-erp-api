@@ -33,21 +33,25 @@ public class CustomerCustomPriceService {
         if (customerCustomPriceDTO.getPrice().equals(BigDecimal.ZERO)) {
             throw new ValidationException("Price must be greater than zero");
         }
-        if (customerCustomPriceDTO.getClientId() != null) {
-            boolean existsClient = clientRepository.existsById(customerCustomPriceDTO.getClientId());
-            if (!existsClient) {
-                throw new ValidationException("Client does not exist with ID: " + customerCustomPriceDTO.getClientId());
-            }
-        } else {
+
+        // Check for null Client ID first
+        if (customerCustomPriceDTO.getClientId() == null) {
             throw new ValidationException("Client ID cannot be null");
         }
-        if (customerCustomPriceDTO.getProductId() != null) {
-            boolean existsProduct = productRepository.existsById(customerCustomPriceDTO.getProductId());
-            if (!existsProduct) {
-                throw new ValidationException("Product does not exist with ID: " + customerCustomPriceDTO.getProductId());
-            }
-        } else {
+
+        // Check if the client exists
+        if (!clientRepository.existsById(customerCustomPriceDTO.getClientId())) {
+            throw new ValidationException("Client does not exist with ID: " + customerCustomPriceDTO.getClientId());
+        }
+
+        // Check for null Product ID
+        if (customerCustomPriceDTO.getProductId() == null) {
             throw new ValidationException("Product ID cannot be null");
+        }
+
+        // Check if the product exists
+        if (!productRepository.existsById(customerCustomPriceDTO.getProductId())) {
+            throw new ValidationException("Product does not exist with ID: " + customerCustomPriceDTO.getProductId());
         }
     }
 

@@ -97,7 +97,26 @@ public class CustomerCustomPriceTest {
         ValidationException exception = assertThrows(ValidationException.class, () -> customerCustomPriceService.create(customerCustomPriceDTO));
         assertEquals("Client does not exist with ID: 1", exception.getMessage());
     }
+    @Test
+    void create_ShouldThrowException_WhenClientIdIsNull() {
+        customerCustomPriceDTO.setClientId(null);
 
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                customerCustomPriceService.create(customerCustomPriceDTO)
+        );
+        assertEquals("Client ID cannot be null", exception.getMessage());
+    }
+
+    @Test
+    void create_ShouldThrowException_WhenProductDoesNotExist() {
+        when(clientRepository.existsById(1L)).thenReturn(true);
+        when(productRepository.existsById(1L)).thenReturn(false);
+
+        ValidationException exception = assertThrows(ValidationException.class, () ->
+                customerCustomPriceService.create(customerCustomPriceDTO)
+        );
+        assertEquals("Product does not exist with ID: 1", exception.getMessage());
+    }
     @Test
     void update_ShouldUpdateCustomPrice() throws ChangeSetPersister.NotFoundException {
         // Arrange: Set up the necessary mock behaviors
