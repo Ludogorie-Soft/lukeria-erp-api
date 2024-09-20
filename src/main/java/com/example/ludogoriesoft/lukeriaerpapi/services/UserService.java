@@ -1,39 +1,61 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.beust.ah.A;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.AuthenticationResponse;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.RefreshTokenBodyDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
+import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
+import com.example.ludogoriesoft.lukeriaerpapi.models.PasswordResetToken;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PasswordResetTokenRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.services.security.AuthenticationService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.JwtService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.TokenService;
-import com.example.ludogoriesoft.lukeriaerpapi.services.security.UserServiceImpl;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ValidationException;
-import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
-@AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
     private final TokenService tokenService;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
+    private final EmailContentBuilder emailContentBuilder;
+    private final String frontendUrl;
+
+
+    public UserService(UserRepository userRepository,
+                       ModelMapper modelMapper,
+                       JwtService jwtService,
+                       TokenService tokenService,
+                       PasswordResetTokenRepository passwordResetTokenRepository,
+                       EmailService emailService,
+                       EmailContentBuilder emailContentBuilder,
+                       @Value("${frontend.url}") String frontendUrl) {
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+        this.jwtService = jwtService;
+        this.tokenService = tokenService;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
+        this.emailContentBuilder=emailContentBuilder;
+        this.frontendUrl = frontendUrl;
+    }
+
 
     private void userValidations(UserDTO user) {
         if (StringUtils.isBlank(user.getUsername())) {
@@ -104,7 +126,7 @@ public class UserService {
 
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("email"));
+                .orElseThrow(() -> new UserNotFoundException(email));
     }
 
     public AuthenticationResponse updateAuthenticateUser(Long id, UserDTO userDTO) throws ChangeSetPersister.NotFoundException {
@@ -151,4 +173,44 @@ public class UserService {
         User authenticateUser = findByEmail(email);
         return modelMapper.map(authenticateUser, UserDTO.class);
     }
+
+    public boolean processForgotPassword(String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return false;
+        }
+
+        String token = UUID.randomUUID().toString();
+        savePasswordResetToken(token, user);
+
+        String body = emailContentBuilder.buildResetPasswordEmail(frontendUrl, token);
+
+        emailService.sendHtmlEmailForForgotPassword(user.getEmail(), "Приложение на Лукерия ООД : Заявка за възстановяване на парола", body);
+
+        return true;
+    }
+
+    private void savePasswordResetToken(String token, User user) {
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setUser(user);
+        resetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
+        passwordResetTokenRepository.save(resetToken);
+    }
+
+    public boolean updatePasswordWithToken(String token, String newPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token);
+
+        if (resetToken == null || resetToken.isExpired()) {
+            return false;
+        }
+
+        User user = resetToken.getUser();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return true;
+    }
 }
+

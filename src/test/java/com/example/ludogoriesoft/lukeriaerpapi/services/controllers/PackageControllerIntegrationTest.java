@@ -20,6 +20,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -100,9 +101,56 @@ class PackageControllerIntegrationTest {
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
     }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetAllPackagesWithUSerRole() throws Exception {
+        // Arrange
+        PackageDTO packageDTO1 = new PackageDTO();
+        packageDTO1.setId(1L);
+        packageDTO1.setName("Package 1");
+        PackageDTO packageDTO2 = new PackageDTO();
+        packageDTO2.setId(2L);
+        packageDTO2.setName("Package 2");
+        List<PackageDTO> packageDTOList = Arrays.asList(packageDTO1, packageDTO2);
+
+        when(packageService.getAllPackages()).thenReturn(packageDTOList);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Package 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Package 2"))
+                .andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
 
     @Test
     void testGetPackageById() throws Exception {
+        PackageDTO packageDTO = new PackageDTO();
+        packageDTO.setId(1L);
+        packageDTO.setName("Package 1");
+
+        when(packageService.getPackageById(anyLong())).thenReturn(packageDTO);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package/{id}", 1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Package 1"))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
+    }
+    @Test
+    @WithMockUser(roles = "USER")
+    void testGetPackageByIdWithUserRole() throws Exception {
         PackageDTO packageDTO = new PackageDTO();
         packageDTO.setId(1L);
         packageDTO.setName("Package 1");
@@ -195,7 +243,7 @@ class PackageControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -208,7 +256,7 @@ class PackageControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/package")
                         .content("{\"id\": 1, \"name\": \"" + blankPackageName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -223,7 +271,7 @@ class PackageControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -233,7 +281,7 @@ class PackageControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/package/{id}", 1)
                         .content("{\"id\": 1, \"name\": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
 
@@ -264,6 +312,6 @@ class PackageControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 }

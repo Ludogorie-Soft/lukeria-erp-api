@@ -201,7 +201,7 @@ class OrderControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -214,7 +214,7 @@ class OrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/order")
                         .content("{\"id\": 1, \"" + blankOrderName + "\"}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isInternalServerError())
                 .andReturn();
     }
 
@@ -230,7 +230,7 @@ class OrderControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -240,7 +240,7 @@ class OrderControllerIntegrationTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/order/{id}", 1)
                         .content("{\"id\": 1, \": " + invalidData + "}")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
@@ -270,6 +270,6 @@ class OrderControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 }

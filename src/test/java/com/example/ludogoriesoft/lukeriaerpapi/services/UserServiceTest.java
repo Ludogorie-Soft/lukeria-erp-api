@@ -6,12 +6,14 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.auth.PublicUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.TokenType;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.UserNotFoundException;
+import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
+import com.example.ludogoriesoft.lukeriaerpapi.models.PasswordResetToken;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.PasswordResetTokenRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.JwtService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.TokenService;
 import jakarta.validation.ValidationException;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,10 +25,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -47,6 +50,15 @@ class UserServiceTest {
     private JwtService jwtService;
     @Mock
     private TokenService tokenService;
+
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private EmailContentBuilder emailContentBuilder;
+    @Mock
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
 
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -286,6 +298,33 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_ValidUser_Success() {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("testUser");
+        userDTO.setFirstname("name");
+        userDTO.setLastname("lastName");
+        userDTO.setPassword("testPassword123");
+        userDTO.setEmail("test@example.com");
+        userDTO.setAddress("Address");
+
+        User user = new User();
+        user.setUsernameField("testUser");
+        user.setPassword("testPassword123");
+        when(modelMapper.map(userDTO, User.class)).thenReturn(user);
+
+
+        BCryptPasswordEncoder passwordEncoder = mock(BCryptPasswordEncoder.class);
+        when(passwordEncoder.encode("testPassword123")).thenReturn("encodedPassword123");
+
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        when(modelMapper.map(user, UserDTO.class)).thenReturn(userDTO);
+
+        UserDTO result = userService.createUser(userDTO);
+        verify(userRepository, times(1)).save(any(User.class)); // Ensure the repository's save method was called
+    }
+
+    @Test
     void findAuthenticatedUser_UserNotFound() {
         // Setup mock for the SecurityContextHolder and Authentication
         Authentication authentication = mock(Authentication.class);
@@ -461,7 +500,6 @@ class UserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getName()).thenReturn("authenticated@example.com");
-        // Arrange
         String username = "authenticated@example.com";
         UserDTO userDTO = new UserDTO();
         userDTO.setPassword("password123");
@@ -475,18 +513,14 @@ class UserServiceTest {
         UserDTO authenticatedUserDTO = new UserDTO();
         authenticatedUserDTO.setEmail(username);
 
-        // Mock the behavior of findAuthenticatedUser
         when(userRepository.findByEmail("authenticated@example.com"))
                 .thenReturn(Optional.of(authenticatedUser));
 
         when(userRepository.findByEmail(username)).thenReturn(Optional.of(authenticatedUser));
-        // Mock the behavior of findAuthenticatedUser to return the authenticatedUserDTO with encoded password
         when(userService.findAuthenticatedUser()).thenReturn(authenticatedUserDTO);
 
-        // Act
         boolean result = userService.updatePassword(userDTO);
 
-        // Assert
         assertFalse(result, "The passwords do not match; the update should not succeed.");
     }
 
@@ -498,10 +532,9 @@ class UserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getName()).thenReturn("authenticated@example.com");
-        // Arrange
         String username = "authenticated@example.com";
         UserDTO userDTO = new UserDTO();
-        userDTO.setPassword(""); // Empty password
+        userDTO.setPassword("");
         userDTO.setRepeatPassword("");
 
         User authenticatedUser = new User();
@@ -511,18 +544,14 @@ class UserServiceTest {
 
         UserDTO authenticatedUserDTO = new UserDTO();
         authenticatedUserDTO.setEmail(username);
-        // Mock the behavior of findAuthenticatedUser
 
         when(userRepository.findByEmail("authenticated@example.com"))
                 .thenReturn(Optional.of(authenticatedUser));
 
         when(userRepository.findByEmail(username)).thenReturn(Optional.of(authenticatedUser));
-        // Mock the behavior of findAuthenticatedUser to return the authenticatedUserDTO with encoded password
         when(userService.findAuthenticatedUser()).thenReturn(authenticatedUserDTO);
-        // Act
         boolean result = userService.updatePassword(userDTO);
 
-        // Assert
         assertFalse(result, "The password is empty; the update should not succeed.");
     }
 
@@ -534,7 +563,6 @@ class UserServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         when(authentication.getName()).thenReturn("authenticated@example.com");
-        // Arrange
         String username = "authenticated@example.com";
         String rawPassword = "password123";
         String encodedPassword = bCryptPasswordEncoder.encode(rawPassword);
@@ -549,27 +577,87 @@ class UserServiceTest {
         User user = new User();
         user.setEmail(username);
 
-
-
         when(userRepository.findByEmail("authenticated@example.com"))
                 .thenReturn(Optional.of(user));
 
         when(userRepository.findByEmail(username)).thenReturn(Optional.of(user));
-        // Mock the behavior of findAuthenticatedUser to return the authenticatedUserDTO with encoded password
         when(userService.findAuthenticatedUser()).thenReturn(authenticatedUserDTO);
-        // Mock the behavior of findAuthenticatedUser
 
-        // Mock the mapping from UserDTO to User
         when(modelMapper.map(authenticatedUserDTO, User.class)).thenReturn(user);
 
-        // Act
         boolean result = userService.updatePassword(userDTO);
 
-        // Assert
         assertTrue(result, "The password update should succeed.");
 
-        // Verify that the password was encoded and saved
         verify(userRepository).save(user);
         assertTrue(bCryptPasswordEncoder.matches(rawPassword, user.getPassword()));
     }
+    @Test
+    void processForgotPassword_UserNotFound_ThrowsException() {
+        when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
+        verify(emailService, never()).sendHtmlEmailForForgotPassword(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void processForgotPassword_UserExists_Success() {
+        User user = new User();
+        user.setEmail("test@example.com");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+
+        String token = UUID.randomUUID().toString();
+
+
+        String resetEmailContent = "Reset your password using this link: " + token;
+        when(emailContentBuilder.buildResetPasswordEmail(anyString(), eq(token))).thenReturn(resetEmailContent);
+
+        doNothing().when(emailService).sendHtmlEmailForForgotPassword(eq(user.getEmail()), anyString(), eq(resetEmailContent));
+
+        boolean result = userService.processForgotPassword("test@example.com");
+
+        assertTrue(result);
+        verify(userRepository, times(1)).findByEmail("test@example.com");
+        verify(passwordResetTokenRepository, times(1)).save(any());
+    }
+
+    @Test
+    void updatePasswordWithToken_ValidToken_Success() {
+        String token = UUID.randomUUID().toString();
+        String newPassword = "newPassword123";
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setExpiryDate(LocalDateTime.now().plusMinutes(10));
+        User user = new User();
+        user.setPassword("oldPassword123");
+        resetToken.setUser(user);
+
+        when(passwordResetTokenRepository.findByToken(token)).thenReturn(resetToken);
+
+        boolean result = userService.updatePasswordWithToken(token, newPassword);
+
+        assertTrue(result);
+
+        verify(userRepository, times(1)).save(user);
+        verify(passwordResetTokenRepository, times(1)).findByToken(token);
+    }
+
+    @Test
+    void updatePasswordWithToken_ExpiredToken_Failure() {
+        String token = UUID.randomUUID().toString();
+        String newPassword = "newPassword123";
+
+        PasswordResetToken resetToken = new PasswordResetToken();
+        resetToken.setToken(token);
+        resetToken.setExpiryDate(LocalDateTime.now().minusMinutes(10)); // Токенът е изтекъл
+
+        when(passwordResetTokenRepository.findByToken(token)).thenReturn(resetToken);
+
+        boolean result = userService.updatePasswordWithToken(token, newPassword);
+
+        assertFalse(result);
+
+        verify(userRepository, never()).save(any(User.class));
+        verify(passwordResetTokenRepository, times(1)).findByToken(token);
+    }
+
 }
