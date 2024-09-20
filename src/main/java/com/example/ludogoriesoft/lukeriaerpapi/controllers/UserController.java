@@ -9,6 +9,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -38,10 +39,12 @@ public class UserController {
     public ResponseEntity<AuthenticationResponse> updateAuthenticatedUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(userService.updateAuthenticateUser(id, userDTO));
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException{
+    public ResponseEntity<UserDTO> updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(userService.updateUser(id, userDTO));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUserById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         userService.deleteUser(id);
@@ -52,13 +55,25 @@ public class UserController {
     public ResponseEntity<UserDTO> findAuthenticatedUser(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(userService.findAuthenticatedUser());
     }
+
     @GetMapping("/ifPassMatch")
-    public boolean ifPassMatch(@RequestParam String password, @RequestHeader("Authorization") String auth ) {
+    public boolean ifPassMatch(@RequestParam String password, @RequestHeader("Authorization") String auth) {
         return userService.ifPasswordMatch(password);
     }
 
     @PutMapping("/change-pass")
     public boolean changePassword(@RequestBody UserDTO userDTO, @RequestHeader("Authorization") String auth) {
         return userService.updatePassword(userDTO);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Boolean> forgotPassword(@RequestParam String email) {
+        return ResponseEntity.ok(userService.processForgotPassword(email));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Boolean> processResetPassword(@RequestParam("token") String token,
+                                       @RequestParam("password") String newPassword){
+        return ResponseEntity.ok(userService.updatePasswordWithToken(token, newPassword));
     }
 }

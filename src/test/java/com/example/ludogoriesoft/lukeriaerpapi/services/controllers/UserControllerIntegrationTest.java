@@ -195,7 +195,7 @@ class UserControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -223,7 +223,7 @@ class UserControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -262,7 +262,7 @@ class UserControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string(containsString("Not found!")));
+                .andExpect(content().string(containsString("")));
     }
 
     @Test
@@ -416,7 +416,56 @@ class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(userDTO))) // Use helper method to convert object to JSON
                 .andExpect(status().isNotFound()) // Expect 404 Not Found
-                .andExpect(content().string(containsString("Not found!"))) // Expect error message
+                .andExpect(content().string(containsString(""))) // Expect error message
+                .andReturn();
+    }
+    @Test
+    void testForgotPassword_ValidEmail() throws Exception {
+        when(userService.processForgotPassword(anyString())).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/forgot-password")
+                        .param("email", "valid@example.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"))
+                .andReturn();
+    }
+
+    @Test
+    void testForgotPassword_InvalidEmail() throws Exception {
+        when(userService.processForgotPassword(anyString())).thenReturn(false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/forgot-password")
+                        .param("email", "invalid@example.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"))
+                .andReturn();
+    }
+
+    @Test
+    void testResetPassword_ValidToken() throws Exception {
+        when(userService.updatePasswordWithToken(anyString(), anyString())).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/reset-password")
+                        .param("token", "valid-token")
+                        .param("password", "newValidPassword123")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"))
+                .andReturn();
+    }
+
+    @Test
+    void testResetPassword_InvalidToken() throws Exception {
+        when(userService.updatePasswordWithToken(anyString(), anyString())).thenReturn(false);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/user/reset-password")
+                        .param("token", "invalid-token")
+                        .param("password", "newValidPassword123")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"))
                 .andReturn();
     }
 

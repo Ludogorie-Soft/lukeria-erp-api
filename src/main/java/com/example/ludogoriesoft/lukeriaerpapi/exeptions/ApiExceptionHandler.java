@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ApiExceptionHandler {
 
     private final SlackService slackService;
-
     @ExceptionHandler(ChangeSetPersister.NotFoundException.class)
     public ResponseEntity<String> handleNotFoundException(ChangeSetPersister.NotFoundException ex) {
         String errorMessage = "Not found!";
