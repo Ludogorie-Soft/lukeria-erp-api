@@ -49,16 +49,16 @@ public class ClientUserService {
     public ClientUserDTO updateClientUser(Long id, ClientUserDTO clientUserDTO) throws ChangeSetPersister.NotFoundException {
         ClientUser existingClientUser = clientUserRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         validations(clientUserDTO);
-        existingClientUser.setClient_id(clientUserDTO.getClient_id());
-        existingClientUser.setUser_id(clientUserDTO.getUser_id());
+        existingClientUser.setClientId(clientUserDTO.getClientId());
+        existingClientUser.setUserId(clientUserDTO.getUserId());
         ClientUser updatedClientUser = clientUserRepository.save(existingClientUser);
         updatedClientUser.setId(id);
         return modelMapper.map(updatedClientUser, ClientUserDTO.class);
     }
     private void validations(ClientUserDTO clientUserDTO) throws ChangeSetPersister.NotFoundException {
-        User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUser_id()).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        if (clientUserDTO.getClient_id() == null || clientUserDTO.getClient_id() == 0 ||
-                clientUserDTO.getUser_id() == null || clientUserDTO.getUser_id() == 0) {
+        User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        if (clientUserDTO.getClientId() == null || clientUserDTO.getClientId() == 0 ||
+                clientUserDTO.getUserId() == null || clientUserDTO.getUserId() == 0) {
             throw new ValidationException("Client ID and User ID are required and must be greater than 0!");
         }
         if (!user.getRole().equals(Role.CUSTOMER)){
