@@ -6,6 +6,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ClientUser;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import io.micrometer.common.util.StringUtils;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class ClientUserService {
     private final ClientUserRepository clientUserRepository;
     private final UserRepository userRepository;
+    private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
 
     public List<ClientUserDTO> getAllClientUsers() {
@@ -40,6 +42,7 @@ public class ClientUserService {
         return modelMapper.map(clientUser, ClientUserDTO.class);
     }
 
+
     public ClientUserDTO createClientUser(ClientUserDTO clientUserDTO) throws ChangeSetPersister.NotFoundException {
         validations(clientUserDTO);
         ClientUser clientUserEntity = clientUserRepository.save(modelMapper.map(clientUserDTO, ClientUser.class));
@@ -49,20 +52,24 @@ public class ClientUserService {
     public ClientUserDTO updateClientUser(Long id, ClientUserDTO clientUserDTO) throws ChangeSetPersister.NotFoundException {
         ClientUser existingClientUser = clientUserRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         validations(clientUserDTO);
-        existingClientUser.setClientId(clientUserDTO.getClientId());
-        existingClientUser.setUserId(clientUserDTO.getUserId());
-        ClientUser updatedClientUser = clientUserRepository.save(existingClientUser);
-        updatedClientUser.setId(id);
-        return modelMapper.map(updatedClientUser, ClientUserDTO.class);
+        clientUserDTO.setId(existingClientUser.getId());
+        clientUserRepository.save(modelMapper.map(clientUserDTO, ClientUser.class));
+        return clientUserDTO;
     }
+
     private void validations(ClientUserDTO clientUserDTO) throws ChangeSetPersister.NotFoundException {
         User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Client client = clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
         if (clientUserDTO.getClientId() == null || clientUserDTO.getClientId() == 0 ||
                 clientUserDTO.getUserId() == null || clientUserDTO.getUserId() == 0) {
             throw new ValidationException("Client ID and User ID are required and must be greater than 0!");
         }
         if (!user.getRole().equals(Role.CUSTOMER)){
             throw new ValidationException("User is not customer!");
+        }
+        Optional<ClientUser>optionalClientUser = clientUserRepository.findByClientIdAndUserIdAndDeletedFalse(client, user);
+        if (optionalClientUser.isPresent()){
+            throw new ValidationException("Client User already exist");
         }
     }
     public void deleteClientUser(Long id) throws ChangeSetPersister.NotFoundException {

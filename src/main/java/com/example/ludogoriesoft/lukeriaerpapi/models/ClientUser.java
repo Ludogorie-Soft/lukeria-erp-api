@@ -11,10 +11,12 @@ public class ClientUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "client_id")
-    private Long clientId;
-    @Column(name = "user_id")
-    private Long userId;
+    @OneToOne
+    @JoinColumn(name = "client_id")
+    private Client clientId;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User userId;
     @Column(name = "is_deleted")
     private boolean deleted;
 }
