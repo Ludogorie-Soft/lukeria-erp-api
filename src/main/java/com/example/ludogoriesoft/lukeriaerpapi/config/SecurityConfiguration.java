@@ -41,6 +41,8 @@ public class SecurityConfiguration {
     public static final String MONTHLY_ORDER_URL = "/api/v1/monthlyOrder/**";
     public static final String MONTHLY_ORDER_PRODUCT_URL = "/api/v1/monthlyOrderProduct/**";
     public static final String INVOICE_URL = "/api/v1/monthlyOrderProduct/**";
+    public static final String CLIENT_USER_URL = "/api/v1/client-user/**";
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -83,6 +85,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/v1/carton").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, CARTON_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, CARTON_URL).hasAnyRole(ADMIN.name())
+
+                .requestMatchers(CLIENT_USER_URL).hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product").hasAnyRole(ADMIN.name())
