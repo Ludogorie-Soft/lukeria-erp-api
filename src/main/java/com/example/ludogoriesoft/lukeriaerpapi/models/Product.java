@@ -32,6 +32,7 @@ public class Product {
     private String productCode;
     @Column(name = "for_sale")
     private boolean forSale;
-
+    @Column(name = "barcode")
+    private String barcode;
 }
 
