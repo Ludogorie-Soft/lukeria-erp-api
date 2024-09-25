@@ -107,8 +107,7 @@ public class OrderProductService {
                 productList.add(savedProduct);
             } else return false;
         }
-        sendMailForQuantities(productList);
-        return true;
+        return sendMailForQuantities(productList);
     }
 
     private boolean sendMailForQuantities(List<Product> productList) {
