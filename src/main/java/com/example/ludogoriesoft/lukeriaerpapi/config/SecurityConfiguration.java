@@ -65,8 +65,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.GET, "/api/v1/user/ifPassMatch").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/user/change-pass").authenticated()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
-                .requestMatchers("/api/v1/customerCustomPrice/**").hasAnyRole(ADMIN.name())
 
+                .requestMatchers("/api/v1/customerCustomPrice/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, CLIENT_URL).hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client", "/api/v1/upload/file").hasAnyRole(ADMIN.name())
