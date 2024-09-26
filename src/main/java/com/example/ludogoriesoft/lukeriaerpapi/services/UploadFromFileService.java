@@ -6,10 +6,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -68,11 +65,14 @@ public class UploadFromFileService {
                     int piecesCartonValue;
                     piecesCartonValue = (int) piecesCartonCell.getNumericCellValue();
 
+                    j++;
                     Cell pricePackageCell = row.getCell(j++);
                     BigDecimal pricePackageValue;
                     pricePackageValue = BigDecimal.valueOf(pricePackageCell.getNumericCellValue());
 
-                    String englishNameValue = row.getCell(++j).getStringCellValue();
+                    j++;
+                    Cell cell = row.getCell(++j);
+                    String englishNameValue = (cell != null && cell.getCellType() == CellType.STRING) ? cell.getStringCellValue() : null;
 
                     if (nameValue != null && !nameValue.isEmpty()) {
                         Package packageForCreate = new Package();
@@ -82,14 +82,14 @@ public class UploadFromFileService {
                         packageForCreate.setPlateId(plateService.getPlateById(plateIdValue));
                         packageForCreate.setPiecesCarton(piecesCartonValue);
                         packageForCreate.setProductCode(productCode);
-                        packageForCreate.setPrice(pricePackageValue);
+                        packageForCreate.setPrice(BigDecimal.valueOf(0.0));
                         packageForCreate.setEnglishName(englishNameValue);
                         Package savedPackage = packageRepository.save(packageForCreate);
 
                         Product productForCreate = new Product();
                         productForCreate.setPackageId(savedPackage);
                         productForCreate.setProductCode(productCode);
-                        productForCreate.setPrice(BigDecimal.valueOf(0.0));
+                        productForCreate.setPrice(pricePackageValue);
                         productRepository.save(productForCreate);
                     }
                 }
