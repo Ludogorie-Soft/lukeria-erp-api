@@ -32,8 +32,7 @@ public class ClientUserService {
     public List<ClientUserDTO> getAllClientUsers() {
         List<ClientUser> clientUsers = clientUserRepository.findByDeletedFalse();
         return clientUsers.stream()
-                .map(clientUser -> modelMapper.map(clientUser, ClientUserDTO.class))
-                .collect(Collectors.toList());
+                .map(clientUser -> modelMapper.map(clientUser, ClientUserDTO.class)).toList();
     }
 
 
