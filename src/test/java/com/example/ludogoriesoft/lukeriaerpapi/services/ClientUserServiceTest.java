@@ -106,7 +106,7 @@ class ClientUserServiceTest {
     }
 
     @Test
-    void testCreateClientUser_Success() throws ChangeSetPersister.NotFoundException {
+    void testCreateClientUser_Success() {
         Client client = new Client();
         client.setId(1L);
         User user = new User();
@@ -142,7 +142,6 @@ class ClientUserServiceTest {
         Client client = new Client();
         client.setId(1L);
         User user = new User();
-       // user.setId(1L);
         user.setRole(Role.CUSTOMER);
 
         ClientUserDTO clientUserDTO = new ClientUserDTO();
@@ -163,6 +162,33 @@ class ClientUserServiceTest {
 
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> clientUserService.getClientUserById(null));
 
+    }
+    @Test
+    void testCreateClientUser_RoleAdmin() {
+        Client client = new Client();
+        client.setId(1L);
+        User user = new User();
+        user.setId(1L);
+        user.setRole(Role.ADMIN);
+
+        ClientUserDTO clientUserDTO = new ClientUserDTO();
+        clientUserDTO.setClientId(client.getId());
+        clientUserDTO.setUserId(user.getId());
+
+        ClientUser savedClientUser = new ClientUser();
+        savedClientUser.setId(1L);
+        savedClientUser.setClientId(client);
+        savedClientUser.setUserId(user);
+        savedClientUser.setDeleted(false);
+
+        when(clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())).thenReturn(Optional.of(client));
+        when(userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId())).thenReturn(Optional.of(user));
+        when(modelMapper.map(clientUserDTO, ClientUser.class)).thenReturn(savedClientUser);
+        when(clientUserRepository.save(any(ClientUser.class))).thenReturn(savedClientUser);
+        when(modelMapper.map(savedClientUser, ClientUserDTO.class)).thenReturn(clientUserDTO);
+
+        // Act
+        assertThrows(ValidationException.class, () -> clientUserService.createClientUser(clientUserDTO));
     }
 
     @Test
