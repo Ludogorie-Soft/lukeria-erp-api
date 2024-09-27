@@ -1,6 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
@@ -9,8 +8,6 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
-import io.micrometer.common.util.StringUtils;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -19,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -42,7 +38,7 @@ public class ClientUserService {
     }
 
 
-    public ClientUserDTO createClientUser(ClientUserDTO clientUserDTO) throws ChangeSetPersister.NotFoundException {
+    public ClientUserDTO createClientUser(ClientUserDTO clientUserDTO) {
         validations(clientUserDTO);
         ClientUser clientUserEntity = clientUserRepository.save(modelMapper.map(clientUserDTO, ClientUser.class));
         return modelMapper.map(clientUserEntity, ClientUserDTO.class);
@@ -56,24 +52,32 @@ public class ClientUserService {
         return clientUserDTO;
     }
 
-    private void validations(ClientUserDTO clientUserDTO) throws ChangeSetPersister.NotFoundException {
-        User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        Client client = clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
-        if (clientUserDTO.getClientId() == null || clientUserDTO.getClientId() == 0 ||
-                clientUserDTO.getUserId() == null || clientUserDTO.getUserId() == 0) {
-            throw new ValidationException("Client ID and User ID are required and must be greater than 0!");
-        }
-        if (!user.getRole().equals(Role.CUSTOMER)){
-            throw new ValidationException("User is not customer!");
-        }
-        Optional<ClientUser>optionalClientUser = clientUserRepository.findByClientIdAndUserIdAndDeletedFalse(client, user);
-        if (optionalClientUser.isPresent()){
-            throw new ValidationException("Client User already exist");
-        }
-    }
     public void deleteClientUser(Long id) throws ChangeSetPersister.NotFoundException {
         ClientUser clientUser = clientUserRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         clientUser.setDeleted(true);
         clientUserRepository.save(clientUser);
     }
+    private void validations(ClientUserDTO clientUserDTO) {
+        User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId())
+                .orElseThrow(() -> new ValidationException("User not found or deleted"));
+        Client client = clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())
+                .orElseThrow(() -> new ValidationException("Client not found or deleted"));
+
+        validateUserRole(user);
+        checkIfClientUserExists(client, user);
+    }
+
+    private void validateUserRole(User user) {
+        if (!user.getRole().equals(Role.CUSTOMER)) {
+            throw new ValidationException("User is not a customer!");
+        }
+    }
+
+    private void checkIfClientUserExists(Client client, User user) {
+        Optional<ClientUser> optionalClientUser = clientUserRepository.findByClientIdAndUserIdAndDeletedFalse(client, user);
+        if (optionalClientUser.isPresent()) {
+            throw new ValidationException("Client User already exists");
+        }
+    }
+
 }

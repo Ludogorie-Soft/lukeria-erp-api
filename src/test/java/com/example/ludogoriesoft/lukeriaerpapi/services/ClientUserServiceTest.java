@@ -8,12 +8,12 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.ValidationException;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.ArrayList;
@@ -137,10 +137,36 @@ class ClientUserServiceTest {
         assertEquals(1L, result.getClientId());
         assertEquals(1L, result.getUserId());
     }
+    @Test
+    void testCreateClientUser_NotFoundException() {
+        Client client = new Client();
+        client.setId(1L);
+        User user = new User();
+       // user.setId(1L);
+        user.setRole(Role.CUSTOMER);
+
+        ClientUserDTO clientUserDTO = new ClientUserDTO();
+        clientUserDTO.setClientId(client.getId());
+        clientUserDTO.setUserId(user.getId());
+
+        ClientUser savedClientUser = new ClientUser();
+        savedClientUser.setId(1L);
+        savedClientUser.setClientId(client);
+        savedClientUser.setUserId(user);
+        savedClientUser.setDeleted(false);
+
+        when(clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())).thenReturn(Optional.of(client));
+        when(userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId())).thenReturn(Optional.of(user));
+        when(modelMapper.map(clientUserDTO, ClientUser.class)).thenReturn(savedClientUser);
+        when(clientUserRepository.save(any(ClientUser.class))).thenReturn(savedClientUser);
+        when(modelMapper.map(savedClientUser, ClientUserDTO.class)).thenReturn(clientUserDTO);
+
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> clientUserService.getClientUserById(null));
+
+    }
 
     @Test
     void testCreateClientUser_NonExistingClientOrUser() {
-        // Arrange
         ClientUserDTO clientUserDTO = new ClientUserDTO();
         clientUserDTO.setClientId(1L);
         clientUserDTO.setUserId(1L);
@@ -148,21 +174,17 @@ class ClientUserServiceTest {
         when(clientRepository.findById(clientUserDTO.getClientId())).thenReturn(Optional.empty());
         when(userRepository.findById(clientUserDTO.getUserId())).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(ChangeSetPersister.NotFoundException.class, () -> clientUserService.createClientUser(clientUserDTO));
+        assertThrows(ValidationException.class, () -> clientUserService.createClientUser(clientUserDTO));
     }
 
     @Test
     void testDeleteClientUser_Existing() throws ChangeSetPersister.NotFoundException {
-        // Arrange
         Long clientUserId = 1L;
         ClientUser clientUser = mock(ClientUser.class);
         when(clientUserRepository.findByIdAndDeletedFalse(clientUserId)).thenReturn(Optional.of(clientUser));
 
-        // Act
         clientUserService.deleteClientUser(clientUserId);
 
-        // Assert
         verify(clientUser).setDeleted(true);
         verify(clientUserRepository).save(clientUser);
     }
