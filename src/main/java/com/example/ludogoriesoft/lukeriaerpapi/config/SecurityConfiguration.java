@@ -41,6 +41,8 @@ public class SecurityConfiguration {
     public static final String MONTHLY_ORDER_URL = "/api/v1/monthlyOrder/**";
     public static final String MONTHLY_ORDER_PRODUCT_URL = "/api/v1/monthlyOrderProduct/**";
     public static final String INVOICE_URL = "/api/v1/monthlyOrderProduct/**";
+    public static final String CLIENT_USER_URL = "/api/v1/client-user/**";
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -59,12 +61,15 @@ public class SecurityConfiguration {
                         "/api/v1/user/forgot-password",
                         "/api/v1/user/reset-password")
                 .permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/user/me").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/v1/user/{id}").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/v1/user/authenticated/{id}").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/v1/user/ifPassMatch").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/v1/user/change-pass").authenticated()
+                .requestMatchers(HttpMethod.GET,"/api/v1/user/me").authenticated()
+                .requestMatchers(HttpMethod.GET,"/api/v1/user/{id}").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/v1/user/authenticated/{id}").authenticated()
+                .requestMatchers(HttpMethod.GET,"/api/v1/user/ifPassMatch").authenticated()
+                .requestMatchers(HttpMethod.PUT,"/api/v1/user/change-pass").authenticated()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
+
+                .requestMatchers("/api/v1/customerCustomPrice/**").hasAnyRole(ADMIN.name())
+
                 .requestMatchers(HttpMethod.GET, CLIENT_URL).hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/client", "/api/v1/upload/file").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, CLIENT_URL).hasAnyRole(ADMIN.name())
@@ -85,6 +90,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/v1/carton").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, CARTON_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, CARTON_URL).hasAnyRole(ADMIN.name())
+
+                .requestMatchers(CLIENT_USER_URL).hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product").hasAnyRole(ADMIN.name())
@@ -120,7 +127,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.PUT, INVOICE_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, INVOICE_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers("/api/v1/invoiceOrderProduct/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
-                .requestMatchers(HttpMethod.POST, "/api/v1/upload/**").hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.POST,"/api/v1/upload/**").hasAnyRole(ADMIN.name())
                 .anyRequest()
                 .permitAll()
                 .and()
