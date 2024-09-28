@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
 import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
@@ -11,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +27,10 @@ public class OrderProductService {
     private final PlateRepository plateRepository;
     private final CartonRepository cartonRepository;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final EmailContentBuilder emailContentBuilder;
+    private final EmailService emailService;
 
     public List<OrderProductDTO> getAllOrderProducts() {
         List<OrderProduct> orderProducts = orderProductRepository.findByDeletedFalse();
@@ -91,15 +96,24 @@ public class OrderProductService {
     }
 
     public boolean reduceProducts(List<InvoiceOrderProduct> invoiceOrderProductsList) {
+        List<Product> productList = new ArrayList<>();
         for (InvoiceOrderProduct invoiceOrderProduct : invoiceOrderProductsList) {
             Optional<Product> productForReduce = productRepository.findByIdAndDeletedFalse(invoiceOrderProduct.getOrderProductId().getPackageId().getId());
             int sellingProductForReduce = invoiceOrderProduct.getOrderProductId().getNumber();
             if (productForReduce.isPresent()) {
                 Product product = productForReduce.get();
                 product.setAvailableQuantity(product.getAvailableQuantity() - sellingProductForReduce);
-                productRepository.save(product);
+                Product savedProduct=productRepository.save(product);
+                productList.add(savedProduct);
             } else return false;
         }
+        return sendMailForQuantities(productList);
+    }
+
+    private boolean sendMailForQuantities(List<Product> productList) {
+        List<String> emailList = userRepository.findEmailsByRoleNotCustomer();
+        String body = emailContentBuilder.generateStockReportEmail(productList);
+        emailService.sendHtmlEmailWithProductReport(emailList, "Доклад за наличност на продукти след изпращане на заявка", body);
         return true;
     }
 }
