@@ -9,13 +9,12 @@ import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import jakarta.validation.ValidationException;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -30,7 +29,14 @@ public class ClientUserService {
         return clientUsers.stream()
                 .map(clientUser -> modelMapper.map(clientUser, ClientUserDTO.class)).toList();
     }
+    public List<Client> getAllClientsNotInClientUserHelper() {
+        List<Client> allClients = clientRepository.findAll();
+        List<ClientUser> clientUsers = clientUserRepository.findAll();
 
+        return allClients.stream()
+                .filter(client -> clientUsers.stream().noneMatch(clientUser -> clientUser.getClientId().equals(client))) // Сравняваме идентификаторите
+                .toList();
+    }
 
     public ClientUserDTO getClientUserById(Long id) throws ChangeSetPersister.NotFoundException {
         ClientUser clientUser = clientUserRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
