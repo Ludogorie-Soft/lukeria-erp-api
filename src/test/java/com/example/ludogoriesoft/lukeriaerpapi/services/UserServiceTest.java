@@ -113,7 +113,7 @@ class UserServiceTest {
     void updateUser_validUser() throws ChangeSetPersister.NotFoundException {
         // Setup initial data
         User existingUser = new User(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN, false);
-        UserDTO userDTO = new UserDTO(1L, "bel", "bel", "bel@gmail.com", "pass", "pass", "address", "user", Role.ADMIN);
+        UserDTO userDTO = new UserDTO(1L, "bel", "bel", "bel@gmail.com", "pass", "pass", "address", "user", Role.ADMIN,1L);
         User updatedUser = new User(1L, "bel", "bel", "bel@gmail.com", "pass", "address", "user", Role.ADMIN, false);
 
         // Mock repository behavior
