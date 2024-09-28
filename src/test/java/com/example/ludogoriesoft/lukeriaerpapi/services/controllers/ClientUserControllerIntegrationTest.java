@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.ClientUserController;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ClientUserService;
@@ -74,6 +75,32 @@ class ClientUserControllerIntegrationTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @Test
+    public void testGetAllClientWithNoUser() throws Exception {
+        ClientDTO client1 = new ClientDTO();
+        client1.setId(1L);
+        client1.setBusinessName("Client 1");
+
+        ClientDTO client2 = new ClientDTO();
+        client2.setId(2L);
+        client2.setBusinessName("Client 2");
+
+        List<ClientDTO> clientsWithNoUsers = Arrays.asList(client1, client2);
+
+        // Mock the service method
+        when(clientUserService.getAllClientsNotInClientUserHelper()).thenReturn(clientsWithNoUsers);
+
+        // Act: Perform the GET request with the correct URL
+        mockMvc.perform(get("/api/v1/client-user/clients/no-users")
+                        .header("Authorization", "Bearer testToken")
+                        .contentType(MediaType.APPLICATION_JSON))
+                // Assert: Verify the response status and content
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].businessName").value("Client 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].businessName").value("Client 2"));
+    }
     @Test
     void testGetAllClientUsers() throws Exception {
         ClientUserDTO clientUser1 = new ClientUserDTO();
