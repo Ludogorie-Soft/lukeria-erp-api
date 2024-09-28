@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-    //TODO: decide what you are gonna do with that dto
     private Long id;
     @NotNull(message = "The name should not be null!")
     private String firstname;
@@ -26,6 +25,5 @@ public class UserDTO {
     @Email
     private String email;
     private Role role;
-
-
+    private Long clientID;
 }
