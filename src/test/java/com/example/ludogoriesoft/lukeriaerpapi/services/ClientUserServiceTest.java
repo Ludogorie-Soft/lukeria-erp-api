@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
@@ -17,6 +18,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -189,6 +191,32 @@ class ClientUserServiceTest {
 
         // Act
         assertThrows(ValidationException.class, () -> clientUserService.createClientUser(clientUserDTO));
+    }
+    @Test
+    void testGetAllClientsNotInClientUserHelper() {
+        Client clientWithUser = new Client();
+        clientWithUser.setId(1L);
+        Client clientWithoutUser = new Client();
+        clientWithoutUser.setId(2L);
+
+        ClientUser clientUser = new ClientUser();
+        clientUser.setClientId(clientWithUser);
+
+        when(clientRepository.findAll()).thenReturn(Arrays.asList(clientWithUser, clientWithoutUser));
+        when(clientUserRepository.findAll()).thenReturn(Arrays.asList(clientUser));
+
+        ClientDTO clientDTOWithUser = new ClientDTO();
+        clientDTOWithUser.setId(1L);
+        ClientDTO clientDTOWithoutUser = new ClientDTO();
+        clientDTOWithoutUser.setId(2L);
+
+        when(modelMapper.map(clientWithUser, ClientDTO.class)).thenReturn(clientDTOWithUser);
+        when(modelMapper.map(clientWithoutUser, ClientDTO.class)).thenReturn(clientDTOWithoutUser);
+
+        List<ClientDTO> result = clientUserService.getAllClientsNotInClientUserHelper();
+
+        assertEquals(1, result.size());
+        assertEquals(2L, result.get(0).getId()); // Expecting the second client (without user)
     }
 
     @Test
