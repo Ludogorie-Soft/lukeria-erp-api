@@ -1,7 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientUserDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ClientUserService;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ public class ClientUserController {
         return clientUserService.getAllClientUsers();
     }
     @GetMapping("/clients/no-users")
-    public List<Client> getAllClientWithNoUser(@RequestHeader("Authorization") String auth) {
+    public List<ClientDTO> getAllClientWithNoUser(@RequestHeader("Authorization") String auth) {
         return clientUserService.getAllClientsNotInClientUserHelper();
     }
     @GetMapping("/{id}")

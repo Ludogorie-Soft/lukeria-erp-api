@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
@@ -29,12 +30,14 @@ public class ClientUserService {
         return clientUsers.stream()
                 .map(clientUser -> modelMapper.map(clientUser, ClientUserDTO.class)).toList();
     }
-    public List<Client> getAllClientsNotInClientUserHelper() {
+    public List<ClientDTO> getAllClientsNotInClientUserHelper() {
         List<Client> allClients = clientRepository.findAll();
         List<ClientUser> clientUsers = clientUserRepository.findAll();
 
         return allClients.stream()
-                .filter(client -> clientUsers.stream().noneMatch(clientUser -> clientUser.getClientId().equals(client))) // Сравняваме идентификаторите
+                .filter(client -> clientUsers.stream()
+                        .noneMatch(clientUser -> clientUser.getClientId().equals(client)))
+                .map(client -> modelMapper.map(client, ClientDTO.class))
                 .toList();
     }
 
