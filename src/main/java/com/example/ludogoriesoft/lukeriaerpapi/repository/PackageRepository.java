@@ -12,4 +12,6 @@ public interface PackageRepository extends JpaRepository<Package, Long> {
     Optional<Package> findByIdAndDeletedFalse(Long id);
 
     Package findFirstByDeletedFalseOrderByIdDesc();
+    List<Package> findAllByAvailableQuantityLessThan(int quantity);
+
 }
