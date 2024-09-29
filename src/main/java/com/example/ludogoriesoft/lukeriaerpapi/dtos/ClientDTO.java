@@ -28,6 +28,9 @@ public class ClientDTO {
     private String mol;
     @Pattern(regexp = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$", message = "Името на МОЛ- на английски трябва да бъде само с латински букви!")
     private String englishMol;
+    private String contactPhone;
+    private String deliveryAddress;
+    private String information;
 
     public boolean isBulgarianClient() {
         return Boolean.parseBoolean(isBulgarianClient);

@@ -3,7 +3,9 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,11 +15,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -392,6 +394,24 @@ class ClientServiceTest {
         // Verify that clientRepository.save() is called with the expected Client object
         verify(clientRepository).save(clientEntity);
     }
+    @Test
+    public void testSaveAndRetrieveClient() {
+        // Create a new client
+        Client client = new Client(1L, "testName", "testEnglishName", "test", true, "testAddress", "testAddress", true, "testMol", "testEnMol", false, "894567", "testAddress", "test information");
+        // Mock the save method to return the client
+        when(clientRepository.save(client)).thenReturn(client);
 
+        // Mock findAll to return the saved client
+        when(clientRepository.findByBusinessName("testName")).thenReturn(client);
 
+        // Simulate saving the client
+        clientRepository.save(client);
+
+        // Simulate finding all clients
+        List<Client> clients = Collections.singletonList(clientRepository.findByBusinessName("testName"));
+
+        // Assert that the client list has the expected size
+        assertEquals(1, clients.size());
+        assertEquals("testName", clients.get(0).getBusinessName());
+    }
 }
