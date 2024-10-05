@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ClientDTO {
     private Long id;
     @NotNull(message = "Моля въведете името на бизнеса!")

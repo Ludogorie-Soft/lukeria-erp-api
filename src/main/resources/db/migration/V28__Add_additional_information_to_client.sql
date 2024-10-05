@@ -1,2 +1,0 @@
-ALTER TABLE client
-ADD COLUMN information VARCHAR(255);
