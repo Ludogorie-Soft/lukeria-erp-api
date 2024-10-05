@@ -21,6 +21,28 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    public void sendProductStockReportById(List<String> emailList, String subject, String body) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("berki07092@gmail.com");
+            helper.setTo(emailList.toArray(new String[0]));
+            helper.setSubject(subject);
+            helper.setText(body, true);
+
+            mailSender.send(message);
+            logger.info("Успешно изпратихме доклад за продукт: {}", emailList);
+
+        } catch (MessagingException e) {
+            logger.error("Грешка при изпращане на имейл до {} с тема {}", emailList, subject, e);
+            throw new CustomEmailException("Възникна грешка при изпращането на имейла", e);
+        } catch (MailException e) {
+            logger.error("Грешка в мейл сървъра при изпращане на имейл до {} с тема {}", emailList, subject, e);
+            throw new CustomEmailException("Възникна проблем с мейл сървъра", e);
+        }
+    }
+
 
     public void sendHtmlEmailWithProductReport(List<String> emailList, String subject, String body) {
         try {
