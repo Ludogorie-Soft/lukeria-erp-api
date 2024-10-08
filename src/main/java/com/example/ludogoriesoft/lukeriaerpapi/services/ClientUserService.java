@@ -36,7 +36,7 @@ public class ClientUserService {
 
         return allClients.stream()
                 .filter(client -> clientUsers.stream()
-                        .noneMatch(clientUser -> clientUser.getClientId().equals(client)))
+                        .noneMatch(clientUser -> clientUser.getClient().equals(client)))
                 .map(client -> modelMapper.map(client, ClientDTO.class))
                 .toList();
     }
@@ -66,6 +66,11 @@ public class ClientUserService {
         clientUser.setDeleted(true);
         clientUserRepository.save(clientUser);
     }
+    public void deleteClientUser(Long userId,Long clientId) {
+        ClientUser clientUserForDeleting=clientUserRepository.findByUserIdAndClientId(userId,clientId);
+        clientUserRepository.delete(clientUserForDeleting);
+    }
+
     private void validations(ClientUserDTO clientUserDTO) {
         User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId())
                 .orElseThrow(() -> new ValidationException("User not found or deleted"));

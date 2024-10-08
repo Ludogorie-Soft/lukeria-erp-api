@@ -43,5 +43,9 @@ public class ClientUserController {
     public void deleteClientUser(@PathVariable Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         clientUserService.deleteClientUser(id);
     }
+    @DeleteMapping("/deleteByUserAndClient/{userId}/{clientId}")
+    public void deleteClientUser(@PathVariable Long userId, @PathVariable Long clientId, @RequestHeader("Authorization") String auth) {
+        clientUserService.deleteClientUser(userId, clientId);
+    }
 }
 

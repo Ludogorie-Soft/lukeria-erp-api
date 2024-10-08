@@ -121,8 +121,8 @@ class ClientUserServiceTest {
 
         ClientUser savedClientUser = new ClientUser();
         savedClientUser.setId(1L);
-        savedClientUser.setClientId(client);
-        savedClientUser.setUserId(user);
+        savedClientUser.setClient(client);
+        savedClientUser.setUser(user);
         savedClientUser.setDeleted(false);
 
         when(clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())).thenReturn(Optional.of(client));
@@ -152,8 +152,8 @@ class ClientUserServiceTest {
 
         ClientUser savedClientUser = new ClientUser();
         savedClientUser.setId(1L);
-        savedClientUser.setClientId(client);
-        savedClientUser.setUserId(user);
+        savedClientUser.setClient(client);
+        savedClientUser.setUser(user);
         savedClientUser.setDeleted(false);
 
         when(clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())).thenReturn(Optional.of(client));
@@ -179,8 +179,8 @@ class ClientUserServiceTest {
 
         ClientUser savedClientUser = new ClientUser();
         savedClientUser.setId(1L);
-        savedClientUser.setClientId(client);
-        savedClientUser.setUserId(user);
+        savedClientUser.setClient(client);
+        savedClientUser.setUser(user);
         savedClientUser.setDeleted(false);
 
         when(clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())).thenReturn(Optional.of(client));
@@ -200,7 +200,7 @@ class ClientUserServiceTest {
         clientWithoutUser.setId(2L);
 
         ClientUser clientUser = new ClientUser();
-        clientUser.setClientId(clientWithUser);
+        clientUser.setClient(clientWithUser);
 
         when(clientRepository.findAll()).thenReturn(Arrays.asList(clientWithUser, clientWithoutUser));
         when(clientUserRepository.findAll()).thenReturn(Arrays.asList(clientUser));
@@ -261,12 +261,12 @@ class ClientUserServiceTest {
 
         ClientUser existingClientUser = new ClientUser();
         existingClientUser.setId(existingClientUserId);
-        existingClientUser.setClientId(client);
-        existingClientUser.setUserId(user);
+        existingClientUser.setClient(client);
+        existingClientUser.setUser(user);
 
         ClientUser updatedClientUser= new ClientUser();
-        updatedClientUser.setClientId(client);
-        updatedClientUser.setUserId(user);
+        updatedClientUser.setClient(client);
+        updatedClientUser.setUser(user);
 
         when(clientUserRepository.findByIdAndDeletedFalse(existingClientUser.getId())).thenReturn(Optional.of(existingClientUser));
         when(clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())).thenReturn(Optional.of(client));
