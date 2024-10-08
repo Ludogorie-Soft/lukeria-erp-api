@@ -78,7 +78,6 @@ public class ClientUserService {
                 .orElseThrow(() -> new ValidationException("Client not found or deleted"));
 
         validateUserRole(user);
-        checkIfClientUserExists(client, user);
     }
 
     private void validateUserRole(User user) {
@@ -86,12 +85,4 @@ public class ClientUserService {
             throw new ValidationException("User is not a customer!");
         }
     }
-
-    private void checkIfClientUserExists(Client client, User user) {
-        Optional<ClientUser> optionalClientUser = clientUserRepository.findByClientIdAndUserIdAndDeletedFalse(client, user);
-        if (optionalClientUser.isPresent()) {
-            throw new ValidationException("Client User already exists");
-        }
-    }
-
 }
