@@ -67,14 +67,16 @@ public class ClientUserService {
         clientUserRepository.save(clientUser);
     }
     public void deleteClientUser(Long userId,Long clientId) {
-        ClientUser clientUserForDeleting=clientUserRepository.findByUserIdAndClientId(userId,clientId);
-        clientUserRepository.delete(clientUserForDeleting);
+        ClientUser clientUserForDeleting = clientUserRepository.findByUserIdAndClientId(userId, clientId);
+        if (clientUserForDeleting != null) {
+            clientUserRepository.delete(clientUserForDeleting);
+        }
     }
 
     private void validations(ClientUserDTO clientUserDTO) {
         User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId())
                 .orElseThrow(() -> new ValidationException("User not found or deleted"));
-        Client client = clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())
+         clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())
                 .orElseThrow(() -> new ValidationException("Client not found or deleted"));
 
         validateUserRole(user);
