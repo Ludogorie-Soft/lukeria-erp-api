@@ -187,6 +187,13 @@ class ClientUserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+    @Test
+    void testDeleteClientUserByIds() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/v1/client-user/deleteByUserAndClient/{userId}/{clientId}", 1,1)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     void testGetClientUserByIdWhenNotFound() throws Exception {
