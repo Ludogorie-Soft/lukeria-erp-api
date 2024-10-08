@@ -47,6 +47,9 @@ public class ClientService {
         existingClient.setEnglishAddress(clientDTO.getEnglishAddress());
         existingClient.setEnglishBusinessName(clientDTO.getEnglishBusinessName());
         existingClient.setEnglishMol(clientDTO.getEnglishMol());
+        existingClient.setContactPhone(clientDTO.getContactPhone());
+        existingClient.setDeliveryAddress(clientDTO.getDeliveryAddress());
+        existingClient.setInformation(clientDTO.getInformation());
         Client updatedClient = clientRepository.save(existingClient);
         updatedClient.setId(id);
         return modelMapper.map(updatedClient, ClientDTO.class);

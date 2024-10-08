@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientUserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.Role;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
@@ -9,13 +10,12 @@ import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import jakarta.validation.ValidationException;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -30,7 +30,16 @@ public class ClientUserService {
         return clientUsers.stream()
                 .map(clientUser -> modelMapper.map(clientUser, ClientUserDTO.class)).toList();
     }
+    public List<ClientDTO> getAllClientsNotInClientUserHelper() {
+        List<Client> allClients = clientRepository.findAll();
+        List<ClientUser> clientUsers = clientUserRepository.findAll();
 
+        return allClients.stream()
+                .filter(client -> clientUsers.stream()
+                        .noneMatch(clientUser -> clientUser.getClient().equals(client)))
+                .map(client -> modelMapper.map(client, ClientDTO.class))
+                .toList();
+    }
 
     public ClientUserDTO getClientUserById(Long id) throws ChangeSetPersister.NotFoundException {
         ClientUser clientUser = clientUserRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
@@ -57,14 +66,20 @@ public class ClientUserService {
         clientUser.setDeleted(true);
         clientUserRepository.save(clientUser);
     }
+    public void deleteClientUser(Long userId,Long clientId) {
+        ClientUser clientUserForDeleting = clientUserRepository.findByUserIdAndClientId(userId, clientId);
+        if (clientUserForDeleting != null) {
+            clientUserRepository.delete(clientUserForDeleting);
+        }
+    }
+
     private void validations(ClientUserDTO clientUserDTO) {
         User user = userRepository.findByIdAndDeletedFalse(clientUserDTO.getUserId())
                 .orElseThrow(() -> new ValidationException("User not found or deleted"));
-        Client client = clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())
+         clientRepository.findByIdAndDeletedFalse(clientUserDTO.getClientId())
                 .orElseThrow(() -> new ValidationException("Client not found or deleted"));
 
         validateUserRole(user);
-        checkIfClientUserExists(client, user);
     }
 
     private void validateUserRole(User user) {
@@ -72,12 +87,4 @@ public class ClientUserService {
             throw new ValidationException("User is not a customer!");
         }
     }
-
-    private void checkIfClientUserExists(Client client, User user) {
-        Optional<ClientUser> optionalClientUser = clientUserRepository.findByClientIdAndUserIdAndDeletedFalse(client, user);
-        if (optionalClientUser.isPresent()) {
-            throw new ValidationException("Client User already exists");
-        }
-    }
-
 }
