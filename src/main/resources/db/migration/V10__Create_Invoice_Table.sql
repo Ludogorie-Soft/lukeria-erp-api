@@ -1,4 +1,4 @@
-CREATE TABLE invoice (
+CREATE TABLE IF NOT EXISTS invoice (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   invoice_date DATE,
   invoice_number BIGINT,

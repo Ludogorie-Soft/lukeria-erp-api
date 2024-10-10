@@ -1,4 +1,4 @@
-CREATE TABLE monthly_order (
+CREATE TABLE IF NOT EXISTS monthly_order (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     client_id BIGINT,
     start_date DATE,

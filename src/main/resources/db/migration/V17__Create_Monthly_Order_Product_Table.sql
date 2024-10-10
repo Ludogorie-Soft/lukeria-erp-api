@@ -1,4 +1,4 @@
-CREATE TABLE monthly_order_product (
+CREATE TABLE IF NOT EXISTS monthly_order_product (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     package_id BIGINT,
     ordered_quantity INT,

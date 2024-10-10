@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.enums.OrderStatus;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
@@ -388,5 +389,26 @@ class OrderProductServiceTest {
         when(orderProductRepository.findByIdAndDeletedFalse(orderId)).thenReturn(Optional.empty());
 
         assertThrows(ChangeSetPersister.NotFoundException.class, () -> orderProductService.deleteOrderProduct(orderId));
+    }
+    @Test
+    public void testEnumValues() {
+        OrderStatus[] expectedValues = {OrderStatus.ACCEPTED, OrderStatus.SHIPPED, OrderStatus.DELIVERED, OrderStatus.COMPLETED};
+        assertArrayEquals(expectedValues, OrderStatus.values());
+    }
+
+    @Test
+    public void testEnumValueOf() {
+        assertEquals(OrderStatus.ACCEPTED, OrderStatus.valueOf("ACCEPTED"));
+        assertEquals(OrderStatus.SHIPPED, OrderStatus.valueOf("SHIPPED"));
+        assertEquals(OrderStatus.DELIVERED, OrderStatus.valueOf("DELIVERED"));
+        assertEquals(OrderStatus.COMPLETED, OrderStatus.valueOf("COMPLETED"));
+    }
+
+    @Test
+    public void testEnumToString() {
+        assertEquals("ACCEPTED", OrderStatus.ACCEPTED.toString());
+        assertEquals("SHIPPED", OrderStatus.SHIPPED.toString());
+        assertEquals("DELIVERED", OrderStatus.DELIVERED.toString());
+        assertEquals("COMPLETED", OrderStatus.COMPLETED.toString());
     }
 }
