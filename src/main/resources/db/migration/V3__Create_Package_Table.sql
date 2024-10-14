@@ -1,4 +1,4 @@
-CREATE TABLE package (
+CREATE TABLE IF NOT EXISTS package (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
   available_quantity INT,

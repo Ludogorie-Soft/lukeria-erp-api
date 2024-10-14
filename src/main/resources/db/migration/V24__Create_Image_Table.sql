@@ -1,4 +1,4 @@
-CREATE TABLE image (
+CREATE TABLE IF NOT EXISTS image (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name BINARY(16),
     package_id BIGINT,

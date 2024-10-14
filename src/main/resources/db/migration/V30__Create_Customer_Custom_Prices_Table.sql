@@ -1,4 +1,4 @@
-CREATE TABLE customer_custom_price (
+CREATE TABLE IF NOT EXISTS customer_custom_price (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     client_id BIGINT,
     product_id BIGINT,

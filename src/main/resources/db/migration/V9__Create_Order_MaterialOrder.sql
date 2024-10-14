@@ -1,4 +1,4 @@
-CREATE TABLE material_order (
+CREATE TABLE IF NOT EXISTS material_order (
      id BIGINT PRIMARY KEY AUTO_INCREMENT,
     ordered_quantity INT NOT NULL,
     received_quantity INT,

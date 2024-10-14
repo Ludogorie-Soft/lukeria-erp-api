@@ -1,5 +1,5 @@
-CREATE TABLE client_user (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS client_user (
+id BIGINT PRIMARY KEY AUTO_INCREMENT,
     client_id BIGINT,
     user_id BIGINT,
     is_deleted TINYINT(1) DEFAULT FALSE,

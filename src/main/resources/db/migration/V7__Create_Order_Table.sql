@@ -1,4 +1,4 @@
-CREATE TABLE order_table  (
+CREATE TABLE IF NOT EXISTS order_table  (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   client_id BIGINT,
   order_date DATE,
