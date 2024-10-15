@@ -27,8 +27,8 @@ public class PackageController {
         return ResponseEntity.ok(packageService.getPackageById(id));
     }
     @GetMapping("/materials/{id}")
-    public void getAllMaterialsForPackageById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
-        packageService.sendProductStockReportById(id);
+    public ResponseEntity<Boolean> getAllMaterialsForPackageById(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+     return new ResponseEntity<>(packageService.sendProductStockReportById(id), HttpStatus.OK);
     }
 
     @PostMapping

@@ -179,6 +179,15 @@ class PackageControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void testGetAllMaterialsForPackageById_Success() throws Exception {
+        Long packageId = 1L;
+
+        mockMvc.perform(get("/api/v1/package/materials/{id}", packageId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer YOUR_TOKEN_HERE")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     @Test
     void testCreatePackage() throws Exception {

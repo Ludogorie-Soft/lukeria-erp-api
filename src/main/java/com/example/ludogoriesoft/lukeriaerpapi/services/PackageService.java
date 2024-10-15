@@ -47,7 +47,7 @@ public class PackageService {
   }
 
 
-  public void sendProductStockReportById(Long packageId) throws ChangeSetPersister.NotFoundException {
+  public Boolean sendProductStockReportById(Long packageId) throws ChangeSetPersister.NotFoundException {
     Package productPackage = findPackageById(packageId);
     PackageDTO packageDTO = getPackageById(packageId);
 
@@ -57,6 +57,7 @@ public class PackageService {
 
     String emailBody = emailContentBuilder.generateProductStockReportById(productDTO, packageDTO, plateDTO, cartonDTO);
     emailService.sendHtmlEmailWithProductReport(userRepository.findEmailsByRoleNotCustomer(), "Наличност за Продукт с Код: " + packageDTO.getProductCode(), emailBody);
+    return true;
   }
 
   private Package findPackageById(Long packageId) throws ChangeSetPersister.NotFoundException {
