@@ -1,11 +1,16 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
+import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +38,12 @@ class PackageServiceTest {
     private PlateRepository plateRepository;
     @Mock
     private ModelMapper modelMapper;
+
+    @Mock
+    private ProductService productService;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private PackageService packageService;
@@ -79,6 +88,19 @@ class PackageServiceTest {
         verify(modelMapper, times(mockPackages.size())).map(any(Package.class), eq(PackageDTO.class));
     }
 
+    @Test
+    void testSendProductStockReportById_PackageNotFound() throws ChangeSetPersister.NotFoundException {
+        Long packageId = 1L;
+
+        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.empty());
+
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
+            packageService.sendProductStockReportById(packageId);
+        });
+
+        verify(productService, never()).getProductById(any());
+        verify(emailService, never()).sendHtmlEmailWithProductReport(any(), any(), any());
+    }
 
     @Test
     void testCreatePackageWithPlateIdNotNullAndPlateDoesNotExist() {
