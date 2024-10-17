@@ -1,5 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.models;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ImageService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,6 +15,61 @@ import java.util.List;
 @AllArgsConstructor
 public class EmailContentBuilder {
     private final ImageService imageService;
+    public String generateProductStockReportById(ProductDTO productDTO, PackageDTO packageDTO, PlateDTO plateDTO, CartonDTO cartonDTO) {
+        StringBuilder emailContent = new StringBuilder();
+
+        emailContent.append("<html>")
+                .append("<body>")
+                .append("<h2>Доклад за наличност на продукт</h2>")
+                .append("<table border='1' cellpadding='10' cellspacing='0'>")
+                .append("<tr>")
+                .append("<th>Снимка</th>")
+                .append("<th>Код на продукта</th>")
+                .append("<th>Име на продукт</th>")
+                .append("<th>Налично количество на готови продукти</th>")
+                .append("<th>Налично количество на кутии</th>")
+                .append("<th>Налично количество на тарелки</th>")
+                .append("<th>Налично количество на кашони</th>")
+                .append("</tr>");
+
+        emailContent.append("<tr>");
+
+        String imageUrl = packageDTO.getPhoto();
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            byte[] imageBytes = imageService.getImageBytes(imageUrl);
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+            String imageSrc = "data:image/jpeg;base64," + base64Image;
+
+            emailContent.append("<td><img src='").append(imageSrc).append("' alt='Product Image' width='100' height='100'></td>");
+        } else {
+            emailContent.append("<td><img src='https://via.placeholder.com/100' alt='No Image' width='100' height='100'></td>");
+        }
+
+        emailContent.append("<td>").append(packageDTO.getProductCode() != null ? packageDTO.getProductCode() : "Без код").append("</td>")
+                .append("<td>").append(packageDTO.getName() != null ? packageDTO.getName() : "Без име").append("</td>")
+                .append("<td>").append(productDTO.getAvailableQuantity()).append("</td>")
+                .append("<td>").append(packageDTO.getAvailableQuantity()).append("</td>");
+
+        if (plateDTO != null) {
+            emailContent.append("<td>").append(plateDTO.getAvailableQuantity() != null ? plateDTO.getAvailableQuantity() : "Няма информация").append("</td>");
+        } else {
+            emailContent.append("<td>Няма информация</td>");
+        }
+
+        if (cartonDTO != null) {
+            emailContent.append("<td>").append(cartonDTO.getAvailableQuantity() != null ? cartonDTO.getAvailableQuantity() : "Няма информация").append("</td>");
+        } else {
+            emailContent.append("<td>Няма информация</td>");
+        }
+
+        emailContent.append("</tr>")
+                .append("</table>")
+                .append("</body>")
+                .append("</html>");
+
+        return emailContent.toString();
+    }
+
 
     public String generateStockReportEmail(List<Product> productList) {
         StringBuilder emailContent = new StringBuilder();
