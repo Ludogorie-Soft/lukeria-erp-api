@@ -312,4 +312,5 @@ public class CustomerCustomPriceControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
 }
