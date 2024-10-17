@@ -44,12 +44,17 @@ public class CustomerCustomPriceController {
     }
 
     @DeleteMapping("/")
-    public ResponseEntity<CustomerCustomPriceDTO> deleteCustomPrice(@RequestParam(name = "clientId") Long clientId,@RequestParam(name = "productId") Long productId, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
-        return ResponseEntity.ok(customerCustomPriceService.delete(clientId,productId));
+    public ResponseEntity<CustomerCustomPriceDTO> deleteCustomPrice(@RequestParam(name = "clientId") Long clientId, @RequestParam(name = "productId") Long productId, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(customerCustomPriceService.delete(clientId, productId));
     }
+
     @GetMapping("/allForClient/{id}")
-    public ResponseEntity<List<CustomerCustomPriceDTO>> allProductsWithAndWithoutCustomPrice(@PathVariable(name = "id") Long clientId,@RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<List<CustomerCustomPriceDTO>> allProductsWithAndWithoutCustomPrice(@PathVariable(name = "id") Long clientId, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(customerCustomPriceService.allProductWithCustomPriceForClient(clientId));
     }
 
+    @GetMapping("/findByClientAndProduct")
+    public ResponseEntity<CustomerCustomPriceDTO> customPriceByClientAndProduct(@RequestParam Long clientId, @RequestParam Long productId, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(customerCustomPriceService.findByClientAndProduct(clientId, productId));
+    }
 }

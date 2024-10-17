@@ -211,4 +211,60 @@ public class CustomerCustomPriceTest {
         assertEquals(1, result.size());
         verify(customerCustomPriceRepository, times(1)).findByClientIdAndDeletedFalse(client);
     }
+    @Test
+    void findByClientAndProduct_ShouldReturnCustomPrice_WhenFound() throws ChangeSetPersister.NotFoundException {
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(product));
+        when(customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product)).thenReturn(Optional.of(customerCustomPrice));
+        when(modelMapper.map(customerCustomPrice, CustomerCustomPriceDTO.class)).thenReturn(customerCustomPriceDTO);
+
+        CustomerCustomPriceDTO result = customerCustomPriceService.findByClientAndProduct(1L, 1L);
+
+        assertNotNull(result);
+        assertEquals(result.getPrice(), BigDecimal.valueOf(100));
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verify(productRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verify(customerCustomPriceRepository, times(1)).findByClientIdAndProductIdAndDeletedFalse(client, product);
+    }
+
+    @Test
+    void findByClientAndProduct_ShouldThrowNotFoundException_WhenClientNotFound() {
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ChangeSetPersister.NotFoundException.class, () ->
+                customerCustomPriceService.findByClientAndProduct(1L, 1L));
+
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(productRepository);
+        verifyNoInteractions(customerCustomPriceRepository);
+    }
+
+    @Test
+    void findByClientAndProduct_ShouldThrowNotFoundException_WhenProductNotFound() {
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ChangeSetPersister.NotFoundException.class, () ->
+                customerCustomPriceService.findByClientAndProduct(1L, 1L));
+
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verify(productRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verifyNoInteractions(customerCustomPriceRepository);
+    }
+
+    @Test
+    void findByClientAndProduct_ShouldThrowNotFoundException_WhenCustomPriceNotFound() {
+        when(clientRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(client));
+        when(productRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(product));
+        when(customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ChangeSetPersister.NotFoundException.class, () ->
+                customerCustomPriceService.findByClientAndProduct(1L, 1L));
+
+        verify(clientRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verify(productRepository, times(1)).findByIdAndDeletedFalse(1L);
+        verify(customerCustomPriceRepository, times(1)).findByClientIdAndProductIdAndDeletedFalse(client, product);
+    }
+
 }
