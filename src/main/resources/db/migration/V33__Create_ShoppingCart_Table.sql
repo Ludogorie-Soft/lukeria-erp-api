@@ -6,6 +6,6 @@ CREATE TABLE shopping_carts (
     order_date DATE,
     status VARCHAR(50),
     is_deleted TINYINT(1) DEFAULT 0,
-    FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (client_id) REFERENCES clients(id)
+    FOREIGN KEY (order_id) REFERENCES order_table (id),
+    FOREIGN KEY (client_id) REFERENCES client(id)
 );

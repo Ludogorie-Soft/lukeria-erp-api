@@ -31,5 +31,5 @@ public class ShoppingCartDTO {
     @NotEmpty
     private OrderStatus status;
     @NotEmpty
-    private List<CartItem> items;
+    private List<Long> items;
 }

@@ -28,6 +28,7 @@ public class ShoppingCart {
     private Long createdByUser;
     @Column(name = "order_date")
     private LocalDate orderDate;
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
     @OneToMany
     private List<CartItem> items;
