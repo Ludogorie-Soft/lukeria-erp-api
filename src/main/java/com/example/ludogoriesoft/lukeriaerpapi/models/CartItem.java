@@ -28,4 +28,7 @@ public class CartItem {
     private int quantity;
     private BigDecimal price;
     private boolean deleted;
+    @ManyToOne
+    @JoinColumn(name = "shopping_cart_id")
+    private ShoppingCart shoppingCartId;
 }

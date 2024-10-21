@@ -30,7 +30,7 @@ public class ShoppingCart {
     private LocalDate orderDate;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    @OneToMany
+    @OneToMany(mappedBy = "shoppingCartId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items;
     @Column(name = "is_deleted")
     private boolean deleted;
