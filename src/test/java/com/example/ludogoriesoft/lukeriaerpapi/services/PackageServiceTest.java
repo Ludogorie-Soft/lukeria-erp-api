@@ -1,12 +1,24 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.PlateDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
+import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import jakarta.validation.ValidationException;
+import java.math.BigDecimal;
+import java.util.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,15 +29,6 @@ import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 class PackageServiceTest {
     @Mock
     private PackageRepository packageRepository;
@@ -35,6 +38,16 @@ class PackageServiceTest {
     private PlateRepository plateRepository;
     @Mock
     private ModelMapper modelMapper;
+
+    @Mock
+    private ProductService productService;
+
+    @Mock
+    private EmailService emailService;
+    @Mock
+    private EmailContentBuilder emailContentBuilder;
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private PackageService packageService;
@@ -79,6 +92,19 @@ class PackageServiceTest {
         verify(modelMapper, times(mockPackages.size())).map(any(Package.class), eq(PackageDTO.class));
     }
 
+    @Test
+    void testSendProductStockReportById_PackageNotFound() throws ChangeSetPersister.NotFoundException {
+        Long packageId = 1L;
+
+        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.empty());
+
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> {
+            packageService.sendProductStockReportById(packageId);
+        });
+
+        verify(productService, never()).getProductById(any());
+        verify(emailService, never()).sendHtmlEmailWithProductReport(any(), any(), any());
+    }
 
     @Test
     void testCreatePackageWithPlateIdNotNullAndPlateDoesNotExist() {
@@ -97,6 +123,32 @@ class PackageServiceTest {
         // Act & Assert
         Assertions.assertThrows(ValidationException.class, () -> packageService.createPackage(packageDTO));
     }
+    @Test
+    void testSendProductStockReportById_Success() throws Exception {
+        Long packageId = 1L;
+        Package productPackage = new Package();
+        productPackage.setId(packageId);
+        productPackage.setPlateId(new Plate());
+        productPackage.setCartonId(new Carton());
+        productPackage.setProductCode("code");
+
+        List<String> emails = List.of("email1@example.com", "email2@example.com");
+        String emailBody = "Generated Email Body";
+
+        when(packageRepository.findByIdAndDeletedFalse(packageId)).thenReturn(Optional.of(productPackage));
+        when(modelMapper.map(productPackage, PackageDTO.class)).thenReturn(new PackageDTO());
+        when(modelMapper.map(any(Plate.class), eq(PlateDTO.class))).thenReturn(new PlateDTO());
+        when(modelMapper.map(any(Carton.class), eq(CartonDTO.class))).thenReturn(new CartonDTO());
+        when(productService.getProductById(packageId)).thenReturn(new ProductDTO());
+        when(emailContentBuilder.generateProductStockReportById(any(), any(), any(), any())).thenReturn(emailBody);
+        when(userRepository.findEmailsByRoleNotCustomer()).thenReturn(emails);
+
+        boolean result = packageService.sendProductStockReportById(packageId);
+
+        verify(emailService).sendHtmlEmailWithProductReport(eq(emails), contains("Наличност за Продукт с Код: "), eq(emailBody));
+        assertTrue(result);
+    }
+
 
     @Test
     void testUpdatePackage_ReturnsUpdatedPackageDTO() throws ChangeSetPersister.NotFoundException {

@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @AutoConfigureMockMvc(addFilters = false)
@@ -88,7 +89,7 @@ class PackageControllerIntegrationTest {
 
         when(packageService.getAllPackages()).thenReturn(packageDTOList);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package")
+        MvcResult mvcResult = mockMvc.perform(get("/api/v1/package")
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -115,7 +116,7 @@ class PackageControllerIntegrationTest {
 
         when(packageService.getAllPackages()).thenReturn(packageDTOList);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package")
+        MvcResult mvcResult = mockMvc.perform(get("/api/v1/package")
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -137,7 +138,7 @@ class PackageControllerIntegrationTest {
 
         when(packageService.getPackageById(anyLong())).thenReturn(packageDTO);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package/{id}", 1)
+        MvcResult mvcResult = mockMvc.perform(get("/api/v1/package/{id}", 1)
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -157,7 +158,7 @@ class PackageControllerIntegrationTest {
 
         when(packageService.getPackageById(anyLong())).thenReturn(packageDTO);
 
-        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package/{id}", 1)
+        MvcResult mvcResult = mockMvc.perform(get("/api/v1/package/{id}", 1)
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -167,6 +168,25 @@ class PackageControllerIntegrationTest {
 
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
+    }
+
+    @Test
+     void testGetAllMaterialsForPackageById_NotFound() throws Exception {
+        Long packageId = 999L;
+
+        mockMvc.perform(get("/materials/{id}", packageId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer YOUR_TOKEN_HERE")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+    @Test
+    void testGetAllMaterialsForPackageById_Success() throws Exception {
+        Long packageId = 1L;
+
+        mockMvc.perform(get("/api/v1/package/materials/{id}", packageId)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer YOUR_TOKEN_HERE")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -224,7 +244,7 @@ class PackageControllerIntegrationTest {
     void testGetAllPackagesWhenNoPackageExist() throws Exception {
         when(packageService.getAllPackages()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package")
+        mockMvc.perform(get("/api/v1/package")
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -239,7 +259,7 @@ class PackageControllerIntegrationTest {
         long packageId = 1L;
         when(packageService.getPackageById(packageId)).thenThrow(new ChangeSetPersister.NotFoundException());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package/{id}", packageId)
+        mockMvc.perform(get("/api/v1/package/{id}", packageId)
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -267,7 +287,7 @@ class PackageControllerIntegrationTest {
         when(packageService.getPackageById(invalidId))
                 .thenThrow(new ChangeSetPersister.NotFoundException());
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/package/{id}", invalidId)
+        mockMvc.perform(get("/api/v1/package/{id}", invalidId)
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token") // Add the Authorization header
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
