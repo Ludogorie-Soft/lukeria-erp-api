@@ -242,4 +242,75 @@ public class CustomerCustomPriceControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void testGetCustomPriceByClientAndProduct_ShouldReturnCustomPrice_WhenFound() throws Exception {
+        Long clientId = 1L;
+        Long productId = 1L;
+
+        CustomerCustomPriceDTO priceDTO = new CustomerCustomPriceDTO();
+        priceDTO.setId(1L);
+        priceDTO.setClientId(clientId);
+        priceDTO.setProductId(productId);
+        priceDTO.setPrice(BigDecimal.valueOf(100.0));
+
+        when(customerCustomPriceService.findByClientAndProduct(clientId, productId)).thenReturn(priceDTO);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customerCustomPrice/findByClientAndProduct")
+                        .param("clientId", clientId.toString())
+                        .param("productId", productId.toString())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.price").value(100.0));
+    }
+
+    @Test
+    void testGetCustomPriceByClientAndProduct_ShouldReturnNotFound_WhenClientNotFound() throws Exception {
+        Long clientId = 1L;
+        Long productId = 1L;
+
+        when(customerCustomPriceService.findByClientAndProduct(clientId, productId))
+                .thenThrow(new ChangeSetPersister.NotFoundException());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customerCustomPrice/findByClientAndProduct")
+                        .param("clientId", clientId.toString())
+                        .param("productId", productId.toString())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetCustomPriceByClientAndProduct_ShouldReturnNotFound_WhenProductNotFound() throws Exception {
+        Long clientId = 1L;
+        Long productId = 1L;
+
+        when(customerCustomPriceService.findByClientAndProduct(clientId, productId))
+                .thenThrow(new ChangeSetPersister.NotFoundException());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customerCustomPrice/findByClientAndProduct")
+                        .param("clientId", clientId.toString())
+                        .param("productId", productId.toString())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetCustomPriceByClientAndProduct_ShouldReturnNotFound_WhenCustomPriceNotFound() throws Exception {
+        Long clientId = 1L;
+        Long productId = 1L;
+
+        when(customerCustomPriceService.findByClientAndProduct(clientId, productId))
+                .thenThrow(new ChangeSetPersister.NotFoundException());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/customerCustomPrice/findByClientAndProduct")
+                        .param("clientId", clientId.toString())
+                        .param("productId", productId.toString())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
 }

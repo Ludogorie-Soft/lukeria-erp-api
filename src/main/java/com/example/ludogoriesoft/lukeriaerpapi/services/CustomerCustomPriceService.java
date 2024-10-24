@@ -100,5 +100,11 @@ public class CustomerCustomPriceService {
         CustomerCustomPrice customerCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(clientId, productId).orElseThrow(ChangeSetPersister.NotFoundException::new);
         return customerCustomPrice;
     }
+    public CustomerCustomPriceDTO findByClientAndProduct(Long clientId, Long productId) throws ChangeSetPersister.NotFoundException {
+        Client client = clientRepository.findByIdAndDeletedFalse(clientId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Product product = productRepository.findByIdAndDeletedFalse(productId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        CustomerCustomPrice customerCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        return modelMapper.map(customerCustomPrice,CustomerCustomPriceDTO.class);
+    }
 
 }
