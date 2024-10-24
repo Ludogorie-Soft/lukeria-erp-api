@@ -68,6 +68,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.PUT,"/api/v1/user/change-pass").authenticated()
                 .requestMatchers("/api/v1/user/**").hasAnyRole(ADMIN.name())
 
+                .requestMatchers(HttpMethod.GET,"/api/v1/customerCustomPrice/findByClientAndProduct").hasAnyRole(CUSTOMER.name())
                 .requestMatchers("/api/v1/customerCustomPrice/**").hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, CLIENT_URL).hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
@@ -91,6 +92,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, CARTON_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, CARTON_URL).hasAnyRole(ADMIN.name())
 
+                .requestMatchers(HttpMethod.GET,"/api/v1/client-user").hasAnyRole(ADMIN.name(),CUSTOMER.name())
                 .requestMatchers(CLIENT_USER_URL).hasAnyRole(ADMIN.name())
 
                 .requestMatchers(HttpMethod.GET, PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
