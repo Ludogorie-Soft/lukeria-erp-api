@@ -52,4 +52,8 @@ public class ProductController {
     public ResponseEntity<ProductDTO> produceProduct(@RequestParam("productId") Long productId, @RequestParam("producedQuantity") int producedQuantity, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(productService.produceProduct(productId, producedQuantity));
     }
+    @GetMapping("/for-sale")
+    public ResponseEntity<List<ProductDTO>> getProductsForSaleWithoutLookingForQuantity(@RequestHeader("Authorization") String auth) {
+        return ResponseEntity.ok(productService.getProductsForSaleWithoutLookingForQuantity());
+    }
 }

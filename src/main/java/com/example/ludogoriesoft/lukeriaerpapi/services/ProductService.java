@@ -111,4 +111,10 @@ public class ProductService {
         }
         return modelMapper.map(product, ProductDTO.class);
     }
+    public List<ProductDTO> getProductsForSaleWithoutLookingForQuantity() {
+        List<Product> products = productRepository.getProductsForSale();
+        Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
+        return modelMapper.map(products, listType);
+    }
+
 }
