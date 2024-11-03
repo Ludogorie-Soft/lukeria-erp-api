@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -75,6 +76,10 @@ public class UserService {
         }
         if (StringUtils.isBlank(user.getPassword())) {
             throw new ValidationException("Password is required");
+        }
+        Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
+        if (optionalUser.isPresent()) {
+            throw new ValidationException("User with this email already exists!");
         }
     }
 
