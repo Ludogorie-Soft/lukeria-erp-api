@@ -97,6 +97,7 @@ public class SecurityConfiguration {
 //                 .requestMatchers(HttpMethod.GET,"/api/v1/client-user").hasAnyRole(ADMIN.name(),CUSTOMER.name())
 //                 .requestMatchers(CLIENT_USER_URL).hasAnyRole(ADMIN.name())
 
+                .requestMatchers(HttpMethod.GET,"/api/v1/product/for-sale").hasAnyRole(ADMIN.name(), CUSTOMER.name(),PRODUCTION_MANAGER.name(),TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.GET, PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/product/produce/***").hasAnyRole(ADMIN.name(), PRODUCTION_MANAGER.name())

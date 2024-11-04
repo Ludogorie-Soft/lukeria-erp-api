@@ -16,4 +16,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByIdAndDeletedFalse(Long id);
 
     Optional<Product> findByPackageIdAndDeletedFalse(Package packageEntity);
+
+    @Query("SELECT p FROM Product p WHERE p.forSale=true")
+    List<Product> getProductsForSale();
+
 }
