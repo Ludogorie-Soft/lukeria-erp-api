@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -119,6 +120,9 @@ public class ProductService {
         return modelMapper.map(products, listType);
     }
     public ProductDTO getProductByPackage(Long packageId){
-        return modelMapper.map(productRepository.findByPackageId(packageRepository.findById(packageId).get()), ProductDTO.class);
+        if(packageRepository.findById(packageId).isPresent()) {
+            return modelMapper.map(productRepository.findByPackageId(packageRepository.findById(packageId).get()), ProductDTO.class);
+        }
+        throw new NoSuchElementException();
     }
 }

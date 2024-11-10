@@ -81,8 +81,10 @@ public class OrderService {
 
     public List<Order> getAllOrdersForClient(Long id) {
         Optional<Client> client = clientRepository.findById(id);
-        return orderRepository.findAllByClientId(client.get());
+        if(client.isPresent()) {
+            return orderRepository.findAllByClientId(client.get());
+        }
+        throw new NoSuchElementException();
     }
-
 
 }
