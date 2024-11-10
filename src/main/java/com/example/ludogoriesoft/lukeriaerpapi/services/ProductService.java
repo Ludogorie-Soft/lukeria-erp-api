@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
@@ -120,8 +121,9 @@ public class ProductService {
         return modelMapper.map(products, listType);
     }
     public ProductDTO getProductByPackage(Long packageId){
-        if(packageRepository.findById(packageId).isPresent()) {
-            return modelMapper.map(productRepository.findByPackageId(packageRepository.findById(packageId).get()), ProductDTO.class);
+        Optional<Package> packageDTO = packageRepository.findById(packageId);
+        if(packageDTO.isPresent()) {
+            return modelMapper.map(productRepository.findByPackageId(packageDTO.get()), ProductDTO.class);
         }
         throw new NoSuchElementException();
     }
