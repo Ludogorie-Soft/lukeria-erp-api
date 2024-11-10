@@ -382,7 +382,7 @@ class ProductServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(productDTO, result);
-        verify(packageRepository, times(2)).findById(packageId);
+        verify(packageRepository).findById(packageId);
         verify(productRepository).findByPackageId(pkg);
         verify(modelMapper).map(product, ProductDTO.class);
     }
