@@ -15,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
@@ -116,5 +118,7 @@ public class ProductService {
         Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
         return modelMapper.map(products, listType);
     }
-
+    public ProductDTO getProductByPackage(Long packageId){
+        return modelMapper.map(productRepository.findByPackageId(packageRepository.findById(packageId).get()), ProductDTO.class);
+    }
 }

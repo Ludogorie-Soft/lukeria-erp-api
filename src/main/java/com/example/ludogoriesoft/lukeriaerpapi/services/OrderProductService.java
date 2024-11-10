@@ -1,10 +1,10 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.EmailContentBuilder;
-import com.example.ludogoriesoft.lukeriaerpapi.models.InvoiceOrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderWithProductsDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -12,9 +12,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -115,5 +114,17 @@ public class OrderProductService {
         String body = emailContentBuilder.generateStockReportEmail(productList);
         emailService.sendHtmlEmailWithProductReport(emailList, "Доклад за наличност на продукти след изпращане на заявка", body);
         return true;
+    }
+    public List<OrderWithProductsDTO> getOrderProductsOfOrders(List<Order> orders) {
+        List<OrderWithProductsDTO> result = new ArrayList<>();
+        for (Order order : orders) {
+            List<OrderProduct> orderProducts = orderProductRepository.findAllByOrderId(order);
+            List<OrderProductDTO> orderProductDTOs = orderProducts.stream()
+                    .map(orderProduct -> modelMapper.map(orderProduct, OrderProductDTO.class))
+                    .collect(Collectors.toList());
+            OrderDTO orderDTO = modelMapper.map(order, OrderDTO.class);
+            result.add(new OrderWithProductsDTO(orderDTO, orderProductDTOs));
+        }
+        return result;
     }
 }

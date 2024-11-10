@@ -19,5 +19,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.forSale=true")
     List<Product> getProductsForSale();
+    Product findByPackageId(Package packageId);
 
 }

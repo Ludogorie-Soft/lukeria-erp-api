@@ -104,12 +104,12 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.DELETE, PRODUCT_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, PRODUCT_URL).hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, ORDER_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, ORDER_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, "/api/v1/order").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.PUT, ORDER_URL).hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE, ORDER_URL).hasAnyRole(ADMIN.name())
 
-                .requestMatchers(HttpMethod.GET, ORDER_PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name())
+                .requestMatchers(HttpMethod.GET, ORDER_PRODUCT_URL).hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name())
                 .requestMatchers(HttpMethod.POST, ORDER_PRODUCT_URL).hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), CUSTOMER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.PUT, ORDER_PRODUCT_URL).hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name())
                 .requestMatchers(HttpMethod.DELETE, ORDER_PRODUCT_URL).hasAnyRole(ADMIN.name())

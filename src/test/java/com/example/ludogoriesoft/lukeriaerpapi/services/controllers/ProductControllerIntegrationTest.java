@@ -358,5 +358,58 @@ class ProductControllerIntegrationTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer valid-jwt-token"))
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void testGetProductByPackage_Success() throws Exception {
+        // Arrange
+        Long packageId = 1L;
+        String authToken = "your-authorization-token";
+
+        // Create a mock ProductDTO to be returned by the service
+        ProductDTO mockProductDTO = new ProductDTO();
+        mockProductDTO.setId(1L);
+        mockProductDTO.setPrice(BigDecimal.valueOf(100));
+
+        // Mock the productService behavior to return the mock ProductDTO
+        when(productService.getProductByPackage(packageId)).thenReturn(mockProductDTO);
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/product/product-by-package-id")
+                        .param("packageId", String.valueOf(packageId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.price").value(BigDecimal.valueOf(100)));
+    }
+    @Test
+    void testGetProductByPackage_NotFound() throws Exception {
+        // Arrange
+        Long packageId = 1L;
+        String authToken = "your-authorization-token";
+
+        // Mock the productService to throw a NotFoundException (or return null)
+        when(productService.getProductByPackage(packageId)).thenThrow(new RuntimeException("Product not found"));
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/product/product-by-package-id")
+                        .param("packageId", String.valueOf(packageId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(containsString("Product not found")));
+    }
+    @Test
+    void testGetProductByPackage_MissingPackageId() throws Exception {
+        // Arrange
+        String authToken = "your-authorization-token";
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/product/product-by-package-id")
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(containsString("Required request parameter 'packageId' for method parameter type Long is not present")));
+    }
+
 }
 

@@ -56,4 +56,8 @@ public class ProductController {
     public ResponseEntity<List<ProductDTO>> getProductsForSaleWithoutLookingForQuantity(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(productService.getProductsForSaleWithoutLookingForQuantity());
     }
+    @GetMapping("/product-by-package-id")
+    public ResponseEntity<ProductDTO> getProductByPackage(@RequestParam("packageId") Long packageId, @RequestHeader("Authorization") String auth){
+        return ResponseEntity.ok(productService.getProductByPackage(packageId));
+    }
 }

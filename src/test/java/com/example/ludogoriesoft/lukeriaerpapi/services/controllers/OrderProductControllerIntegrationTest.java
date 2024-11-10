@@ -2,8 +2,11 @@ package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.OrderProductController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderWithProductsDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import com.example.ludogoriesoft.lukeriaerpapi.services.OrderProductService;
+import com.example.ludogoriesoft.lukeriaerpapi.services.OrderService;
 import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
@@ -59,6 +62,8 @@ class OrderProductControllerIntegrationTest {
 
     @MockBean
     private OrderProductService orderProductService;
+    @MockBean
+    private OrderService orderService;
 
     private static String asJsonString(final Object obj) {
         try {
@@ -276,4 +281,59 @@ class OrderProductControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("")));
     }
+
+    @Test
+    void testGetOrderProductDTOsByOrderDTOs_ReturnsOrders() throws Exception {
+        Long clientId = 1L;
+        String authToken = "your-authorization-token";
+        // Arrange
+        Order order = new Order();
+        OrderWithProductsDTO orderWithProductsDTO = new OrderWithProductsDTO();
+
+        when(orderService.getAllOrdersForClient(clientId)).thenReturn(List.of(order));
+        when(orderProductService.getOrderProductsOfOrders(List.of(order))).thenReturn(List.of(orderWithProductsDTO));
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/order-products-by-orders")
+                        .param("id", String.valueOf(clientId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+    }
+    @Test
+    void testGetOrderProductDTOsByOrderDTOs_ReturnsEmptyList() throws Exception {
+        // Arrange
+        Long clientId = 1L;
+        String authToken = "your-authorization-token";
+        when(orderService.getAllOrdersForClient(clientId)).thenReturn(Collections.emptyList());
+        when(orderProductService.getOrderProductsOfOrders(Collections.emptyList())).thenReturn(Collections.emptyList());
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/order-products-by-orders")
+                        .param("id", String.valueOf(clientId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    void testGetOrderProductDTOsByOrderDTOs_ClientNotFound() throws Exception {
+        // Arrange
+        Long clientId = 1L;
+        String authToken = "your-authorization-token";
+        when(orderService.getAllOrdersForClient(clientId)).thenThrow(new RuntimeException("Client not found"));
+
+        // Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/orderProduct/order-products-by-orders")
+                        .param("id", String.valueOf(clientId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(containsString("Client not found"))); // Optional check for error message
+    }
+
+
 }
+

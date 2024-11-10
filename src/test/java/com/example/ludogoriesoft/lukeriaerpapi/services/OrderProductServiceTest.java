@@ -1,6 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderWithProductsDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.OrderStatus;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.*;
@@ -15,11 +17,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -410,5 +411,74 @@ class OrderProductServiceTest {
         assertEquals("SHIPPED", OrderStatus.SHIPPED.toString());
         assertEquals("DELIVERED", OrderStatus.DELIVERED.toString());
         assertEquals("COMPLETED", OrderStatus.COMPLETED.toString());
+    }
+    @Test
+    void testGetOrderProductsOfOrders_ValidOrders() {
+        // Arrange
+        Order order1 = new Order();
+        Order order2 = new Order();
+
+        OrderProduct orderProduct1 = new OrderProduct();
+        OrderProduct orderProduct2 = new OrderProduct();
+
+        List<Order> orders = List.of(order1, order2);
+        List<OrderProduct> orderProducts1 = List.of(orderProduct1);
+        List<OrderProduct> orderProducts2 = List.of(orderProduct2);
+
+        when(orderProductRepository.findAllByOrderId(order1)).thenReturn(orderProducts1);
+        when(orderProductRepository.findAllByOrderId(order2)).thenReturn(orderProducts2);
+
+        OrderDTO orderDTO1 = new OrderDTO();
+        OrderDTO orderDTO2 = new OrderDTO();
+        OrderProductDTO orderProductDTO1 = new OrderProductDTO();
+        OrderProductDTO orderProductDTO2 = new OrderProductDTO();
+
+        when(modelMapper.map(order1, OrderDTO.class)).thenReturn(orderDTO1);
+        when(modelMapper.map(order2, OrderDTO.class)).thenReturn(orderDTO2);
+        when(modelMapper.map(orderProduct1, OrderProductDTO.class)).thenReturn(orderProductDTO1);
+        when(modelMapper.map(orderProduct2, OrderProductDTO.class)).thenReturn(orderProductDTO2);
+
+        // Act
+        List<OrderWithProductsDTO> result = orderProductService.getOrderProductsOfOrders(orders);
+
+        // Assert
+        assertEquals(2, result.size());
+        assertEquals(orderDTO1, result.get(0).getOrderDTO());
+        assertEquals(List.of(orderProductDTO1), result.get(0).getOrderProductDTOs());
+        assertEquals(orderDTO2, result.get(1).getOrderDTO());
+        assertEquals(List.of(orderProductDTO2), result.get(1).getOrderProductDTOs());
+    }
+
+    @Test
+    void testGetOrderProductsOfOrders_EmptyOrdersList() {
+        // Arrange
+        List<Order> orders = Collections.emptyList();
+
+        // Act
+        List<OrderWithProductsDTO> result = orderProductService.getOrderProductsOfOrders(orders);
+
+        // Assert
+        assertTrue(result.isEmpty());
+        verifyNoInteractions(orderProductRepository, modelMapper);
+    }
+
+    @Test
+    void testGetOrderProductsOfOrders_OrderWithoutProducts() {
+        // Arrange
+        Order order = new Order();
+        List<Order> orders = List.of(order);
+
+        when(orderProductRepository.findAllByOrderId(order)).thenReturn(Collections.emptyList());
+
+        OrderDTO orderDTO = new OrderDTO();
+        when(modelMapper.map(order, OrderDTO.class)).thenReturn(orderDTO);
+
+        // Act
+        List<OrderWithProductsDTO> result = orderProductService.getOrderProductsOfOrders(orders);
+
+        // Assert
+        assertEquals(1, result.size());
+        assertEquals(orderDTO, result.get(0).getOrderDTO());
+        assertTrue(result.get(0).getOrderProductDTOs().isEmpty());
     }
 }
