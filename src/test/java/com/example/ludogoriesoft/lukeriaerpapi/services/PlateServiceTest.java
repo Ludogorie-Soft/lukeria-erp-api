@@ -267,7 +267,7 @@ class PlateServiceTest {
         existingPlate.setPrice(BigDecimal.valueOf(50.0));
 
         when(plateRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingPlate));
-        assertThrows(NullPointerException.class, () -> plateService.updatePlate(1L, plateDTO));
+        assertThrows(ValidationException.class, () -> plateService.updatePlate(1L, plateDTO));
         verify(plateRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }

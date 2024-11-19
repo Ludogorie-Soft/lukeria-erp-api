@@ -256,7 +256,7 @@ class CartonServiceTest {
         existingCarton.setPrice(BigDecimal.valueOf(50));
 
         when(cartonRepository.findByIdAndDeletedFalse(1L)).thenReturn(Optional.of(existingCarton));
-        assertThrows(NullPointerException.class, () -> cartonService.updateCarton(1L, cartonDTO));
+        assertThrows(ValidationException.class, () -> cartonService.updateCarton(1L, cartonDTO));
         verify(cartonRepository, times(1)).findByIdAndDeletedFalse(1L);
         verifyNoInteractions(modelMapper);
     }
