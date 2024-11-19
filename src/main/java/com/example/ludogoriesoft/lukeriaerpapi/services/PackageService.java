@@ -95,13 +95,13 @@ public class PackageService {
     if (StringUtils.isBlank(packageDTO.getName())) {
       throw new ValidationException("Name is required");
     }
-    if (packageDTO.getPiecesCarton() == 0) {
+    if (packageDTO.getPiecesCarton() <= 0) {
       throw new ValidationException("Pieces of carton must be greater than zero");
     }
-    if (packageDTO.getAvailableQuantity() == 0) {
+    if (packageDTO.getAvailableQuantity() <= 0) {
       throw new ValidationException("Available quantity must be greater than zero");
     }
-    if (packageDTO.getPrice().equals(BigDecimal.ZERO)) {
+    if (packageDTO.getPrice().intValue() <= 0) {
       throw new ValidationException("Price must be greater than zero");
     }
     if (!packageDTO.getEnglishName().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
