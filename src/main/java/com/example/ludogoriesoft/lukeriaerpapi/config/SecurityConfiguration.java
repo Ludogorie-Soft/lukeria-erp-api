@@ -126,6 +126,8 @@ public class SecurityConfiguration {
 
                 .requestMatchers("/api/v1/material-order/**").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name())
 
+                .requestMatchers("/api/v1/shoppingCart/**").hasAnyRole(CUSTOMER.name())
+
                 .requestMatchers(HttpMethod.GET, INVOICE_URL).hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.GET, "/api/v1/invoice/number/**").hasAnyRole(ADMIN.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
                 .requestMatchers(HttpMethod.POST, INVOICE_URL).hasAnyRole(ADMIN.name())
