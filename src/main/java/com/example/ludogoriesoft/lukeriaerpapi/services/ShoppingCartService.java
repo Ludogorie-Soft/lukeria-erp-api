@@ -5,10 +5,12 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.CartItem;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ClientUser;
+import com.example.ludogoriesoft.lukeriaerpapi.models.CustomerCustomPrice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ShoppingCart;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.CartItemRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.CustomerCustomPriceRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ShoppingCartRepository;
 import jakarta.validation.ValidationException;
@@ -35,6 +37,7 @@ public class ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final CartItemRepository cartItemRepository;
     private final ModelMapper modelMapper;
+    private final CustomerCustomPriceRepository customerCustomPriceRepository;
 
     public void addToCart(Long productId, int quantity) throws ChangeSetPersister.NotFoundException {
 
@@ -68,6 +71,13 @@ public class ShoppingCartService {
                 throw new ValidationException("Quantity must be more than 0");
             }
             cartItem.setQuantity(quantity);
+
+            Optional<CustomerCustomPrice> optionalCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client,product);
+            if(optionalCustomPrice.isPresent()){
+                cartItem.setPrice(optionalCustomPrice.get().getPrice());
+            }else{
+                cartItem.setPrice(product.getPrice());
+            }
 
             cartItemRepository.save(cartItem);
             shoppingCart.getItems().add(cartItem);
