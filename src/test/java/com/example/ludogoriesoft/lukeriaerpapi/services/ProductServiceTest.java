@@ -24,10 +24,10 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
@@ -149,7 +149,7 @@ class ProductServiceTest {
         ProductDTO updatedProductDTO = productService.updateProduct(productId, productDTO);
 
 
-        Assertions.assertNotNull(updatedProductDTO);
+        assertNotNull(updatedProductDTO);
 
     }
 
@@ -185,7 +185,7 @@ class ProductServiceTest {
         ProductDTO createdProductDTO = productService.createProduct(productDTO);
 
         // Assert
-        Assertions.assertNotNull(createdProductDTO);
+        assertNotNull(createdProductDTO);
 
     }
 
@@ -364,6 +364,42 @@ class ProductServiceTest {
         assertEquals(90, plate.getAvailableQuantity());
         assertEquals(90, carton.getAvailableQuantity());
     }
+    @Test
+    void testGetProductByPackage_PackageExists() {
+        // Arrange
+        Long packageId = 1L;
+        Package pkg = new Package();
+        Product product = new Product();
+        ProductDTO productDTO = new ProductDTO();
 
+        when(packageRepository.findById(packageId)).thenReturn(Optional.of(pkg));
+        when(productRepository.findByPackageId(pkg)).thenReturn(product);
+        when(modelMapper.map(product, ProductDTO.class)).thenReturn(productDTO);
+
+        // Act
+        ProductDTO result = productService.getProductByPackage(packageId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(productDTO, result);
+        verify(packageRepository).findById(packageId);
+        verify(productRepository).findByPackageId(pkg);
+        verify(modelMapper).map(product, ProductDTO.class);
+    }
+
+    @Test
+    void testGetProductByPackage_PackageNotFound() {
+        // Arrange
+        Long packageId = 1L;
+        when(packageRepository.findById(packageId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> {
+            productService.getProductByPackage(packageId);
+        });
+
+        verify(packageRepository).findById(packageId);
+        verifyNoInteractions(productRepository, modelMapper);
+    }
 
 }

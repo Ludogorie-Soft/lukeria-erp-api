@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.repository;
 
+import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,5 +13,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Order findFirstByDeletedFalseOrderByIdDesc();
 
     Optional<Order> findByIdAndDeletedFalse(Long id);
+    List<Order> findAllByClientId(Client client);
+
+
 
 }

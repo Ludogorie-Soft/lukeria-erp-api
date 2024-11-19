@@ -17,6 +17,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -232,5 +233,39 @@ class OrderServiceTest {
 
         assertEquals(orderId, updatedOrder.getId());
     }
+    @Test
+    void testGetAllOrdersForClient_ClientExists() {
+        // Arrange
+        Long clientId = 1L;
+        Client client = new Client();
+        client.setId(clientId);
 
+        List<Order> orders = List.of(new Order(), new Order()); // Example orders
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+        when(orderRepository.findAllByClientId(client)).thenReturn(orders);
+
+        // Act
+        List<Order> result = orderService.getAllOrdersForClient(clientId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(orders.size(), result.size());
+        verify(clientRepository).findById(clientId);
+        verify(orderRepository).findAllByClientId(client);
+    }
+
+    @Test
+    void testGetAllOrdersForClient_ClientNotFound() {
+        // Arrange
+        Long clientId = 1L;
+        when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> {
+            orderService.getAllOrdersForClient(clientId);
+        });
+
+        verify(clientRepository).findById(clientId);
+        verify(orderRepository, never()).findAllByClientId(any(Client.class));
+    }
 }

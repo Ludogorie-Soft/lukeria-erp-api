@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
@@ -15,10 +16,13 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -116,5 +120,11 @@ public class ProductService {
         Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
         return modelMapper.map(products, listType);
     }
-
+    public ProductDTO getProductByPackage(Long packageId){
+        Optional<Package> packageDTO = packageRepository.findById(packageId);
+        if(packageDTO.isPresent()) {
+            return modelMapper.map(productRepository.findByPackageId(packageDTO.get()), ProductDTO.class);
+        }
+        throw new NoSuchElementException();
+    }
 }
