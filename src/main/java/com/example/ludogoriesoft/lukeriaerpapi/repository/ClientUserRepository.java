@@ -22,5 +22,5 @@ public interface ClientUserRepository extends JpaRepository<ClientUser, Long> {
   ClientUser findByUserIdAndClientId(
       @Param("userId") Long userId, @Param("clientId") Long clientId);
 
-  Optional<ClientUser> findByUserId(Long userId);
+  Optional<ClientUser> findByUserIdAndDeletedFalse(Long userId);
 }

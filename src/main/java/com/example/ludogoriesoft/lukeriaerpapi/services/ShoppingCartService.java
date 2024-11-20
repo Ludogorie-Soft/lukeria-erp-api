@@ -42,7 +42,7 @@ public class ShoppingCartService {
     public void addToCart(Long productId, int quantity) throws ChangeSetPersister.NotFoundException {
 
         UserDTO authenticateUserDTO = userService.findAuthenticatedUser();
-        ClientUser clientUser = clientUserRepository.findByUserId(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        ClientUser clientUser = clientUserRepository.findByUserIdAndDeletedFalse(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
         Client client = clientUser.getClient();
         ShoppingCart shoppingCart = shoppingCartRepository.findByClientId(client).orElseThrow(ChangeSetPersister.NotFoundException::new);
 
@@ -88,7 +88,7 @@ public class ShoppingCartService {
     public ShoppingCartDTO showCart() throws ChangeSetPersister.NotFoundException {
 
         UserDTO authenticateUserDTO = userService.findAuthenticatedUser();
-        ClientUser clientUser = clientUserRepository.findByUserId(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        ClientUser clientUser = clientUserRepository.findByUserIdAndDeletedFalse(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
         Client client = clientUser.getClient();
         ShoppingCart shoppingCart = shoppingCartRepository.findByClientId(client).orElseThrow(ChangeSetPersister.NotFoundException::new);
 
@@ -98,14 +98,15 @@ public class ShoppingCartService {
     public void removeCartItem(Long cartItemId) throws ChangeSetPersister.NotFoundException {
 
         UserDTO authenticateUserDTO = userService.findAuthenticatedUser();
-        ClientUser clientUser = clientUserRepository.findByUserId(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        ClientUser clientUser = clientUserRepository.findByUserIdAndDeletedFalse(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
         Client client = clientUser.getClient();
         ShoppingCart shoppingCart = shoppingCartRepository.findByClientId(client).orElseThrow(ChangeSetPersister.NotFoundException::new);
 
-        CartItem cartItem = cartItemRepository.findById(cartItemId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        CartItem cartItem = cartItemRepository.findByIdAndDeletedFalse(cartItemId).orElseThrow(ChangeSetPersister.NotFoundException::new);
 
         shoppingCart.getItems().remove(cartItem);
-        cartItemRepository.delete(cartItem);
+        cartItem.setDeleted(true);
+        cartItemRepository.save(cartItem);
         shoppingCartRepository.save(shoppingCart);
     }
 
