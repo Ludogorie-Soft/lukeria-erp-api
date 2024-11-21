@@ -133,8 +133,8 @@ public class ShoppingCartServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
                 () -> shoppingCartService.addToCart(productId, quantityToAdd)
         );
         assertEquals("There is no that much quantity", exception.getMessage());
@@ -184,7 +184,7 @@ public class ShoppingCartServiceTest {
     }
 
     @Test
-    void testAddToCart_ProductNotInCart_ExceedsAvailableQuantity() throws ChangeSetPersister.NotFoundException {
+    void testAddToCart_ProductNotInCart_ExceedsAvailableQuantity(){
         // Arrange
         Long productId = 1L;
         int quantityToAdd = 15;
@@ -212,8 +212,8 @@ public class ShoppingCartServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
 
         // Act & Assert
-        ValidationException exception = assertThrows(
-                ValidationException.class,
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
                 () -> shoppingCartService.addToCart(productId, quantityToAdd)
         );
         assertEquals("There is no that much quantity", exception.getMessage());
@@ -254,7 +254,7 @@ public class ShoppingCartServiceTest {
     }
 
     @Test
-    void testAddToCart_InsufficientStock_ThrowsValidationException() {
+    void testAddToCart_InsufficientStock_ThrowsIllegalArgumentException() {
         Long productId = 1L;
         int quantity = 15;
 
@@ -280,7 +280,7 @@ public class ShoppingCartServiceTest {
         when(productRepository.findById(productId))
                 .thenReturn(Optional.of(product));
 
-        assertThrows(ValidationException.class, () -> shoppingCartService.addToCart(productId, quantity));
+        assertThrows(IllegalArgumentException.class, () -> shoppingCartService.addToCart(productId, quantity));
     }
 
     @Test

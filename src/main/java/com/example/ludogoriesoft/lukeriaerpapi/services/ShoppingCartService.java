@@ -54,7 +54,7 @@ public class ShoppingCartService {
         for (CartItem cartItem : cartItemList) {
             if (cartItem.getProductId().equals(product)) {
                 if (cartItem.getQuantity() + quantity > product.getAvailableQuantity()) {
-                    throw new ValidationException("There is no that much quantity");
+                    throw new IllegalArgumentException("There is no that much quantity");
                 }
                 cartItem.setQuantity(cartItem.getQuantity() + quantity);
                 ifProductIsInCart = true;
@@ -63,7 +63,7 @@ public class ShoppingCartService {
         }
         if (ifProductIsInCart == false) {
             if (quantity > product.getAvailableQuantity()) {
-                throw new ValidationException("There is no that much quantity");
+                throw new IllegalArgumentException("There is no that much quantity");
             }
             CartItem cartItem = new CartItem();
             cartItem.setProductId(product);
@@ -72,13 +72,13 @@ public class ShoppingCartService {
             }
             cartItem.setQuantity(quantity);
 
-            Optional<CustomerCustomPrice> optionalCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client,product);
-            if(optionalCustomPrice.isPresent()){
+            Optional<CustomerCustomPrice> optionalCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, product);
+            if (optionalCustomPrice.isPresent()) {
                 cartItem.setPrice(optionalCustomPrice.get().getPrice());
-            }else{
+            } else {
                 cartItem.setPrice(product.getPrice());
             }
-
+            cartItem.setShoppingCartId(shoppingCart);
             cartItemRepository.save(cartItem);
             shoppingCart.getItems().add(cartItem);
         }
