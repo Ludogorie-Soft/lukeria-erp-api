@@ -78,7 +78,7 @@ public class UserService {
             throw new ValidationException("Password is required");
         }
         Optional<User> optionalUser = userRepository.findByEmail(user.getEmail());
-        if (optionalUser.isPresent()) {
+        if (optionalUser.isPresent() && !user.getEmail().equals(optionalUser.get().getEmail())) {
             throw new ValidationException("User with this email already exists!");
         }
     }
