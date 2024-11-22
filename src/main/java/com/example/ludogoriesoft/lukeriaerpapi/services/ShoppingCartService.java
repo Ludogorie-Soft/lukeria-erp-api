@@ -122,6 +122,9 @@ public class ShoppingCartService {
             throw new IllegalArgumentException("quantity must be more than 0");
         }
         CartItem cartItem = cartItemRepository.findByIdAndDeletedFalse(cartItemId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        if (quantity > cartItem.getProductId().getAvailableQuantity()) {
+            throw new IllegalArgumentException("There is no that much quantity");
+        }
         cartItem.setQuantity(quantity);
         cartItemRepository.save(cartItem);
     }
