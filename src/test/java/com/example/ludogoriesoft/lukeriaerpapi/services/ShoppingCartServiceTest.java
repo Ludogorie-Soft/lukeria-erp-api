@@ -185,7 +185,7 @@ public class ShoppingCartServiceTest {
     }
 
     @Test
-    void testAddToCart_ProductNotInCart_ExceedsAvailableQuantity(){
+    void testAddToCart_ProductNotInCart_ExceedsAvailableQuantity() {
         // Arrange
         Long productId = 1L;
         int quantityToAdd = 15;
@@ -358,14 +358,18 @@ public class ShoppingCartServiceTest {
         verify(cartItemRepository, times(1)).save(cartItem);
         verify(shoppingCartRepository, times(1)).save(shoppingCart);
     }
+
     @Test
     void testUpdateQuantityOfItem_Success() throws Exception {
         // Arrange
         Long cartItemId = 1L;
         int newQuantity = 5;
+        Product product = new Product();
+        product.setAvailableQuantity(5);
         CartItem cartItem = new CartItem();
         cartItem.setId(cartItemId);
         cartItem.setQuantity(2); // Current quantity
+        cartItem.setProductId(product);
 
         when(cartItemRepository.findByIdAndDeletedFalse(cartItemId)).thenReturn(Optional.of(cartItem));
         when(cartItemRepository.save(cartItem)).thenReturn(cartItem);
