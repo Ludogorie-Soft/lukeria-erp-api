@@ -105,6 +105,7 @@ public class ShoppingCartService {
         CartItem cartItem = cartItemRepository.findByIdAndDeletedFalse(cartItemId).orElseThrow(ChangeSetPersister.NotFoundException::new);
 
         shoppingCart.getItems().remove(cartItem);
+        cartItem.setShoppingCartId(null);
         cartItem.setDeleted(true);
         cartItemRepository.save(cartItem);
         shoppingCartRepository.save(shoppingCart);
