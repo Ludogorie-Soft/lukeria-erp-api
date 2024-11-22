@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartItemDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ShoppingCartDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.CartItem;
@@ -284,7 +285,8 @@ public class ShoppingCartServiceTest {
     }
 
     @Test
-    void testShowCart_ReturnsShoppingCartDTO() throws Exception {
+    void testShowCart_ReturnsCartItemDTOList() throws Exception {
+        // Arrange
         UserDTO userDTO = new UserDTO();
         userDTO.setId(1L);
 
@@ -293,20 +295,35 @@ public class ShoppingCartServiceTest {
         clientUser.setClient(client);
 
         ShoppingCart shoppingCart = new ShoppingCart();
+        CartItem cartItem1 = new CartItem();
+        CartItem cartItem2 = new CartItem();
+        shoppingCart.setItems(List.of(cartItem1, cartItem2));
 
-        ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
+        CartItemDTO cartItemDTO1 = new CartItemDTO();
+        CartItemDTO cartItemDTO2 = new CartItemDTO();
 
         when(userService.findAuthenticatedUser()).thenReturn(userDTO);
         when(clientUserRepository.findByUserIdAndDeletedFalse(userDTO.getId()))
                 .thenReturn(Optional.of(clientUser));
         when(shoppingCartRepository.findByClientId(client))
                 .thenReturn(Optional.of(shoppingCart));
-        when(modelMapper.map(shoppingCart, ShoppingCartDTO.class)).thenReturn(shoppingCartDTO);
+        when(modelMapper.map(cartItem1, CartItemDTO.class)).thenReturn(cartItemDTO1);
+        when(modelMapper.map(cartItem2, CartItemDTO.class)).thenReturn(cartItemDTO2);
 
-        ShoppingCartDTO result = shoppingCartService.showCart();
+        // Act
+        List<CartItemDTO> result = shoppingCartService.showCart();
 
+        // Assert
         assertNotNull(result);
-        verify(modelMapper, times(1)).map(shoppingCart, ShoppingCartDTO.class);
+        assertEquals(2, result.size());
+        assertTrue(result.contains(cartItemDTO1));
+        assertTrue(result.contains(cartItemDTO2));
+
+        verify(userService, times(1)).findAuthenticatedUser();
+        verify(clientUserRepository, times(1)).findByUserIdAndDeletedFalse(userDTO.getId());
+        verify(shoppingCartRepository, times(1)).findByClientId(client);
+        verify(modelMapper, times(2)).map(cartItem1, CartItemDTO.class);
+        verify(modelMapper, times(2)).map(cartItem2, CartItemDTO.class);
     }
 
     @Test
@@ -341,4 +358,55 @@ public class ShoppingCartServiceTest {
         verify(cartItemRepository, times(1)).save(cartItem);
         verify(shoppingCartRepository, times(1)).save(shoppingCart);
     }
+    @Test
+    void testUpdateQuantityOfItem_Success() throws Exception {
+        // Arrange
+        Long cartItemId = 1L;
+        int newQuantity = 5;
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemId);
+        cartItem.setQuantity(2); // Current quantity
+
+        when(cartItemRepository.findByIdAndDeletedFalse(cartItemId)).thenReturn(Optional.of(cartItem));
+        when(cartItemRepository.save(cartItem)).thenReturn(cartItem);
+
+        // Act
+        shoppingCartService.updateQuantityOfItem(cartItemId, newQuantity);
+
+        // Assert
+        assertEquals(newQuantity, cartItem.getQuantity());
+        verify(cartItemRepository, times(1)).findByIdAndDeletedFalse(cartItemId);
+        verify(cartItemRepository, times(1)).save(cartItem);
+    }
+
+    @Test
+    void testUpdateQuantityOfItem_CartItemNotFound() {
+        // Arrange
+        Long cartItemId = 1L;
+        int newQuantity = 5;
+
+        when(cartItemRepository.findByIdAndDeletedFalse(cartItemId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ChangeSetPersister.NotFoundException.class,
+                () -> shoppingCartService.updateQuantityOfItem(cartItemId, newQuantity));
+
+        verify(cartItemRepository, times(1)).findByIdAndDeletedFalse(cartItemId);
+        verify(cartItemRepository, never()).save(any(CartItem.class));
+    }
+
+    @Test
+    void testUpdateQuantityOfItem_InvalidQuantity() {
+        // Arrange
+        Long cartItemId = 1L;
+        int invalidQuantity = 0; // Invalid quantity
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class,
+                () -> shoppingCartService.updateQuantityOfItem(cartItemId, invalidQuantity));
+
+        verify(cartItemRepository, never()).findByIdAndDeletedFalse(cartItemId);
+        verify(cartItemRepository, never()).save(any(CartItem.class));
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartItemDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ShoppingCartDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.CartItem;
@@ -19,8 +20,10 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,12 +45,17 @@ public class ShoppingCartController {
     }
 
     @GetMapping("/showCart")
-    public ResponseEntity<ShoppingCartDTO> showCart(@RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+    public ResponseEntity<List<CartItemDTO>> showCart(@RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(shoppingCartService.showCart());
     }
+
     @PostMapping("/removeCartItem")
-    public void removeCartItem(@RequestParam("cartItemId")Long cartItemId) throws ChangeSetPersister.NotFoundException {
+    public void removeCartItem(@RequestParam("cartItemId") Long cartItemId, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         shoppingCartService.removeCartItem(cartItemId);
     }
 
+    @PutMapping("/updateQuantity")
+    private void updateQuantity(@RequestParam("cartItemId") Long cartItemId,int quantity, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+        shoppingCartService.updateQuantityOfItem(cartItemId,quantity);
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartItemDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ShoppingCartDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.CartItem;
@@ -85,14 +86,19 @@ public class ShoppingCartService {
         shoppingCartRepository.save(shoppingCart);
     }
 
-    public ShoppingCartDTO showCart() throws ChangeSetPersister.NotFoundException {
+    public List<CartItemDTO> showCart() throws ChangeSetPersister.NotFoundException {
 
         UserDTO authenticateUserDTO = userService.findAuthenticatedUser();
         ClientUser clientUser = clientUserRepository.findByUserIdAndDeletedFalse(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
         Client client = clientUser.getClient();
         ShoppingCart shoppingCart = shoppingCartRepository.findByClientId(client).orElseThrow(ChangeSetPersister.NotFoundException::new);
 
-        return modelMapper.map(shoppingCart, ShoppingCartDTO.class);
+        List<CartItemDTO> cartItemDTOs = shoppingCart.getItems()
+                .stream()
+                .map(cartItem -> modelMapper.map(cartItem, CartItemDTO.class)) // Map each CartItem to CartItemDTO
+                .toList();
+
+        return cartItemDTOs;
     }
 
     public void removeCartItem(Long cartItemId) throws ChangeSetPersister.NotFoundException {
@@ -111,5 +117,12 @@ public class ShoppingCartService {
         shoppingCartRepository.save(shoppingCart);
     }
 
-
+    public void updateQuantityOfItem(Long cartItemId, int quantity) throws ChangeSetPersister.NotFoundException {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("quantity must be more than 0");
+        }
+        CartItem cartItem = cartItemRepository.findByIdAndDeletedFalse(cartItemId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
+    }
 }

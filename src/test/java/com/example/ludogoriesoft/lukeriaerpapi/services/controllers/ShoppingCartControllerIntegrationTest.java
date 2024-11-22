@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.ShoppingCartController;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartItemDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ShoppingCartDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ShoppingCartService;
@@ -23,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -94,21 +97,31 @@ class ShoppingCartControllerIntegrationTest {
 
     @Test
     void testShowCart() throws Exception {
-        ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
-        shoppingCartDTO.setId(1L);
+        // Arrange
+        CartItemDTO cartItemDTO1 = new CartItemDTO();
+        cartItemDTO1.setId(1L);
 
-        when(shoppingCartService.showCart()).thenReturn(shoppingCartDTO);
+        CartItemDTO cartItemDTO2 = new CartItemDTO();
+        cartItemDTO2.setId(2L);
 
+        List<CartItemDTO> cartItemDTOList = List.of(cartItemDTO1, cartItemDTO2);
+
+        when(shoppingCartService.showCart()).thenReturn(cartItemDTOList);
+
+        // Act & Assert
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/shoppingCart/showCart")
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.size()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2))
                 .andReturn();
 
         String response = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(response);
     }
+
 
     @Test
     void testShowCartWhenNotFound() throws Exception {

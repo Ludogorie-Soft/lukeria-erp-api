@@ -35,17 +35,5 @@ public class ShoppingCart {
     private List<CartItem> items;
     @Column(name = "is_deleted")
     private boolean deleted;
-    @Column(name = "total_price")
-    private BigDecimal totalPrice;
-
-
-    public BigDecimal getTotalPrice() {
-        double doubleSum =0.0;
-        for (CartItem item : this.items) {
-            doubleSum +=item.getPrice().doubleValue()*item.getQuantity();
-        }
-        this.totalPrice=BigDecimal.valueOf(doubleSum);
-        return totalPrice;
-    }
 
 }
