@@ -1,0 +1,62 @@
+services:
+  mysql:
+    image: mysql:8.0.33
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: lukeria_db
+      MYSQL_USER: lukeria_user
+      MYSQL_PASSWORD: lukeria_password
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: always
+
+  backend:
+    build:
+      context: ./lukeria-erp-api
+    container_name: backend-container
+    env_file:
+      - ./backend.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/lukeria_db
+      SPRING_DATASOURCE_USERNAME: lukeria_user
+      SPRING_DATASOURCE_PASSWORD: lukeria_password
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: com.mysql.cj.jdbc.Driver
+      SERVER_PORT: 8088
+    ports:
+      - "8088:8088"
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+    restart: always
+
+  frontend:
+    build:
+      context: ./lukeria-erp-front-end
+    container_name: frontend-container
+    env_file:
+      - ./frontend.env
+    environment:
+      SPRING_APPLICATION_NAME: lukeria-erp-frontend
+      BACKEND_BASE_URL: http://backend:8088/api/v1
+      SERVER_PORT: 8090
+    ports:
+      - "8090:8090"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
