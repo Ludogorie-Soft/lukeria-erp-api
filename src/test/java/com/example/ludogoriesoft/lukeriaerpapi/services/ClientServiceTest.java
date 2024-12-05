@@ -2,7 +2,9 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
+import com.example.ludogoriesoft.lukeriaerpapi.models.ShoppingCart;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ShoppingCartRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +29,9 @@ import static org.mockito.Mockito.*;
 class ClientServiceTest {
     @Mock
     private ClientRepository clientRepository;
+
+    @Mock
+    private ShoppingCartRepository shoppingCartRepository;
 
     @Mock
     private ModelMapper modelMapper;
@@ -378,7 +383,10 @@ class ClientServiceTest {
         clientDTO.setEnglishBusinessName("en name");
         clientDTO.setEnglishMol("MOL");
 
+        ShoppingCart shoppingCart = new ShoppingCart();
+
         when(clientRepository.save(any(Client.class))).thenReturn(clientEntity);
+        when(shoppingCartRepository.save(any(ShoppingCart.class))).thenReturn(shoppingCart);
         when(modelMapper.map(clientDTO, Client.class)).thenReturn(clientEntity);
         when(modelMapper.map(clientEntity, ClientDTO.class)).thenReturn(clientDTO);
 

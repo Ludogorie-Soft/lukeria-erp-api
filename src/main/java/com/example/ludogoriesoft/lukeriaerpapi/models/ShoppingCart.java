@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,4 +35,5 @@ public class ShoppingCart {
     private List<CartItem> items;
     @Column(name = "is_deleted")
     private boolean deleted;
+
 }
