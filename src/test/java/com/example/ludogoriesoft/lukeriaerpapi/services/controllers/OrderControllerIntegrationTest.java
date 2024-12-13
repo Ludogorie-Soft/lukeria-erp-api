@@ -10,6 +10,7 @@ import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -271,5 +272,35 @@ class OrderControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("")));
+    }
+    @Test
+    void testCreateOrderFromShoppingCart() throws Exception {
+        // No exception means the service call is successful
+        Mockito.doNothing().when(orderService).createOrderFromShoppingCart();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/order/create")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Verify the service method was called
+        Mockito.verify(orderService, Mockito.times(1)).createOrderFromShoppingCart();
+    }
+
+    @Test
+    void testCreateOrderFromShoppingCartThrowsNotFoundException() throws Exception {
+        // Simulate NotFoundException
+        Mockito.doThrow(new ChangeSetPersister.NotFoundException())
+                .when(orderService).createOrderFromShoppingCart();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/order/create")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andReturn();
+
+        // Verify the service method was called
+        Mockito.verify(orderService, Mockito.times(1)).createOrderFromShoppingCart();
     }
 }
