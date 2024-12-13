@@ -4,27 +4,35 @@ import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.CartItem;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ClientUser;
+import com.example.ludogoriesoft.lukeriaerpapi.models.CustomerCustomPrice;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ShoppingCart;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.CustomerCustomPriceRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ShoppingCartRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.jaxb.SpringDataJaxb;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,6 +45,10 @@ public class OrderService {
     private final ModelMapper modelMapper;
     private final ClientUserRepository clientUserRepository;
     private final UserService userService;
+    private final ShoppingCartRepository shoppingCartRepository;
+    private final CustomerCustomPriceRepository customerCustomPriceRepository;
+    private final ProductRepository productRepository;
+    private final OrderProductService orderProductService;
 
     public List<OrderDTO> getAllOrders() {
         List<Order> orders = orderRepository.findByDeletedFalse();
@@ -94,13 +106,36 @@ public class OrderService {
         throw new NoSuchElementException();
     }
 
-    public void createOrderFormShoppingCart(){
+    public void createOrderFromShoppingCart() throws ChangeSetPersister.NotFoundException {
 
         UserDTO authenticateUserDTO = userService.findAuthenticatedUser();
         ClientUser clientUser = clientUserRepository.findByUserIdAndDeletedFalse(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
         Client client = clientUser.getClient();
         ShoppingCart shoppingCart = shoppingCartRepository.findByClientId(client).orElseThrow(ChangeSetPersister.NotFoundException::new);
 
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setOrderDate(LocalDate.now());
+        orderDTO.setClientId(client.getId());
+        OrderDTO order = createOrder(orderDTO);
 
+        for (CartItem cartItem : shoppingCart.getItems()) {
+            OrderProductDTO orderProductDTO = new OrderProductDTO();
+            orderProductDTO.setOrderId(order.getId());
+            orderProductDTO.setNumber(cartItem.getQuantity());
+            orderProductDTO.setPackageId(cartItem.getProductId().getPackageId().getId());
+            orderProductDTO.setNumber(cartItem.getQuantity());
+
+            Optional<CustomerCustomPrice> optionalCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, cartItem.getProductId());
+            if (optionalCustomPrice.isPresent()) {
+                orderProductDTO.setSellingPrice(optionalCustomPrice.get().getPrice());
+            } else {
+                orderProductDTO.setSellingPrice(cartItem.getProductId().getPrice());
+            }
+            orderProductService.createOrderProduct(orderProductDTO);
+        }
+        shoppingCart.getItems().clear();
+        shoppingCartRepository.save(shoppingCart);
     }
+
+
 }

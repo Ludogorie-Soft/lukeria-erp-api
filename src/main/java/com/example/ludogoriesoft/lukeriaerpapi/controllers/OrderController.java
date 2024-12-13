@@ -47,5 +47,9 @@ public class OrderController {
         orderService.deleteOrder(id);
         return ResponseEntity.ok("Order with id: " + id + " has been deleted successfully!");
     }
+    @PostMapping("/create")
+    public void createOrder(@RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+        orderService.createOrderFromShoppingCart();
+    }
 
 }
