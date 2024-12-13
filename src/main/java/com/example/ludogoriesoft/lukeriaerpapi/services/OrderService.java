@@ -3,11 +3,15 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
+import com.example.ludogoriesoft.lukeriaerpapi.models.ClientUser;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
 import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
+import com.example.ludogoriesoft.lukeriaerpapi.models.ShoppingCart;
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientUserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
@@ -27,9 +31,12 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class OrderService {
+
     private final OrderRepository orderRepository;
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
+    private final ClientUserRepository clientUserRepository;
+    private final UserService userService;
 
     public List<OrderDTO> getAllOrders() {
         List<Order> orders = orderRepository.findByDeletedFalse();
@@ -81,10 +88,19 @@ public class OrderService {
 
     public List<Order> getAllOrdersForClient(Long id) {
         Optional<Client> client = clientRepository.findById(id);
-        if(client.isPresent()) {
+        if (client.isPresent()) {
             return orderRepository.findAllByClientId(client.get());
         }
         throw new NoSuchElementException();
     }
 
+    public void createOrderFormShoppingCart(){
+
+        UserDTO authenticateUserDTO = userService.findAuthenticatedUser();
+        ClientUser clientUser = clientUserRepository.findByUserIdAndDeletedFalse(authenticateUserDTO.getId()).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        Client client = clientUser.getClient();
+        ShoppingCart shoppingCart = shoppingCartRepository.findByClientId(client).orElseThrow(ChangeSetPersister.NotFoundException::new);
+
+
+    }
 }
