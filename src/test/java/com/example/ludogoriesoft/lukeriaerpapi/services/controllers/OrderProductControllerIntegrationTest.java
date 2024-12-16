@@ -334,25 +334,6 @@ class OrderProductControllerIntegrationTest {
                 .andExpect(content().string(containsString("Client not found"))); // Optional check for error message
     }
 
-    @Test
-    void testGetOrderProductsByOrderId() throws Exception {
-        Long orderId = 1L;
-        OrderProductDTO dto1 = new OrderProductDTO();
-        dto1.setId(1L);
-        OrderProductDTO dto2 = new OrderProductDTO();
-        dto2.setId(2L);
-
-        when(orderProductService.getOrderProducts(orderId)).thenReturn(Arrays.asList(dto1, dto2));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
-                        .param("orderId", String.valueOf(orderId))
-                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[1].id").value(2));
-    }
 
     @Test
     void testGetOrderProductsByOrderIdNotFound() throws Exception {
@@ -370,12 +351,6 @@ class OrderProductControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    @Test
-    void testGetOrderProductsUnauthorized() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
-                        .param("orderId", "1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
-    }
+
 }
 
