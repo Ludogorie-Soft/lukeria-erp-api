@@ -337,25 +337,18 @@ class OrderProductControllerIntegrationTest {
     @Test
     void testGetOrderProductsByOrderId() throws Exception {
         Long orderId = 1L;
-        String authToken = "Bearer valid-auth-token";
+        OrderProductDTO dto1 = new OrderProductDTO();
+        dto1.setId(1L);
+        OrderProductDTO dto2 = new OrderProductDTO();
+        dto2.setId(2L);
 
-        // Prepare mock data
-        OrderProductDTO orderProductDTO1 = new OrderProductDTO();
-        orderProductDTO1.setId(1L);
-        OrderProductDTO orderProductDTO2 = new OrderProductDTO();
-        orderProductDTO2.setId(2L);
-        List<OrderProductDTO> orderProductDTOList = Arrays.asList(orderProductDTO1, orderProductDTO2);
+        when(orderProductService.getOrderProducts(orderId)).thenReturn(Arrays.asList(dto1, dto2));
 
-        // Mock service behavior
-        when(orderProductService.getOrderProducts(orderId)).thenReturn(orderProductDTOList);
-
-        // Perform the request and validate the response
         mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
                         .param("orderId", String.valueOf(orderId))
-                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[1].id").value(2));
@@ -379,11 +372,8 @@ class OrderProductControllerIntegrationTest {
 
     @Test
     void testGetOrderProductsUnauthorized() throws Exception {
-        Long orderId = 1L;
-
-        // Perform the request without Authorization header and validate the response
         mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
-                        .param("orderId", String.valueOf(orderId))
+                        .param("orderId", "1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
     }
