@@ -118,6 +118,10 @@ public class OrderService {
         orderDTO.setClientId(client.getId());
         OrderDTO order = createOrder(orderDTO);
 
+        if(shoppingCart.getItems().isEmpty()){
+            throw new ValidationException("Cart item is empty!");
+        }
+
         for (CartItem cartItem : shoppingCart.getItems()) {
             OrderProductDTO orderProductDTO = new OrderProductDTO();
             orderProductDTO.setOrderId(order.getId());

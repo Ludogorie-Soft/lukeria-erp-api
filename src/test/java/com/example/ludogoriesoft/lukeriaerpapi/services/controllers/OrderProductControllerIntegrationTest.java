@@ -334,6 +334,58 @@ class OrderProductControllerIntegrationTest {
                 .andExpect(content().string(containsString("Client not found"))); // Optional check for error message
     }
 
+    @Test
+    void testGetOrderProductsByOrderId() throws Exception {
+        Long orderId = 1L;
+        String authToken = "Bearer valid-auth-token";
 
+        // Prepare mock data
+        OrderProductDTO orderProductDTO1 = new OrderProductDTO();
+        orderProductDTO1.setId(1L);
+        OrderProductDTO orderProductDTO2 = new OrderProductDTO();
+        orderProductDTO2.setId(2L);
+        List<OrderProductDTO> orderProductDTOList = Arrays.asList(orderProductDTO1, orderProductDTO2);
+
+        // Mock service behavior
+        when(orderProductService.getOrderProducts(orderId)).thenReturn(orderProductDTOList);
+
+        // Perform the request and validate the response
+        mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
+                        .param("orderId", String.valueOf(orderId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2));
+    }
+
+    @Test
+    void testGetOrderProductsByOrderIdNotFound() throws Exception {
+        Long orderId = 1L;
+        String authToken = "Bearer valid-auth-token";
+
+        // Mock service to throw NotFoundException
+        when(orderProductService.getOrderProducts(orderId)).thenThrow(new ChangeSetPersister.NotFoundException());
+
+        // Perform the request and validate the response
+        mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
+                        .param("orderId", String.valueOf(orderId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void testGetOrderProductsUnauthorized() throws Exception {
+        Long orderId = 1L;
+
+        // Perform the request without Authorization header and validate the response
+        mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
+                        .param("orderId", String.valueOf(orderId))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
 }
 
