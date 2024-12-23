@@ -1,6 +1,10 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import io.minio.*;
+import io.minio.GetObjectArgs;
+import io.minio.GetObjectResponse;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.errors.MinioException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +20,12 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 @Slf4j
 public class ImageServiceDigitalOcean {
+
+    private final MinioClient minioClient;
+
     @Value("${digital.ocean.bucket.name}")
     private String digitalOceanBucketName;
-    private final MinioClient minioClient;
+
     public String uploadImage(final MultipartFile file, String randomUuid) {
         try {
             minioClient.putObject(PutObjectArgs.builder()
@@ -37,6 +44,7 @@ public class ImageServiceDigitalOcean {
         }
         return null;
     }
+
     public byte[] getImageByName(String imageName) {
         try {
             GetObjectResponse objectResponse = minioClient.getObject(GetObjectArgs.builder()
@@ -54,6 +62,7 @@ public class ImageServiceDigitalOcean {
         }
         return null;
     }
+
     public void deleteImage(String objectName) {
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
@@ -67,4 +76,5 @@ public class ImageServiceDigitalOcean {
             log.warn("An unexpected error occurred: " + e.getMessage());
         }
     }
+
 }

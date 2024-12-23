@@ -17,21 +17,26 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class ImageService {
+
     private final PackageRepository packageRepository;
+
     private final PlateRepository plateRepository;
+
     private final ImageRepository imageRepository;
-    private final ImageServiceDigitalOcean imageServiceDigitalOcean;
+
+    //TODO: If you want to use DigitalOcean bucket you need to replace ImageServiceS3 with ImageServiceDigitalOcean
+    private final ImageServiceS3 service;
 
     public String saveImageForPackage(MultipartFile file) {
         String imageName = createImageForSave(packageRepository.findFirstByDeletedFalseOrderByIdDesc());
-        return imageServiceDigitalOcean.uploadImage(file, imageName);
+        return service.uploadImage(file, imageName);
     }
 
     public String editImageForPackage(MultipartFile file, Long packageId) {
         if (!file.isEmpty()) {
             Package aPackage = packageRepository.findByIdAndDeletedFalse(packageId).orElseThrow(() -> new PackageNotFoundException(packageId));
             aPackage.setPhoto(createImageForSave(aPackage));
-            imageServiceDigitalOcean.uploadImage(file, aPackage.getPhoto());
+            service.uploadImage(file, aPackage.getPhoto());
             return aPackage.getPhoto();
         }
         return null;
@@ -39,26 +44,28 @@ public class ImageService {
 
     public String saveImageForPlate(MultipartFile file) {
         String imageName = createImageForSave(plateRepository.findFirstByDeletedFalseOrderByIdDesc());
-        return imageServiceDigitalOcean.uploadImage(file, imageName);
+        return service.uploadImage(file, imageName);
     }
 
     public String editImageForPlate(MultipartFile file, Long plateId) {
         if (!file.isEmpty()) {
             Plate plate = plateRepository.findByIdAndDeletedFalse(plateId).orElseThrow(() -> new PlateNotFoundException(plateId));
             plate.setPhoto(createImageForSave(plate));
-            imageServiceDigitalOcean.uploadImage(file, plate.getPhoto());
+
+            service.uploadImage(file, plate.getPhoto());
+
             return plate.getPhoto();
         }
         return null;
     }
 
     public byte[] getImageBytes(String imageName) {
-        return (imageServiceDigitalOcean.getImageByName(imageName));
+        return service.getImageByName(imageName);
     }
 
     public void deleteImageFromSpace(String imageName) {
         imageRepository.delete(imageRepository.findByName(UUID.fromString(imageName)));
-        imageServiceDigitalOcean.deleteImage(imageName);
+        service.deleteImage(imageName);
     }
 
     private String createImageForSave(Object entity) {

@@ -10,7 +10,6 @@ import com.example.ludogoriesoft.lukeriaerpapi.exeptions.common.AccessDeniedExce
 import com.example.ludogoriesoft.lukeriaerpapi.models.User;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.services.security.UserServiceImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,10 +23,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class UserServiceImplTest {
 
@@ -102,7 +106,7 @@ class UserServiceImplTest {
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(modelMapper.map(any(), any())).thenReturn(new AdminUserDTO());
         AdminUserDTO result = userService.updateUser(userId, userDTO, currentUser);
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
         verify(userRepository).findById(userId);
         verify(userRepository).save(any(User.class));
 
@@ -114,7 +118,7 @@ class UserServiceImplTest {
         User user = new User();
         when(userRepository.findByEmail(userEmail)).thenReturn(Optional.of(user));
         User result = userService.findByEmail(userEmail);
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
         verify(userRepository).findByEmail(userEmail);
     }
 
