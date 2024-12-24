@@ -101,7 +101,7 @@ public class PackageService {
     if (packageDTO.getAvailableQuantity() <= 0) {
       throw new ValidationException("Available quantity must be greater than zero");
     }
-    if (packageDTO.getPrice().intValue() <= 0) {
+    if (packageDTO.getPrice().doubleValue() <= 0) {
       throw new ValidationException("Price must be greater than zero");
     }
     if (!packageDTO.getEnglishName().matches("^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$")) {
