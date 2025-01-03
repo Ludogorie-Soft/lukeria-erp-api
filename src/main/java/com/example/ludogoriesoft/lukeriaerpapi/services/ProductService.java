@@ -70,7 +70,7 @@ public class ProductService {
     }
 
     private void validateProductDTO(ProductDTO productDTO) {
-        if (productDTO.getPrice().intValue() <=0) {
+        if (productDTO.getPrice().doubleValue() <=0) {
             throw new ValidationException("Price must be greater than zero");
         }
         if (productDTO.getAvailableQuantity() <= 0) {
