@@ -24,8 +24,18 @@ jobs:
                 java-version: '17'
                 distribution: 'liberica'
                 
+            - name: Cache Maven dependencies
+              uses: actions/cache@v3
+              with:
+                path: ~/.m2/repository
+                key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+                restore-keys: |
+                  maven-${{ runner.os }}-
+                
             - name: Build project
-              run: ./mvnw clean compile
+              run: |
+                chmod +x ./mvnw
+                ./mvnw clean compile
     
     unit-test:
         runs-on: ubuntu-latest
@@ -42,8 +52,19 @@ jobs:
                 java-version: '17'
                 distribution: 'liberica'
                 
+            - name: Cache Maven dependencies
+              uses: actions/cache@v3
+              with:
+                path: ~/.m2/repository
+                key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+                restore-keys: |
+                  maven-${{ runner.os }}-
+                
             - name: Running unit tests
-              run: ./mvnw clean test
+              run: |
+                chmod +x ./mvnw
+                ./mvnw clean test
+
         
     build:
         runs-on: ubuntu-latest
@@ -61,8 +82,18 @@ jobs:
                 java-version: '17'
                 distribution: 'liberica'
                 
+            - name: Cache Maven dependencies
+              uses: actions/cache@v3
+              with:
+                path: ~/.m2/repository
+                key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+                restore-keys: |
+                  maven-${{ runner.os }}-
+                
             - name: Build project
-              run: ./mvnw clean package
+              run: | 
+                chmod +x ./mvnw
+                ./mvnw clean package
     
     # build-image:
     #     name: Build Docker image
