@@ -335,5 +335,22 @@ class OrderProductControllerIntegrationTest {
     }
 
 
+    @Test
+    void testGetOrderProductsByOrderIdNotFound() throws Exception {
+        Long orderId = 1L;
+        String authToken = "Bearer valid-auth-token";
+
+        // Mock service to throw NotFoundException
+        when(orderProductService.getOrderProducts(orderId)).thenThrow(new ChangeSetPersister.NotFoundException());
+
+        // Perform the request and validate the response
+        mockMvc.perform(MockMvcRequestBuilders.get("/getOrderProducts")
+                        .param("orderId", String.valueOf(orderId))
+                        .header(HttpHeaders.AUTHORIZATION, authToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+
 }
 

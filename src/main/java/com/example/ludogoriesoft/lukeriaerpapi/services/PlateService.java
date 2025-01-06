@@ -46,7 +46,7 @@ public class PlateService {
         if (plateDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (plateDTO.getPrice().intValue() <= 0) {
+        if (plateDTO.getPrice().doubleValue() <= 0) {
             throw new ValidationException("Price must be greater than zero");
         }
         Plate plateEntity = plateRepository.save(modelMapper.map(plateDTO, Plate.class));
@@ -61,7 +61,7 @@ public class PlateService {
         if (plateDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (plateDTO.getPrice().intValue() <= 0 ) {
+        if (plateDTO.getPrice().doubleValue() <= 0 ) {
             throw new ValidationException("Price must be greater than zero");
         }
         existingPlate.setName(plateDTO.getName());

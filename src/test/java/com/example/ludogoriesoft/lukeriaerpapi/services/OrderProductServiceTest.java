@@ -481,4 +481,49 @@ class OrderProductServiceTest {
         assertEquals(orderDTO, result.get(0).getOrderDTO());
         assertTrue(result.get(0).getOrderProductDTOs().isEmpty());
     }
+    @Test
+    void testGetOrderProducts_ValidOrderId() throws ChangeSetPersister.NotFoundException {
+        // Arrange
+        Long orderId = 1L;
+        Order order = new Order();
+        order.setId(orderId);
+
+        OrderProduct orderProduct1 = new OrderProduct();
+        OrderProduct orderProduct2 = new OrderProduct();
+        List<OrderProduct> orderProducts = List.of(orderProduct1, orderProduct2);
+
+        OrderProductDTO orderProductDTO1 = new OrderProductDTO();
+        OrderProductDTO orderProductDTO2 = new OrderProductDTO();
+
+        when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
+        when(orderProductRepository.findAllByOrderId(order)).thenReturn(orderProducts);
+        when(modelMapper.map(orderProduct1, OrderProductDTO.class)).thenReturn(orderProductDTO1);
+        when(modelMapper.map(orderProduct2, OrderProductDTO.class)).thenReturn(orderProductDTO2);
+
+        // Act
+        List<OrderProductDTO> result = orderProductService.getOrderProducts(orderId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(List.of(orderProductDTO1, orderProductDTO2), result);
+
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderProductRepository, times(1)).findAllByOrderId(order);
+        verify(modelMapper, times(2)).map(any(OrderProduct.class), eq(OrderProductDTO.class));
+    }
+
+    @Test
+    void testGetOrderProducts_NonExistingOrderId_ThrowsNotFoundException() {
+        // Arrange
+        Long orderId = 1L;
+        when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(ChangeSetPersister.NotFoundException.class, () -> orderProductService.getOrderProducts(orderId));
+
+        verify(orderRepository, times(1)).findById(orderId);
+        verify(orderProductRepository, never()).findAllByOrderId(any());
+        verify(modelMapper, never()).map(any(), eq(OrderProductDTO.class));
+    }
 }
