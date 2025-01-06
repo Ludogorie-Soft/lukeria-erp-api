@@ -2,7 +2,7 @@
 
 # Load environment variables from .env file
 set -a
-source .env
+source /home/ubuntu/lukeria_v2/.env
 set +a
 
 # Variables
