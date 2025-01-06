@@ -2,7 +2,9 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
+import com.example.ludogoriesoft.lukeriaerpapi.models.ShoppingCart;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ShoppingCartRepository;
 import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,7 @@ public class ClientService {
     private static final String REGEX_FOR_ENGLISH_FIELDS = "^[a-zA-Z0-9\s!@#$%^&*()-_=+'\"]*$";
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
+    private final ShoppingCartRepository shoppingCartRepository;
 
     public List<ClientDTO> getAllClients() {
         List<Client> clients = clientRepository.findByDeletedFalse();
@@ -32,6 +35,9 @@ public class ClientService {
     public ClientDTO createClient(ClientDTO clientDTO) {
         validations(clientDTO);
         Client clientEntity = clientRepository.save(modelMapper.map(clientDTO, Client.class));
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setClientId(clientEntity);
+        shoppingCartRepository.save(shoppingCart);
         return modelMapper.map(clientEntity, ClientDTO.class);
     }
 

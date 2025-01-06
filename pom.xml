@@ -18,6 +18,9 @@
 		<spring-cloud.version>2022.0.3</spring-cloud.version>
 		<sonar.organization>ludogorie-soft-1</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io/</sonar.host.url>
+		<aws.java.sdk.version>2.29.32</aws.java.sdk.version>
+		<jacoco.maven.plugin>0.8.12</jacoco.maven.plugin>
+		<lombok.version>1.18.36</lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -35,9 +38,15 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>${aws.java.sdk.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.jacoco</groupId>
 			<artifactId>jacoco-maven-plugin</artifactId>
-			<version>0.8.6</version>
+			<version>${jacoco.maven.plugin}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -114,6 +123,8 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -145,7 +156,13 @@
 			<artifactId>slack-api-client</artifactId>
 			<version>1.38.1</version>
 		</dependency>
-    </dependencies>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>2.29.32</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -161,9 +178,18 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<source>17</source>
+					<target>17</target>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.10</version>
+				<version>${jacoco.maven.plugin}</version>
 				<executions>
 					<execution>
 						<goals>
