@@ -8,7 +8,7 @@ on:
       - 'docker-files/backend/**'
       - 'docker-files/docker-compose.yml'
       - '.github/workflows/backend-build.yml'
-      -
+
 #final option to be used
 #on:
 #  pull_request:
