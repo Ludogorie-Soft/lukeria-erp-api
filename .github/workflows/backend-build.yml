@@ -1,22 +1,12 @@
 name: backend-build
 
-#Used on test purpose only!
 on:
-  push:
-    branches: [docker-deployment]
-    paths:
-      - 'docker-files/backend/**'
-      - 'docker-files/docker-compose.yml'
-      - '.github/workflows/backend-build.yml'
-
-#final option to be used
-#on:
-#  pull_request:
-#    types:
-#      - closed
-#    branches:
-#      - main
-
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   compile:
