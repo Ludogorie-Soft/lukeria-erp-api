@@ -10,8 +10,6 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByDeletedFalse();
-    @Query("SELECT p FROM Product p WHERE p.forSale=true AND p.availableQuantity > 0 ")
-    List<Product> getAvailableProductsForSale();
 
     Optional<Product> findByIdAndDeletedFalse(Long id);
 
@@ -21,4 +19,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> getProductsForSale();
     Product findByPackageId(Package packageId);
 
+    @Query("SELECT p FROM Product p WHERE p.availableQuantity > 0")
+    List<Product> getAvailableProducts();
 }
