@@ -149,7 +149,7 @@ class ProductControllerIntegrationTest {
         productDTO2.setId(2L);
         List<ProductDTO> productDTOList = Arrays.asList(productDTO1, productDTO2);
 
-        when(productService.getProductsForSale()).thenReturn(productDTOList);
+        when(productService.getAvailableProducts()).thenReturn(productDTOList);
 
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/product/available-products")
                         .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")

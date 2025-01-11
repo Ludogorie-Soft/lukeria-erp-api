@@ -118,7 +118,7 @@ public class OrderService {
         orderDTO.setClientId(client.getId());
         OrderDTO order = createOrder(orderDTO);
 
-        if(shoppingCart.getItems().isEmpty()){
+        if (shoppingCart.getItems().isEmpty()) {
             throw new ValidationException("Cart item is empty!");
         }
 
@@ -127,7 +127,10 @@ public class OrderService {
             orderProductDTO.setOrderId(order.getId());
             orderProductDTO.setNumber(cartItem.getQuantity());
             orderProductDTO.setPackageId(cartItem.getProductId().getPackageId().getId());
-            orderProductDTO.setNumber(cartItem.getQuantity());
+
+            //reduce available quantity
+            cartItem.getProductId().setAvailableQuantity(cartItem.getProductId().getAvailableQuantity() - cartItem.getQuantity());
+            productRepository.save(cartItem.getProductId());
 
             Optional<CustomerCustomPrice> optionalCustomPrice = customerCustomPriceRepository.findByClientIdAndProductIdAndDeletedFalse(client, cartItem.getProductId());
             if (optionalCustomPrice.isPresent()) {
@@ -135,10 +138,12 @@ public class OrderService {
             } else {
                 orderProductDTO.setSellingPrice(cartItem.getProductId().getPrice());
             }
+
             orderProductService.createOrderProduct(orderProductDTO);
         }
         shoppingCart.getItems().clear();
         shoppingCartRepository.save(shoppingCart);
+
     }
 
 
