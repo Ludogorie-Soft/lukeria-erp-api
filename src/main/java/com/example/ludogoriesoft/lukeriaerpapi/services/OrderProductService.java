@@ -1,6 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderWithProductsDTO;
@@ -12,7 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,8 +24,6 @@ public class OrderProductService {
     private final OrderProductRepository orderProductRepository;
     private final OrderRepository orderRepository;
     private final PackageRepository packageRepository;
-    private final PlateRepository plateRepository;
-    private final CartonRepository cartonRepository;
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
@@ -127,4 +126,13 @@ public class OrderProductService {
         }
         return result;
     }
+
+    public List<OrderProductDTO> getOrderProducts(Long orderId) throws ChangeSetPersister.NotFoundException {
+        Order order = orderRepository.findById(orderId).orElseThrow(ChangeSetPersister.NotFoundException::new);
+        List<OrderProduct> orderProducts = orderProductRepository.findAllByOrderId(order);
+        return orderProducts.stream()
+                .map(orderProduct -> modelMapper.map(orderProduct, OrderProductDTO.class))
+                .collect(Collectors.toList());
+    }
+
 }

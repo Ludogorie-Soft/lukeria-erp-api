@@ -63,4 +63,8 @@ public class OrderProductController {
         return ResponseEntity.ok(orderWithProductsDTOs);
     }
 
+    @GetMapping("/getOrderProducts")
+    public ResponseEntity<List<OrderProductDTO>> orderProducts(@RequestParam("orderId")Long id,@RequestHeader("Authorization") String auth ) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(orderProductService.getOrderProducts(id));
+    }
 }

@@ -53,8 +53,8 @@ public class ProductService {
         return modelMapper.map(product, ProductDTO.class);
     }
 
-    public List<ProductDTO> getProductsForSale() {
-        List<Product> products = productRepository.getAvailableProductsForSale();
+    public List<ProductDTO> getAvailableProducts() {
+        List<Product> products = productRepository.getAvailableProducts();
         Type listType = new TypeToken<List<ProductDTO>>() {}.getType();
         return modelMapper.map(products, listType);
     }
@@ -70,7 +70,7 @@ public class ProductService {
     }
 
     private void validateProductDTO(ProductDTO productDTO) {
-        if (productDTO.getPrice().intValue() <=0) {
+        if (productDTO.getPrice().doubleValue() <=0) {
             throw new ValidationException("Price must be greater than zero");
         }
         if (productDTO.getAvailableQuantity() <= 0) {

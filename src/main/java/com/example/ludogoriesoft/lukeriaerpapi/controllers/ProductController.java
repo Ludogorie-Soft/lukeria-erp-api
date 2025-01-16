@@ -27,8 +27,8 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
     @GetMapping("/available-products")
-    public ResponseEntity<List<ProductDTO>> getProductsForSale(@RequestHeader("Authorization") String auth) {
-        return ResponseEntity.ok(productService.getProductsForSale());
+    public ResponseEntity<List<ProductDTO>> getAvailableProducts(@RequestHeader("Authorization") String auth) {
+        return ResponseEntity.ok(productService.getAvailableProducts());
     }
 
     @PostMapping
