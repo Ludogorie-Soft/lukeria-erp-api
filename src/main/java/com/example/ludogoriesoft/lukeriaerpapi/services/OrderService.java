@@ -2,14 +2,6 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Client;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Order;
-import com.example.ludogoriesoft.lukeriaerpapi.models.OrderProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.models.User;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.ClientRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderProductRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.OrderRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.UserRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.UserDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
@@ -27,6 +19,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class OrderService {
+
     private final OrderRepository orderRepository;
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;

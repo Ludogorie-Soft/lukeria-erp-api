@@ -43,7 +43,7 @@ public class CartonService {
         if (cartonDTO.getAvailableQuantity() <= 0) {
             throw new ValidationException("Available quantity must be greater than zero");
         }
-        if (cartonDTO.getPrice().intValue() <= 0) {
+        if (cartonDTO.getPrice().doubleValue() <= 0) {
             throw new ValidationException("Price must be greater than zero");
         }
 
