@@ -1,6 +1,5 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.ClientDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.OrderWithProductsDTO;
@@ -12,7 +11,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
