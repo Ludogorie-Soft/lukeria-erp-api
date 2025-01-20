@@ -1,10 +1,9 @@
-name: backend-build
+name: backend-build-test
 
 on:
   pull_request:
     types:
-      - opened
-      - reopened
+      - closed
     branches:
       - main
   push:
@@ -167,3 +166,41 @@ jobs:
           file: docker-files/backend/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/lukeria-backend:${{ steps.sha.outputs.SHA }}
+
+  deploy:
+    name: Deploy to Test environment
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Stop, update, and restart containers using Docker Compose
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          cd /home/ubuntu/test
+
+          # Check for and remove stopped containers
+          docker container prune -f
+
+          # Check for and remove unused images
+          docker image prune -af
+
+          # Stop and remove existing containers
+          docker compose down
+
+          # Pull the latest images
+          docker compose pull
+
+          # Start the containers in detached mode
+          docker compose up -d
+          EOF
