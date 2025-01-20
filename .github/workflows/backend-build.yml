@@ -3,7 +3,11 @@ name: backend-build
 on:
   pull_request:
     types:
-      - closed
+      - opened
+      - reopened
+    branches:
+      - main
+  push:
     branches:
       - main
   workflow_dispatch:
@@ -21,7 +25,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'liberica'
 
       - name: Cache Maven dependencies
@@ -49,7 +53,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'liberica'
 
       - name: Cache Maven dependencies
@@ -65,6 +69,7 @@ jobs:
           chmod +x ./mvnw
           ./mvnw clean test
 
+
   build:
     runs-on: ubuntu-latest
     name: Build backend
@@ -78,7 +83,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'liberica'
 
       - name: Cache Maven dependencies
@@ -96,18 +101,18 @@ jobs:
 
   sonar:
     name: Run SonarCloud analysis
-    needs: build # Depends on the build job
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Required for SonarCloud to analyze pull requests
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'liberica'
           cache: maven
 
@@ -127,12 +132,13 @@ jobs:
 
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed for pull request analysis
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # SonarCloud token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           chmod +x ./mvnw
           ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=Ludogorie-Soft_lukeria-erp-api \
+            -Dsonar.coverage.exclusions=**/dtos/**,**/enums/**,**/models/**
 
   build-image:
     name: Build Docker image
@@ -160,4 +166,4 @@ jobs:
           context: .
           file: docker-files/backend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/lukeria-frontend:${{ steps.sha.outputs.SHA }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/lukeria-backend:${{ steps.sha.outputs.SHA }}
