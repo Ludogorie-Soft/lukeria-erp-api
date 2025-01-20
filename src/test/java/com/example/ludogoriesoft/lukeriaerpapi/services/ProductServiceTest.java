@@ -5,10 +5,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,11 +42,13 @@ class ProductServiceTest {
     private PlateRepository plateRepository;
     @Mock
     private CartonRepository cartonRepository;
+    @Mock
+    private ManufacturedProductRepository manufacturedProductRepository;
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.initMocks(this);
-        productService = new ProductService(productRepository, packageRepository, modelMapper, plateRepository, cartonRepository);
+        productService = new ProductService(productRepository, packageRepository, modelMapper, plateRepository, cartonRepository, manufacturedProductRepository);
     }
 
     @Test
@@ -301,7 +300,7 @@ class ProductServiceTest {
         availableProducts.add(new Product(1L, aPackage, BigDecimal.valueOf(10.0), 10, false, "L111", true,"barcode"));
         availableProducts.add(new Product(2L, aPackage, BigDecimal.valueOf(20.0), 15, false, "L112", true,"barcode"));
 
-        when(productRepository.getAvailableProductsForSale()).thenReturn(availableProducts);
+        when(productRepository.getAvailableProducts()).thenReturn(availableProducts);
 
         // Mock the modelMapper to convert Product to ProductDTO
         ProductDTO productDTO1 = new ProductDTO(1L, BigDecimal.valueOf(10.0), aPackage.getId(), 10, "L111", true,"barcode");
@@ -315,14 +314,14 @@ class ProductServiceTest {
         when(modelMapper.map(availableProducts, listType)).thenReturn(productDTOList);
 
         // Act
-        List<ProductDTO> result = productService.getProductsForSale();
+        List<ProductDTO> result = productService.getAvailableProducts();
 
         // Assert
         assertEquals(2, result.size());
         assertEquals(productDTO1, result.get(0));
         assertEquals(productDTO2, result.get(1));
 
-        verify(productRepository, times(1)).getAvailableProductsForSale();
+        verify(productRepository, times(1)).getAvailableProducts();
         verify(modelMapper, times(1)).map(availableProducts, listType);
     }
 
