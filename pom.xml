@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -14,13 +14,10 @@
 	<name>lukeria-erp-api</name>
 	<description>Inventory tracking project</description>
 	<properties>
-		<java.version>21</java.version>
+		<java.version>17</java.version>
 		<spring-cloud.version>2022.0.3</spring-cloud.version>
 		<sonar.organization>ludogorie-soft-1</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io/</sonar.host.url>
-		<aws.java.sdk.version>2.29.32</aws.java.sdk.version>
-		<jacoco.maven.plugin>0.8.12</jacoco.maven.plugin>
-		<lombok.version>1.18.36</lombok.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -28,26 +25,19 @@
 			<artifactId>mockito-core</artifactId>
 			<version>5.3.1</version>
 		</dependency>
-<!--		it is related to transferring files to a DigitalOcean		-->
-<!--		<dependency>-->
-<!--			<groupId>io.minio</groupId>-->
-<!--			<artifactId>minio</artifactId>-->
-<!--			<version>8.5.9</version>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>io.minio</groupId>
+			<artifactId>minio</artifactId>
+			<version>8.5.9</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>s3</artifactId>
-			<version>${aws.java.sdk.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.jacoco</groupId>
 			<artifactId>jacoco-maven-plugin</artifactId>
-			<version>${jacoco.maven.plugin}</version>
+			<version>0.8.6</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -124,8 +114,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<scope>provided</scope>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -147,21 +135,15 @@
 			<artifactId>ModelMapper</artifactId>
 			<version>1.0.6</version>
 		</dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>5.2.3</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.3</version>
+		</dependency>
 		<dependency>
 			<groupId>com.slack.api</groupId>
 			<artifactId>slack-api-client</artifactId>
 			<version>1.38.1</version>
-		</dependency>
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>s3</artifactId>
-			<version>2.29.32</version>
-			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
@@ -179,18 +161,9 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.11.0</version>
-				<configuration>
-					<source>17</source>
-					<target>17</target>
-				</configuration>
-			</plugin>
-			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>${jacoco.maven.plugin}</version>
+				<version>0.8.10</version>
 				<executions>
 					<execution>
 						<goals>

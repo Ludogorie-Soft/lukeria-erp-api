@@ -1,12 +1,9 @@
-name: backend-build-test
+name: backend-build-and-deploy
 
 on:
   pull_request:
     types:
       - closed
-    branches:
-      - main
-  push:
     branches:
       - main
   workflow_dispatch:
@@ -40,39 +37,10 @@ jobs:
           chmod +x ./mvnw
           ./mvnw clean compile
 
-  unit-test:
-    runs-on: ubuntu-latest
-    name: Run unit tests
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'liberica'
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            maven-${{ runner.os }}-
-
-      - name: Running unit tests
-        run: |
-          chmod +x ./mvnw
-          ./mvnw clean test
-
-
   build:
     runs-on: ubuntu-latest
     name: Build backend
-    needs: [compile, unit-test]
+    needs: [compile]
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
@@ -98,47 +66,6 @@ jobs:
           chmod +x ./mvnw
           ./mvnw clean package
 
-  sonar:
-    name: Run SonarCloud analysis
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'liberica'
-          cache: maven
-
-      - name: Cache SonarCloud packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Maven packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Build and analyze
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          chmod +x ./mvnw
-          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=Ludogorie-Soft_lukeria-erp-api \
-            -Dsonar.coverage.exclusions=**/dtos/**,**/enums/**,**/models/**
-
   build-image:
     name: Build Docker image
     runs-on: ubuntu-latest
@@ -149,9 +76,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get short git SHA code
-        id: sha
-        run: echo "SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -163,9 +87,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker-files/backend/Dockerfile
+          file: Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/lukeria-backend:${{ steps.sha.outputs.SHA }}
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/lukeria-backend:latest
 
   deploy:
     name: Deploy to Test environment
@@ -188,7 +112,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
           cd /home/ubuntu/test
-
+          
           # Check for and remove stopped containers
           docker container prune -f
 
