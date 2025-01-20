@@ -1,6 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.services.ImageService;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,9 @@ public class ImageController {
         byte[] imageBytes = imageService.getImageBytes(imageName);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
+        headers.setCacheControl("public, max-age=31536000");
+        String eTag = "\"" + Integer.toHexString(Arrays.hashCode(imageBytes)) + "\"";
+        headers.setETag(eTag);
         return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
     }
-
 }

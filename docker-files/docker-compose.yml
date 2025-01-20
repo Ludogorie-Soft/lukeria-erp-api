@@ -1,0 +1,109 @@
+services:
+  mysql:
+    image: mysql:8.0.33
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    #ports:
+    #  - "3306:3306"
+    networks:
+      - app-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build:
+      context: ./lukeria-erp-api
+    image: ludogoriesoft/lukeria-backend:v.0.0.3
+    container_name: backend
+    environment:
+      DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      MYSQLUSER: ${MYSQL_USER}
+      MYSQLPASSWORD: ${MYSQL_PASSWORD}
+      IMAGE_UPLOAD_DIRECTORY: ${IMAGE_UPLOAD_DIRECTORY}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      digital.ocean.access.key: ${STORAGE_ACCESS_KEY}
+      digital.ocean.secret.key: ${STORAGE_SECRET_KEY}
+      space.bucket.origin.url: ${STORAGE_BUCKET_URL}
+      digital.ocean.bucket.name: ${STORAGE_BUCKET_NAME}
+      frontend.url: ${FRONTEND_URL}
+      spring.mail.host: ${SPRING_MAIL_HOST}
+      spring.mail.port: ${SPRING_MAIL_PORT}
+      spring.mail.username: ${SPRING_MAIL_USERNAME}
+      spring.mail.password: ${SPRING_MAIL_PASSWORD}
+      spring.mail.properties.mail.smtp.auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
+      spring.mail.properties.mail.smtp.starttls.enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+
+    #ports:
+    #  - "8088:8088"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: always
+    healthcheck:
+      test: ['CMD-SHELL', "curl -s -o /dev/null -w '%{http_code}' http://localhost:8088/api/v1/user | grep -q '403' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./lukeria-erp-front-end
+    image: ludogoriesoft/lukeria-frontend:v.0.0.3
+    container_name: frontend
+    environment:
+      BACKEND_BASE_URL: http://backend:8088/api/v1
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+    ports:
+      - '8080:8080' # Expose port 8090 for the Spring Boot application
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: always
+
+  # caddy:
+  #   image: caddy:2.9-alpine
+  #   restart: unless-stopped
+  #   container_name: caddy
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile
+  #     - ./headers.conf:/etc/caddy/headers.conf
+  #     - ./site:/srv
+  #     - caddy_data:/data
+  #     - caddy_config:/config
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+  # caddy_data:
+  # caddy_config:

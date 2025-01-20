@@ -56,7 +56,6 @@ public class OrderProductController {
         List<InvoiceOrderProduct> invoiceOrderProductsList = orderProductService.findInvoiceOrderProductsByInvoiceId(invoiceId);
         return ResponseEntity.ok(orderProductService.reduceProducts(invoiceOrderProductsList));
     }
-
     @GetMapping("/order-products-by-orders")
     public ResponseEntity<List<OrderWithProductsDTO>> getOrderProductDTOsByOrderDTOs(@RequestParam(name = "id") Long id, @RequestHeader("Authorization") String auth) {
         List<Order> orders = orderService.getAllOrdersForClient(id);

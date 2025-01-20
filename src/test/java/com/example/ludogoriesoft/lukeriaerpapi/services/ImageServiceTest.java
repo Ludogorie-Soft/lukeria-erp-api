@@ -11,10 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.mock.web.MockMultipartFile;
+
 import java.util.Optional;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 class ImageServiceTest {
@@ -27,13 +28,15 @@ class ImageServiceTest {
     private PlateRepository plateRepository;
     @Mock
     private ImageRepository imageRepository;
+//    @Mock
+//    private ImageServiceDigitalOcean imageServiceDigitalOcean;
     @Mock
-    private ImageServiceDigitalOcean imageServiceDigitalOcean;
+    private ImageServiceS3 imageServiceS3;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        imageService = new ImageService(packageRepository, plateRepository, imageRepository, imageServiceDigitalOcean);
+        imageService = new ImageService(packageRepository, plateRepository, imageRepository, imageServiceS3);
     }
 
     @Test

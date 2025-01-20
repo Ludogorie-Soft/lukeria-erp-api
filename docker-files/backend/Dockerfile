@@ -1,0 +1,15 @@
+FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
+COPY pom.xml .
+RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
+COPY src ./src
+RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests
+
+FROM bellsoft/liberica-openjdk-debian:17.0.13-12 AS production
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+WORKDIR /app
+COPY --from=build /app/target/*.jar ./lukeria-erp-api.jar
+RUN chown -R appuser:appgroup /app
+USER appuser
+EXPOSE 8088
+ENTRYPOINT ["java", "-jar", "lukeria-erp-api.jar"]

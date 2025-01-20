@@ -1,0 +1,8 @@
+{
+    email ivailo.yordanov.ph@gmail.com
+}
+
+lukeria.ludsoft.duckdns.org {
+    import /etc/caddy/headers.conf
+    reverse_proxy frontend:8080
+}
