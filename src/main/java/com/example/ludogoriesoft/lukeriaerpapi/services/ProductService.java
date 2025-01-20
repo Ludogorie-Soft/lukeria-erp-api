@@ -1,26 +1,19 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
-import com.example.ludogoriesoft.lukeriaerpapi.dtos.PackageDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ProductDTO;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Carton;
+import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Plate;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.CartonRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PackageRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.PlateRepository;
-import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -34,6 +27,7 @@ public class ProductService {
     private final ModelMapper modelMapper;
     private final PlateRepository plateRepository;
     private final CartonRepository cartonRepository;
+    private final ManufacturedProductRepository manufacturedProductRepository;
 
     public List<ProductDTO> getAllProducts() {
         List<Product> products = productRepository.findByDeletedFalse();
@@ -113,6 +107,11 @@ public class ProductService {
                 cartonRepository.save(carton.get());
             }
         }
+        ManufacturedProduct manufacturedProduct = new ManufacturedProduct();
+        manufacturedProduct.setProduct(product.get());
+        manufacturedProduct.setQuantity(producedQuantity);
+        manufacturedProduct.setManufacture_date(LocalDateTime.now());
+        manufacturedProductRepository.save(manufacturedProduct);
         return modelMapper.map(product, ProductDTO.class);
     }
     public List<ProductDTO> getProductsForSaleWithoutLookingForQuantity() {
