@@ -106,7 +106,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          eval "$(ssh-keyscan ${{ secrets.EC2_HOST }})" >> ~/.ssh/known_hosts
 
       - name: Stop, update, and restart containers using Docker Compose
         run: |
