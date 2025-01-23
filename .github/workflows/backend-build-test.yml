@@ -134,7 +134,7 @@ jobs:
   cleanup-images:
     name: Cleanup old Docker images
     runs-on: ubuntu-latest
-    needs: [build-image]
+    needs: [ build-image ]
     steps:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -145,16 +145,17 @@ jobs:
       - name: Delete old images
         run: |
           # Install Docker Hub API client
-          curl -sSL https://github.com/docker/hub-tool/releases/latest/download/hub-tool-linux-amd64.tar.gz | tar xz
+          curl -sSL https://github.com/docker/hub-tool/releases/latest/download/hub-tool-linux-amd64.tar.gz -o hub-tool.tar.gz
+          tar -xzf hub-tool.tar.gz
           chmod +x hub-tool
-          
+
           # Set up hub-tool authentication
           ./hub-tool login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
-          
+
           # Get list of tags, sort by creation date, and keep only the last 5
-          REPO="${{ secrets.DOCKERHUB_USERNAME }}/lukeria-backend"  # Fixed repository name
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}/lukeria-backend"
           TAGS_TO_DELETE=$(./hub-tool tag ls $REPO --sort created -f '{{.Tag}}' | head -n -5)
-          
+
           # Delete old tags
           for TAG in $TAGS_TO_DELETE; do
             echo "Deleting tag: $TAG"
