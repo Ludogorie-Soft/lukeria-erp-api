@@ -99,10 +99,10 @@ jobs:
 
       - name: Build and analyze
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          chmod +x ./mvnw
+          chmod +x mvnw
           ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=Ludogorie-Soft_lukeria-erp-api \
             -Dsonar.coverage.exclusions=**/dtos/**,**/enums/**,**/models/**
