@@ -135,4 +135,27 @@ class ManufacturedProductServiceTest {
         verify(manufacturedProductRepository, times(1)).findById(1L);
         verify(manufacturedProductRepository, times(1)).save(manufacturedProduct);
     }
+    @Test
+    void createManufacturedProduct_ShouldThrowExceptionIfNull() {
+        Exception exception = assertThrows(NullPointerException.class, () ->
+                manufacturedProductService.createManufacturedProduct(null)
+        );
+
+        assertEquals("Cannot invoke \"com.example.ludogoriesoft.lukeriaerpapi.models.ManufacturedProduct.setManufacture_date(java.time.LocalDateTime)\" because \"manufacturedProduct\" is null", exception.getMessage());
+        verify(manufacturedProductRepository, never()).save(any());
+    }
+    @Test
+    void getAllManufacturedProducts_ShouldReturnEmptyListWhenNoProductsExist() {
+        when(manufacturedProductRepository.findAll()).thenReturn(List.of());
+
+        List<ManufacturedProduct> result = manufacturedProductService.getAllManufacturedProducts();
+
+        assertTrue(result.isEmpty());
+        verify(manufacturedProductRepository, times(1)).findAll();
+    }
+
+
+
+
+
 }
