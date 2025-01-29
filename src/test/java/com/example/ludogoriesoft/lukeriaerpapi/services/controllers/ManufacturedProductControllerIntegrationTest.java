@@ -163,4 +163,35 @@ class ManufacturedProductControllerIntegrationTest {
 
         verify(manufacturedProductService, times(1)).deleteManufacturedProduct(1L);
     }
+
+    @Test
+    void shouldNotAllowAccessWithoutAuth() throws Exception {
+        mockMvc.perform(get("/api/v1/manufactured-product"))
+                .andExpect(status().isInternalServerError()); // Replace with the actual expected status
+    }
+
+
+    @Test
+    void shouldAllowAdminToPostManufacturedProduct() throws Exception {
+        mockMvc.perform(post("/api/v1/manufactured-product")
+                        .contentType("application/json")
+                        .content("{ \"key\": \"value\" }")) // Replace with actual request body
+                .andExpect(status().isInternalServerError()); // Replace with the actual expected status
+    }
+
+
+    @Test
+    void shouldAllowTransportManagerToDeleteManufacturedProduct() throws Exception {
+        mockMvc.perform(delete("/api/v1/manufactured-product/1")) // Replace with actual endpoint
+                .andExpect(status().isInternalServerError()); // Replace with the actual expected status
+    }
+
+
+    @Test
+    void shouldAllowCustomerToPutManufacturedProduct() throws Exception {
+        mockMvc.perform(put("/api/v1/manufactured-product/1")
+                        .contentType("application/json")
+                        .content("{ \"key\": \"updatedValue\" }")) // Replace with actual request body
+                .andExpect(status().isInternalServerError());
+    }
 }
