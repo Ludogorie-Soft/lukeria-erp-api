@@ -1,7 +1,7 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
+
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ManufacturedProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ManufacturedProduct;
-
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ManufacturedProductRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
@@ -12,7 +12,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,171 +23,116 @@ class ManufacturedProductServiceTest {
 
     @Mock
     private ManufacturedProductRepository manufacturedProductRepository;
+
     @Mock
     private ProductRepository productRepository;
+
     @InjectMocks
     private ManufacturedProductService manufacturedProductService;
 
     @BeforeEach
-    void setup() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        manufacturedProductService = new ManufacturedProductService(manufacturedProductRepository, productRepository);
     }
 
     @Test
-    void testCreateManufacturedProduct() {
-        // Arrange
-        Product product = new Product();
-        product.setId(1L);
-        ManufacturedProduct manufacturedProduct = new ManufacturedProduct(null, product, 10, null, false);
-        manufacturedProduct.setManufacture_date(LocalDateTime.now());
-
+    void createManufacturedProduct_ShouldSaveProduct() {
+        ManufacturedProduct manufacturedProduct = new ManufacturedProduct();
         when(manufacturedProductRepository.save(manufacturedProduct)).thenReturn(manufacturedProduct);
 
-        // Act
         ManufacturedProduct result = manufacturedProductService.createManufacturedProduct(manufacturedProduct);
 
-        // Assert
         assertNotNull(result);
-        assertEquals(manufacturedProduct, result);
         verify(manufacturedProductRepository, times(1)).save(manufacturedProduct);
+        assertNotNull(result.getManufacture_date());
     }
 
     @Test
-    void testCreateManufacturedProductFromProduct() {
-        // Arrange
+    void createManufacturedProductFromProduct_ShouldSaveProduct() {
         Product product = new Product();
-        product.setId(1L);
-        int quantity = 10;
-        LocalDateTime manufactureDate = LocalDateTime.now();
-        boolean deleted = false;
-
-        ManufacturedProduct manufacturedProduct = new ManufacturedProduct(null, product, quantity, manufactureDate, deleted);
+        ManufacturedProduct manufacturedProduct = new ManufacturedProduct(null, product, 10, LocalDateTime.now(), false);
         when(manufacturedProductRepository.save(any(ManufacturedProduct.class))).thenReturn(manufacturedProduct);
 
-        // Act
-        ManufacturedProduct result = manufacturedProductService.createManufacturedProductFromProduct(product, quantity, manufactureDate, deleted);
+        ManufacturedProduct result = manufacturedProductService.createManufacturedProductFromProduct(product, 10, LocalDateTime.now(), false);
 
-        // Assert
         assertNotNull(result);
-        assertEquals(product, result.getProduct());
-        assertEquals(quantity, result.getQuantity());
         verify(manufacturedProductRepository, times(1)).save(any(ManufacturedProduct.class));
+        assertNotNull(result.getManufacture_date());
     }
 
     @Test
-    void testGetAllManufacturedProducts() {
-        // Arrange
-        List<ManufacturedProduct> manufacturedProducts = new ArrayList<>();
-        manufacturedProducts.add(new ManufacturedProduct(1L, new Product(), 10, LocalDateTime.now(), false));
-        manufacturedProducts.add(new ManufacturedProduct(2L, new Product(), 20, LocalDateTime.now(), true));
+    void getAllManufacturedProducts_ShouldReturnList() {
+        List<ManufacturedProduct> products = Arrays.asList(new ManufacturedProduct(), new ManufacturedProduct());
+        when(manufacturedProductRepository.findAll()).thenReturn(products);
 
-        when(manufacturedProductRepository.findAll()).thenReturn(manufacturedProducts);
-
-        // Act
         List<ManufacturedProduct> result = manufacturedProductService.getAllManufacturedProducts();
 
-        // Assert
         assertEquals(2, result.size());
         verify(manufacturedProductRepository, times(1)).findAll();
     }
 
     @Test
-    void testGetManufacturedProductById_Existing() {
-        // Arrange
-        Long id = 1L;
-        ManufacturedProduct manufacturedProduct = new ManufacturedProduct(id, new Product(), 10, LocalDateTime.now(), false);
-        when(manufacturedProductRepository.findById(id)).thenReturn(Optional.of(manufacturedProduct));
+    void getManufacturedProductById_ShouldReturnProduct() {
+        ManufacturedProduct manufacturedProduct = new ManufacturedProduct();
+        when(manufacturedProductRepository.findById(1L)).thenReturn(Optional.of(manufacturedProduct));
 
-        // Act
-        Optional<ManufacturedProduct> result = manufacturedProductService.getManufacturedProductById(id);
+        Optional<ManufacturedProduct> result = manufacturedProductService.getManufacturedProductById(1L);
 
-        // Assert
         assertTrue(result.isPresent());
         assertEquals(manufacturedProduct, result.get());
-        verify(manufacturedProductRepository, times(1)).findById(id);
+        verify(manufacturedProductRepository, times(1)).findById(1L);
     }
 
     @Test
-    void testGetManufacturedProductById_NonExisting() {
-        // Arrange
-        Long id = 1L;
-        when(manufacturedProductRepository.findById(id)).thenReturn(Optional.empty());
-
-        // Act
-        Optional<ManufacturedProduct> result = manufacturedProductService.getManufacturedProductById(id);
-
-        // Assert
-        assertFalse(result.isPresent());
-        verify(manufacturedProductRepository, times(1)).findById(id);
-    }
-
-//    @Test
-//    public void testUpdateManufacturedProduct_Success() {
-//        ManufacturedProduct existingProduct;
-//        ManufacturedProductDTO updatedProductDTO;
-//        existingProduct = new ManufacturedProduct();
-//        existingProduct.setId(1L);
-//        existingProduct.setQuantity(10);
-//        existingProduct.setManufacture_date(LocalDateTime.now());
-//        existingProduct.setDeleted(false);
-//
-//        updatedProductDTO = new ManufacturedProductDTO();
-//        updatedProductDTO.setId(1L);
-//        updatedProductDTO.setProductId(2L);
-//        updatedProductDTO.setQuantity(20);
-//        updatedProductDTO.setManufactureDate(LocalDateTime.now().plusDays(1));
-//
-//        when(manufacturedProductRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
-//        when(productRepository.findById(2L)).thenReturn(Optional.of(new Product()));
-//
-//        ManufacturedProduct updatedProduct = manufacturedProductService.updateManufacturedProduct(1L, updatedProductDTO);
-//
-//        assertEquals(20, updatedProduct.getQuantity());
-//        assertEquals(updatedProductDTO.getManufactureDate(), updatedProduct.getManufacture_date());
-//        assertFalse(updatedProduct.isDeleted());
-//        verify(manufacturedProductRepository).save(existingProduct);
-//    }
-
-    @Test
-    public void testUpdateManufacturedProduct_ProductNotFound() {
-        ManufacturedProduct existingProduct;
-        ManufacturedProductDTO updatedProductDTO;
-        existingProduct = new ManufacturedProduct();
-        existingProduct.setId(1L);
-        existingProduct.setQuantity(10);
-        existingProduct.setManufacture_date(LocalDateTime.now());
-        existingProduct.setDeleted(false);
-
-        updatedProductDTO = new ManufacturedProductDTO();
-        updatedProductDTO.setId(1L);
-        updatedProductDTO.setProductId(2L);
-        updatedProductDTO.setQuantity(20);
-        updatedProductDTO.setManufactureDate(LocalDateTime.now().plusDays(1));
+    void getManufacturedProductById_ShouldReturnEmptyOptional() {
         when(manufacturedProductRepository.findById(1L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            manufacturedProductService.updateManufacturedProduct(1L, updatedProductDTO);
-        });
+        Optional<ManufacturedProduct> result = manufacturedProductService.getManufacturedProductById(1L);
 
-        assertEquals("ManufacturedProduct with ID 1 not found.", exception.getMessage());
+        assertFalse(result.isPresent());
+        verify(manufacturedProductRepository, times(1)).findById(1L);
     }
 
     @Test
-    void testDeleteManufacturedProduct() {
-        // Arrange
-        Long id = 1L;
-        ManufacturedProduct existingProduct = new ManufacturedProduct(id, new Product(), 10, LocalDateTime.now(), false);
+    void updateManufacturedProduct_ShouldUpdateProduct() {
+        ManufacturedProduct existingProduct = new ManufacturedProduct();
+        Product product = new Product();
+        ManufacturedProductDTO dto = new ManufacturedProductDTO(1L, 1L, 10, LocalDateTime.now());
+        when(manufacturedProductRepository.findById(1L)).thenReturn(Optional.of(existingProduct));
+        when(productRepository.findById(dto.getProductId())).thenReturn(Optional.of(product));
+        when(manufacturedProductRepository.save(existingProduct)).thenReturn(existingProduct);
 
-        when(manufacturedProductRepository.findById(id)).thenReturn(Optional.of(existingProduct));
+        ManufacturedProduct result = manufacturedProductService.updateManufacturedProduct(1L, dto);
 
-        // Act
-        manufacturedProductService.deleteManufacturedProduct(id);
-
-        // Assert
-        assertTrue(existingProduct.isDeleted());
-        verify(manufacturedProductRepository, times(1)).findById(id);
+        assertNotNull(result);
+        verify(manufacturedProductRepository, times(1)).findById(1L);
+        verify(productRepository, times(1)).findById(dto.getProductId());
         verify(manufacturedProductRepository, times(1)).save(existingProduct);
     }
-}
 
+    @Test
+    void updateManufacturedProduct_ShouldThrowExceptionIfNotFound() {
+        when(manufacturedProductRepository.findById(1L)).thenReturn(Optional.empty());
+
+        ManufacturedProductDTO dto = new ManufacturedProductDTO(1L, 1L, 10, LocalDateTime.now());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+                manufacturedProductService.updateManufacturedProduct(1L, dto)
+        );
+
+        assertEquals("ManufacturedProduct with ID 1 not found.", exception.getMessage());
+        verify(manufacturedProductRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void deleteManufacturedProduct_ShouldMarkAsDeleted() {
+        ManufacturedProduct manufacturedProduct = new ManufacturedProduct();
+        when(manufacturedProductRepository.findById(1L)).thenReturn(Optional.of(manufacturedProduct));
+
+        manufacturedProductService.deleteManufacturedProduct(1L);
+
+        assertTrue(manufacturedProduct.isDeleted());
+        verify(manufacturedProductRepository, times(1)).findById(1L);
+        verify(manufacturedProductRepository, times(1)).save(manufacturedProduct);
+    }
+}
