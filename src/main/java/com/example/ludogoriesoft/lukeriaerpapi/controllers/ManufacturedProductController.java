@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,22 +43,10 @@ public class ManufacturedProductController {
 
     @PostMapping
     public ResponseEntity<ManufacturedProductDTO> createManufacturedProduct(
-            @RequestBody ManufacturedProduct manufacturedProduct,
+            @RequestBody ManufacturedProductDTO manufacturedProductDTO,
             @RequestHeader("Authorization") String auth) {
-        ManufacturedProduct createdProduct = manufacturedProductService.createManufacturedProduct(manufacturedProduct);
-        ManufacturedProductDTO dto = modelMapper.map(createdProduct, ManufacturedProductDTO.class);
-        return ResponseEntity.ok(dto);
-    }
-
-    @PostMapping("/from-product")
-    public ResponseEntity<ManufacturedProductDTO> createManufacturedProductFromProduct(
-            @RequestParam Long productId,
-            @RequestParam int quantity,
-            @RequestParam boolean deleted,
-            @RequestHeader("Authorization") String auth) {
-        // Replace with actual product fetching logic
-        Product product = productRepository.getById(productId);
-        ManufacturedProduct createdProduct = manufacturedProductService.createManufacturedProductFromProduct(product, quantity, null, deleted);
+        ManufacturedProduct createdProduct = modelMapper.map(manufacturedProductDTO, ManufacturedProduct.class);
+        manufacturedProductService.createManufacturedProduct(createdProduct);
         ManufacturedProductDTO dto = modelMapper.map(createdProduct, ManufacturedProductDTO.class);
         return ResponseEntity.ok(dto);
     }
@@ -65,10 +54,10 @@ public class ManufacturedProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ManufacturedProductDTO> updateManufacturedProduct(
             @PathVariable(name = "id") Long id,
-            @RequestBody ManufacturedProduct updatedManufacturedProduct,
+            @RequestBody ManufacturedProductDTO updatedManufacturedProductDTO,
             @RequestHeader("Authorization") String auth) {
         try {
-            ManufacturedProduct updatedProduct = manufacturedProductService.updateManufacturedProduct(id, updatedManufacturedProduct);
+            ManufacturedProduct updatedProduct = manufacturedProductService.updateManufacturedProduct(id, updatedManufacturedProductDTO);
             ManufacturedProductDTO dto = modelMapper.map(updatedProduct, ManufacturedProductDTO.class);
             return ResponseEntity.ok(dto);
         } catch (IllegalArgumentException e) {

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ManufacturedProductDTO {
     private Long id;
-    private Long Product;
+    private Long productId;
     private int quantity;
     private LocalDateTime manufactureDate;
 

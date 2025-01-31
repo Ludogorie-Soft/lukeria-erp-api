@@ -1,9 +1,11 @@
 package com.example.ludogoriesoft.lukeriaerpapi.services;
 
 
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ManufacturedProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ManufacturedProduct;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ManufacturedProductRepository;
+import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +17,12 @@ import java.util.Optional;
 public class ManufacturedProductService {
 
     private final ManufacturedProductRepository manufacturedProductRepository;
+    private final ProductRepository productRepository;
 
     @Autowired
-    public ManufacturedProductService(ManufacturedProductRepository manufacturedProductRepository) {
+    public ManufacturedProductService(ManufacturedProductRepository manufacturedProductRepository, ProductRepository productRepository) {
         this.manufacturedProductRepository = manufacturedProductRepository;
+        this.productRepository = productRepository;
     }
 
     public ManufacturedProduct createManufacturedProduct(ManufacturedProduct manufacturedProduct) {
@@ -39,14 +43,17 @@ public class ManufacturedProductService {
         return manufacturedProductRepository.findById(id);
     }
 
-    public ManufacturedProduct updateManufacturedProduct(Long id, ManufacturedProduct updatedManufacturedProduct) {
-        return manufacturedProductRepository.findById(id).map(existingProduct -> {
-            existingProduct.setProduct(updatedManufacturedProduct.getProduct());
-            existingProduct.setQuantity(updatedManufacturedProduct.getQuantity());
-            existingProduct.setManufacture_date(updatedManufacturedProduct.getManufacture_date());
-            existingProduct.setDeleted(updatedManufacturedProduct.isDeleted());
-            return manufacturedProductRepository.save(existingProduct);
-        }).orElseThrow(() -> new IllegalArgumentException("ManufacturedProduct with ID " + id + " not found."));
+    public ManufacturedProduct updateManufacturedProduct(Long id, ManufacturedProductDTO updatedManufacturedProductDTO) {
+        try{
+            Optional<ManufacturedProduct> manufacturedProduct =  manufacturedProductRepository.findById(id);
+            manufacturedProduct.get().setProduct(productRepository.findById(updatedManufacturedProductDTO.getProductId()).orElse(null));
+            manufacturedProduct.get().setQuantity(updatedManufacturedProductDTO.getQuantity());
+            manufacturedProduct.get().setManufacture_date(updatedManufacturedProductDTO.getManufactureDate());
+            manufacturedProduct.get().setDeleted(false);
+            return manufacturedProductRepository.save(manufacturedProduct.get());
+        } catch(Exception e){
+            throw new IllegalArgumentException("ManufacturedProduct with ID " + id + " not found.");
+        }
     }
 
     public void deleteManufacturedProduct(Long id) {
