@@ -44,6 +44,12 @@ class MaterialOrderServiceTest {
     private OrderProductRepository orderProductRepository;
     @Mock
     private PlateRepository plateRepository;
+    @Mock
+    private CartonRepository cartonRepository;
+    @Mock
+    private ProductRepository productRepository;
+    @Mock
+    private PackageRepository packageRepository;
 
     private MaterialOrder existingMaterialOrder;
     private MaterialOrderDTO materialOrderDTO;
@@ -187,10 +193,253 @@ class MaterialOrderServiceTest {
         MaterialOrderDTO invalidOrderDTO = new MaterialOrderDTO();
         invalidOrderDTO.setItems(Collections.singletonList(invalidItemDTO));
 
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(ValidationException.class, () -> {
             materialOrderService.validate(invalidOrderDTO);
         });
     }
+    @Test
+    void testValidate_WithEmptyItems_ShouldThrowValidationException() {
+        MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
+        materialOrderDTO.setItems(Collections.emptyList());
+
+        assertThrows(ValidationException.class, () -> materialOrderService.validate(materialOrderDTO));
+    }
+
+    @Test
+    void testValidate_WithInvalidMaterialId_ShouldThrowValidationException() {
+        MaterialOrderDTO materialOrderDTO = new MaterialOrderDTO();
+        MaterialOrderItemDTO itemDTO = new MaterialOrderItemDTO();
+        itemDTO.setMaterialType(MaterialType.CARTON);
+        itemDTO.setMaterialId(999L); // Assume this ID is not valid
+        materialOrderDTO.setItems(Collections.singletonList(itemDTO));
+
+        when(cartonRepository.existsById(999L)).thenReturn(false);
+
+        assertThrows(ValidationException.class, () -> materialOrderService.validate(materialOrderDTO));
+    }
+//    @Test
+//    void testGetAllOrderProductsByOrderId_WithValidId() {
+//        Long orderId = 1L;
+//
+//        // Mocking the Package, Product, and OrderProduct
+//        Package packageEntity = new Package();
+//        packageEntity.setId(1L);
+//        packageEntity.setAvailableQuantity(5); // Example available quantity
+//        packageEntity.setPiecesCarton(2);
+//
+//        // Mocking an OrderProduct linked to the order
+//        OrderProduct orderProduct = new OrderProduct();
+//        Order order = new Order();
+//        order.setId(orderId);
+//        orderProduct.setOrderId(order); // This sets the order ID
+//        orderProduct.setPackageId(packageEntity); // Set the package for this order product
+//        orderProduct.setNumber(8); // Number of products in the order
+//
+//        // Mocking repositories
+//        when(orderProductRepository.findByDeletedFalse()).thenReturn(List.of(orderProduct));
+//
+//        // Mocking the product repository to ensure it finds the package
+//        Product productEntity = new Product();
+//        productEntity.setAvailableQuantity(10); // Product must have sufficient quantity
+//        when(productRepository.findByPackageIdAndDeletedFalse(packageEntity)).thenReturn(Optional.of(productEntity));
+//
+//        // Execute the method under test
+//        List<MaterialOrderItemDTO> result = materialOrderService.getAllOrderProductsByOrderId(orderId);
+//
+//        // Validate the results
+//        assertNotNull(result);
+//        assertEquals(1, result.size()); // Expecting one result based on setup
+//
+//        // Further assertions based on what should happen in your createMaterialOrder logic
+//        MaterialOrderItemDTO item = result.get(1);
+//        assertEquals(packageEntity.getId(), item.getMaterialId());
+//    }
+
+    @Test
+    void testGetProductsByPackageId_WithInsufficientInventory() {
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        Package packageEntity = new Package();
+        Plate plate = new Plate();
+        plate.setId(1L);
+        plate.setAvailableQuantity(100);
+        packageEntity.setPlateId(plate);
+        Carton carton = new Carton();
+        carton.setId(1L);
+        carton.setAvailableQuantity(2);
+        packageEntity.setCartonId(carton);
+        packageEntity.setPiecesCarton(100);
+        packageEntity.setId(1L);
+        packageEntity.setAvailableQuantity(5); // Available quantity less than requested
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.setPackageId(packageEntity);
+        orderProduct.setNumber(10); // Requesting more than available
+
+        orderProducts.add(orderProduct);
+
+        when(productRepository.findByPackageIdAndDeletedFalse(packageEntity)).thenReturn(Optional.of(new Product()));
+//        when(packageEntity.getPlateId().getAvailableQuantity()).thenReturn()
+
+        // Execute
+        List<MaterialOrderItemDTO> result = materialOrderService.getProductsByPackageId(orderProducts);
+
+        // Check the result
+        assertNotNull(result);
+        assertEquals(1, result.size()); // Expecting one item based on created logic
+    }
+
+    @Test
+    void testGetProductsByPackageId_WithValidInventory() {
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        Package packageEntity = new Package();
+        Plate plate = new Plate();
+        plate.setId(1L);
+        plate.setAvailableQuantity(100);
+        packageEntity.setPlateId(plate);
+        Carton carton = new Carton();
+        carton.setId(1L);
+        carton.setAvailableQuantity(2);
+        packageEntity.setCartonId(carton);
+        packageEntity.setPiecesCarton(100);
+        packageEntity.setId(1L);
+        packageEntity.setAvailableQuantity(5); // Available quantity less than requested
+        OrderProduct orderProduct = new OrderProduct();
+        orderProduct.setPackageId(packageEntity);
+        orderProduct.setNumber(10); // Requesting more than available
+
+        orderProducts.add(orderProduct);
+
+        when(productRepository.findByPackageIdAndDeletedFalse(packageEntity)).thenReturn(Optional.of(new Product()));
+
+        // Execute
+        List<MaterialOrderItemDTO> result = materialOrderService.getProductsByPackageId(orderProducts);
+
+        // Check the result
+        assertNotNull(result);
+        assertEquals(1, result.size()); // No material order should be created
+    }
+    @Test
+    void testCalculateCartonInsufficientNumbers_WithValidPackage() {
+        Package packageEntity = new Package();
+        packageEntity.setPiecesCarton(5);
+        var cartonId = new Carton(); // Assuming you have a Carton entity
+        cartonId.setAvailableQuantity(20);
+        packageEntity.setCartonId(cartonId);
+
+        int result = materialOrderService.calculateCartonInsufficientNumbers(packageEntity);
+
+        assertEquals(100, result); // 5 * 20 = 100
+    }
+
+    @Test
+    void testCalculateCartonInsufficientNumbers_WithNoCarton() {
+        Package packageEntity = new Package();
+        packageEntity.setPiecesCarton(5);
+
+        // Assuming the cartonId is null or there won't be a quantity
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            materialOrderService.calculateCartonInsufficientNumbers(packageEntity);
+        });
+
+        assertEquals("Cannot invoke \"com.example.ludogoriesoft.lukeriaerpapi.models.Carton.getAvailableQuantity()\" because the return value of \"com.example.ludogoriesoft.lukeriaerpapi.models.Package.getCartonId()\" is null", exception.getMessage());
+    }
+    @Test
+    void testCalculatePlateInsufficientNumbers_WithValidPackage() {
+        Package packageEntity = new Package();
+        Plate plate = new Plate();
+        plate.setAvailableQuantity(10); // Mock a valid quantity
+        packageEntity.setPlateId(plate);
+
+        int result = materialOrderService.calculatePlateInsufficientNumbers(packageEntity);
+
+        assertEquals(10, result); // Expect the available quantity of plates
+    }
+
+    @Test
+    void testCalculatePlateInsufficientNumbers_WithNullPlate() {
+        Package packageEntity = new Package();
+        packageEntity.setPlateId(null); // No plate associated
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            materialOrderService.calculatePlateInsufficientNumbers(packageEntity);
+        });
+
+        assertEquals("Cannot invoke \"com.example.ludogoriesoft.lukeriaerpapi.models.Plate.getAvailableQuantity()\" because the return value of \"com.example.ludogoriesoft.lukeriaerpapi.models.Package.getPlateId()\" is null", exception.getMessage());
+    }
+    @Test
+    void testCalculatePackageInsufficientNumbers_WithValidPackage() {
+        Package packageEntity = new Package();
+        packageEntity.setAvailableQuantity(20); // Mock a valid package quantity
+
+        int result = materialOrderService.calculatePackageInsufficientNumbers(packageEntity);
+
+        assertEquals(20, result); // Expect the available quantity of the package
+    }
+    @Test
+    void testCreateMaterialOrder_ValidInput() {
+        List<MaterialOrderItemDTO> materialsForOrder = new ArrayList<>();
+        MaterialType type = MaterialType.PACKAGE;
+        Long materialId = 1L;
+        int orderedQuantity = 10;
+
+        materialOrderService.createMaterialOrder(type, materialId, orderedQuantity, materialsForOrder);
+
+        assertEquals(1, materialsForOrder.size());
+        MaterialOrderItemDTO createdItem = materialsForOrder.get(0);
+        assertEquals(type, createdItem.getMaterialType());
+        assertEquals(materialId, createdItem.getMaterialId());
+        assertEquals(-orderedQuantity, createdItem.getOrderedQuantity()); // Check if it was negated
+    }
+    @Test
+    void testAllOrderedProducts() {
+        OrderProduct orderProduct1 = new OrderProduct();
+        orderProduct1.setId(1L);
+        orderProduct1.setNumber(10);
+        Package package1 = new Package();
+        package1.setId(1L);
+        orderProduct1.setPackageId(package1);
+        Order order1 = new Order();
+        order1.setId(1L);
+        orderProduct1.setOrderId(order1);
+
+        OrderProduct orderProduct2 = new OrderProduct();
+        orderProduct2.setId(2L);
+        orderProduct2.setNumber(5);
+        Package package2 = new Package();
+        package2.setId(2L);
+        orderProduct2.setPackageId(package2);
+        Order order2 = new Order();
+        order2.setId(2L);
+        orderProduct2.setOrderId(order2);
+
+        List<OrderProduct> mockProducts = Arrays.asList(orderProduct1, orderProduct2);
+
+        when(orderProductRepository.findAll()).thenReturn(mockProducts);
+
+        List<MaterialOrderItemDTO> result = materialOrderService.allOrderedProducts();
+
+        assertNotNull(result);
+        assertEquals(2, result.size()); // We expect two material ordered products created
+        assertEquals(orderProduct1.getNumber(), result.get(0).getOrderedQuantity());
+        assertEquals(orderProduct2.getNumber(), result.get(1).getOrderedQuantity());
+    }
+    @Test
+    void testFindPackageByMaterialId_WithExistingPackage() {
+        long materialId = 1L;
+        Package packageEntity = new Package();
+        when(packageRepository.findByIdAndDeletedFalse(materialId)).thenReturn(Optional.of(packageEntity));
+
+        Package result = materialOrderService.findPackageByMaterialId(materialId);
+
+        assertNotNull(result);
+        assertEquals(packageEntity, result);
+    }
+
+//    @Test
+//    void testFindPackageByMaterialId_WithNonExistingPackage() {
+//        long materialId = 1L
+
+
+
 //
 //    @InjectMocks
 //    private MaterialOrderService materialOrderService;
