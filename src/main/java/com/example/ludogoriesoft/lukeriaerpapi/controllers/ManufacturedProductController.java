@@ -24,7 +24,7 @@ public class ManufacturedProductController {
     private final ProductRepository productRepository;
 
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
         List<ManufacturedProduct> manufacturedProducts = manufacturedProductService.getAllManufacturedProducts();
         List<ManufacturedProductDTO> manufacturedProductDTOS = manufacturedProducts.stream()
