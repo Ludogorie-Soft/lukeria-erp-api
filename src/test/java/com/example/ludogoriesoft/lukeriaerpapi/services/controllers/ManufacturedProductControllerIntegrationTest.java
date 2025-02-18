@@ -75,7 +75,7 @@ class ManufacturedProductControllerIntegrationTest {
     void getAllManufacturedProducts_ShouldReturnList() throws Exception {
         when(manufacturedProductService.getAllManufacturedProducts()).thenReturn(Arrays.asList(new ManufacturedProduct(), new ManufacturedProduct()));
 
-        mockMvc.perform(get("/api/v1/manufactured-product")
+        mockMvc.perform(get("/api/v1/manufactured-product/all")
                         .header("Authorization", "Bearer token"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
