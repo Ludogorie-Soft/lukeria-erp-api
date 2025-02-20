@@ -24,9 +24,7 @@ public class ManufacturedProductController {
 
     @GetMapping
     public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
-        List<ManufacturedProduct> manufacturedProducts = manufacturedProductService.getAllManufacturedProducts();
-        return ResponseEntity.ok( manufacturedProducts.stream()
-                .map(product -> modelMapper.map(product, ManufacturedProductDTO.class)).toList());
+        return ResponseEntity.ok(manufacturedProductService.getAllManufacturedProducts());
     }
 
     @GetMapping("/{id}")

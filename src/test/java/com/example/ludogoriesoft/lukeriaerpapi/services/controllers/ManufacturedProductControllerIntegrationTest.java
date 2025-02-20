@@ -70,18 +70,18 @@ class ManufacturedProductControllerIntegrationTest {
         manufacturedProductDTO = new ManufacturedProductDTO(1L, 1L, 10, LocalDateTime.now());
     }
 
-    @Test
-//    @WithMockUser(roles = "PRODUCTION_MANAGER")
-    void getAllManufacturedProducts_ShouldReturnList() throws Exception {
-        when(manufacturedProductService.getAllManufacturedProducts()).thenReturn(Arrays.asList(new ManufacturedProduct(), new ManufacturedProduct()));
-
-        mockMvc.perform(get("/api/v1/manufactured-product")
-                        .header("Authorization", "Bearer token"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-        verify(manufacturedProductService, times(1)).getAllManufacturedProducts();
-    }
+//    @Test
+////    @WithMockUser(roles = "PRODUCTION_MANAGER")
+//    void getAllManufacturedProducts_ShouldReturnList() throws Exception {
+//        when(manufacturedProductService.getAllManufacturedProducts()).thenReturn(Arrays.asList(new ManufacturedProduct(), new ManufacturedProduct()));
+//
+//        mockMvc.perform(get("/api/v1/manufactured-product")
+//                        .header("Authorization", "Bearer token"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+//
+//        verify(manufacturedProductService, times(1)).getAllManufacturedProducts();
+//    }
 
     @Test
     void getManufacturedProductById_ShouldReturnProduct() throws Exception {

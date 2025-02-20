@@ -91,9 +91,8 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, "/api/v1/carton").hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.DELETE, CARTON_URL).hasAnyRole(ADMIN.name())
                 .requestMatchers(HttpMethod.PUT, CARTON_URL).hasAnyRole(ADMIN.name())
+                .requestMatchers(HttpMethod.GET, "/api/v1/carton/manufactured-products").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), CUSTOMER.name())
 
-                .requestMatchers(HttpMethod.GET, "/api/v1/manufactured-product").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), CUSTOMER.name()).requestMatchers(HttpMethod.POST, "/api/v1/manufactured-product").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), CUSTOMER.name()).requestMatchers(HttpMethod.DELETE, "/api/v1/manufactured-product").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), CUSTOMER.name()).requestMatchers(HttpMethod.PUT, "/api/v1/manufactured-product").hasAnyRole(PRODUCTION_MANAGER.name(), ADMIN.name(),TRANSPORT_MANAGER.name(), CUSTOMER.name())
-          
                 .requestMatchers(CLIENT_USER_URL).hasAnyRole(ADMIN.name(), CUSTOMER.name(), TRANSPORT_MANAGER.name(), PRODUCTION_MANAGER.name())
 
 //                 .requestMatchers(HttpMethod.GET,"/api/v1/client-user").hasAnyRole(ADMIN.name(),CUSTOMER.name())

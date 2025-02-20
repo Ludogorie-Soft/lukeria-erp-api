@@ -1,7 +1,9 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ManufacturedProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.services.CartonService;
+import com.example.ludogoriesoft.lukeriaerpapi.services.ManufacturedProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -16,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CartonController {
     private final CartonService cartonService;
+    private final ManufacturedProductService manufacturedProductService;
 
     @GetMapping
     public ResponseEntity<List<CartonDTO>> getAllCartons(@RequestHeader("Authorization") String auth) {
@@ -42,5 +45,9 @@ public class CartonController {
     public ResponseEntity<String> deleteCartonById(@PathVariable("id") Long id, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
         cartonService.deleteCarton(id);
         return ResponseEntity.ok("Carton with id: " + id + " has been deleted successfully!");
+    }
+    @GetMapping("/manufactured-products")
+    public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
+        return ResponseEntity.ok(manufacturedProductService.getAllManufacturedProducts());
     }
 }
