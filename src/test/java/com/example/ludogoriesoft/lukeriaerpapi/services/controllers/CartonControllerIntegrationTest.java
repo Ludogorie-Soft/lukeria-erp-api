@@ -2,6 +2,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.controllers.CartonController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.ManufacturedProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.CartonService;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ManufacturedProductService;
@@ -268,6 +269,30 @@ class CartonControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string(containsString("")));
+    }
+    @Test
+    void testGetAllManufacturedProducts() throws Exception {
+        ManufacturedProductDTO productDTO1 = new ManufacturedProductDTO();
+        productDTO1.setId(1L);
+
+        ManufacturedProductDTO productDTO2 = new ManufacturedProductDTO();
+        productDTO2.setId(2L);
+
+        List<ManufacturedProductDTO> productDTOList = Arrays.asList(productDTO1, productDTO2);
+
+        when(manufacturedProductService.getAllManufacturedProducts()).thenReturn(productDTOList);
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/carton/manufactured-products")
+                        .header(HttpHeaders.AUTHORIZATION, "your-authorization-token")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andReturn();
+
+        String response = mvcResult.getResponse().getContentAsString();
+        Assertions.assertNotNull(response);
     }
 }
 

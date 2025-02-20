@@ -22,10 +22,10 @@ public class ManufacturedProductController {
     private final ProductRepository productRepository;
 
 
-    @GetMapping
-    public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
-        return ResponseEntity.ok(manufacturedProductService.getAllManufacturedProducts());
-    }
+//    @GetMapping
+//    public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
+//        return ResponseEntity.ok(manufacturedProductService.getAllManufacturedProducts());
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ManufacturedProductDTO> getManufacturedProductById(
