@@ -10,9 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/manufactured-product")
@@ -27,10 +25,8 @@ public class ManufacturedProductController {
     @GetMapping
     public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
         List<ManufacturedProduct> manufacturedProducts = manufacturedProductService.getAllManufacturedProducts();
-        List<ManufacturedProductDTO> manufacturedProductDTOS = manufacturedProducts.stream()
-                .map(product -> modelMapper.map(product, ManufacturedProductDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(manufacturedProductDTOS);
+        return ResponseEntity.ok( manufacturedProducts.stream()
+                .map(product -> modelMapper.map(product, ManufacturedProductDTO.class)).toList());
     }
 
     @GetMapping("/{id}")
