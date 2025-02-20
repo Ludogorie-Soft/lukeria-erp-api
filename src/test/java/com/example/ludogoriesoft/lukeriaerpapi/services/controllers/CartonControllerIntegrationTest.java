@@ -4,6 +4,7 @@ import com.example.ludogoriesoft.lukeriaerpapi.controllers.CartonController;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.CartonDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.exeptions.ApiExceptionHandler;
 import com.example.ludogoriesoft.lukeriaerpapi.services.CartonService;
+import com.example.ludogoriesoft.lukeriaerpapi.services.ManufacturedProductService;
 import com.example.ludogoriesoft.lukeriaerpapi.slack.SlackService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.ValidationException;
@@ -56,6 +57,9 @@ class CartonControllerIntegrationTest {
 
     @MockBean
     private CartonService cartonService;
+
+    @MockBean
+    private ManufacturedProductService manufacturedProductService;
 
     private static String asJsonString(final Object obj) {
         try {
