@@ -23,6 +23,7 @@ public class ManufacturedProductController {
     private final ModelMapper modelMapper;
     private final ProductRepository productRepository;
 
+
     @GetMapping
     public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
         List<ManufacturedProduct> manufacturedProducts = manufacturedProductService.getAllManufacturedProducts();
