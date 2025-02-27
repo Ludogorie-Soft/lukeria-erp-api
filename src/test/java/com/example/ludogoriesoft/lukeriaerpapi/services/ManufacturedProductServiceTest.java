@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -26,6 +27,9 @@ class ManufacturedProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ModelMapper modelMapper;
 
     @InjectMocks
     private ManufacturedProductService manufacturedProductService;
@@ -65,7 +69,7 @@ class ManufacturedProductServiceTest {
         List<ManufacturedProduct> products = Arrays.asList(new ManufacturedProduct(), new ManufacturedProduct());
         when(manufacturedProductRepository.findAll()).thenReturn(products);
 
-        List<ManufacturedProduct> result = manufacturedProductService.getAllManufacturedProducts();
+        List<ManufacturedProductDTO> result = manufacturedProductService.getAllManufacturedProducts();
 
         assertEquals(2, result.size());
         verify(manufacturedProductRepository, times(1)).findAll();
@@ -148,7 +152,7 @@ class ManufacturedProductServiceTest {
     void getAllManufacturedProducts_ShouldReturnEmptyListWhenNoProductsExist() {
         when(manufacturedProductRepository.findAll()).thenReturn(List.of());
 
-        List<ManufacturedProduct> result = manufacturedProductService.getAllManufacturedProducts();
+        List<ManufacturedProductDTO> result = manufacturedProductService.getAllManufacturedProducts();
 
         assertTrue(result.isEmpty());
         verify(manufacturedProductRepository, times(1)).findAll();

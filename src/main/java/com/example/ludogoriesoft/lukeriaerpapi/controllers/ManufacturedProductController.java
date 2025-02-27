@@ -2,17 +2,22 @@ package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.ManufacturedProductDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.models.ManufacturedProduct;
-import com.example.ludogoriesoft.lukeriaerpapi.models.Product;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.ProductRepository;
 import com.example.ludogoriesoft.lukeriaerpapi.services.ManufacturedProductService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/manufactured-product")
@@ -20,17 +25,15 @@ import java.util.stream.Collectors;
 public class ManufacturedProductController {
 
     private final ManufacturedProductService manufacturedProductService;
+
     private final ModelMapper modelMapper;
+
     private final ProductRepository productRepository;
 
 
     @GetMapping
     public ResponseEntity<List<ManufacturedProductDTO>> getAllManufacturedProducts(@RequestHeader("Authorization") String auth) {
-        List<ManufacturedProduct> manufacturedProducts = manufacturedProductService.getAllManufacturedProducts();
-        List<ManufacturedProductDTO> manufacturedProductDTOS = manufacturedProducts.stream()
-                .map(product -> modelMapper.map(product, ManufacturedProductDTO.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(manufacturedProductDTOS);
+        return ResponseEntity.ok(manufacturedProductService.getAllManufacturedProducts());
     }
 
     @GetMapping("/{id}")
@@ -73,4 +76,5 @@ public class ManufacturedProductController {
         manufacturedProductService.deleteManufacturedProduct(id);
         return ResponseEntity.noContent().build();
     }
+
 }
