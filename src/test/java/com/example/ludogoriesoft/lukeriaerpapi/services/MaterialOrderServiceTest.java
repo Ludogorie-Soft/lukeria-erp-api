@@ -33,6 +33,8 @@ class MaterialOrderServiceTest {
 
     @Mock
     private MaterialOrderRepository materialOrderRepository;
+    @Mock
+    private  MaterialOrderItemRepository materialOrderItemRepository;
 
     @Mock
     private ModelMapper modelMapper;
@@ -1422,4 +1424,150 @@ class MaterialOrderServiceTest {
 //        materialOrderService.createPackageInsufficientMaterialOrder(allNeedsMaterialOrder, packageEntity, allMaterialsForAllOrders);
 //        assertEquals(0, allMaterialsForAllOrders.size());
 //    }
+@Test
+void testUpdateMaterialOrderItem_Success() {
+    MaterialOrderItemDTO materialOrderItemDTO = new MaterialOrderItemDTO();
+    materialOrderItemDTO.setId(1L);
+    materialOrderItemDTO.setMaterialType(MaterialType.CARTON);
+    materialOrderItemDTO.setMaterialId(100L);
+    materialOrderItemDTO.setReceivedQuantity(5);
+
+    existingMaterialOrder = new MaterialOrder();
+    existingMaterialOrder.setId(1L);
+
+    MaterialOrderItem materialOrderItem = new MaterialOrderItem();
+    materialOrderItem.setId(1L);
+    materialOrderItem.setMaterialType(MaterialType.CARTON);
+    materialOrderItem.setMaterialId(100L);
+    materialOrderItem.setReceivedQuantity(5);
+    when(materialOrderRepository.findByMaterialOrderItemId(1L))
+            .thenReturn(Optional.of(existingMaterialOrder));
+    when(materialOrderMapper.toItemEntity(materialOrderItemDTO, existingMaterialOrder))
+            .thenReturn(materialOrderItem);
+    Carton carton = new Carton();
+    carton.setAvailableQuantity(10); // Ensure non-null value
+    when(cartonRepository.findById(100L))
+            .thenReturn(Optional.of(carton)); // Mock existing carton
+
+    materialOrderService.updateMaterialOrderItem(materialOrderItemDTO);
+
+    verify(materialOrderItemRepository).save(materialOrderItem);
+    verify(cartonRepository).save(any(Carton.class)); // Ensure carton quantity is updated
+}
+
+    @Test
+    void testUpdateMaterialOrderItem_MaterialOrderNotFound() {
+        MaterialOrderItemDTO materialOrderItemDTO = new MaterialOrderItemDTO();
+        materialOrderItemDTO.setId(1L);
+        materialOrderItemDTO.setMaterialType(MaterialType.CARTON);
+        materialOrderItemDTO.setMaterialId(100L);
+        materialOrderItemDTO.setReceivedQuantity(5);
+
+        existingMaterialOrder = new MaterialOrder();
+        existingMaterialOrder.setId(1L);
+
+        MaterialOrderItem materialOrderItem = new MaterialOrderItem();
+        materialOrderItem.setId(1L);
+        materialOrderItem.setMaterialType(MaterialType.CARTON);
+        materialOrderItem.setMaterialId(100L);
+        materialOrderItem.setReceivedQuantity(5);
+        when(materialOrderRepository.findByMaterialOrderItemId(1L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> {
+            materialOrderService.updateMaterialOrderItem(materialOrderItemDTO);
+        });
+    }
+
+    @Test
+    void testUpdateMaterialOrderItem_CartonNotFound() {
+        MaterialOrderItemDTO materialOrderItemDTO = new MaterialOrderItemDTO();
+        materialOrderItemDTO.setId(1L);
+        materialOrderItemDTO.setMaterialType(MaterialType.CARTON);
+        materialOrderItemDTO.setMaterialId(100L);
+        materialOrderItemDTO.setReceivedQuantity(5);
+
+        existingMaterialOrder = new MaterialOrder();
+        existingMaterialOrder.setId(1L);
+
+        MaterialOrderItem materialOrderItem = new MaterialOrderItem();
+        materialOrderItem.setId(1L);
+        materialOrderItem.setMaterialType(MaterialType.CARTON);
+        materialOrderItem.setMaterialId(100L);
+        materialOrderItem.setReceivedQuantity(5);
+        when(materialOrderRepository.findByMaterialOrderItemId(1L))
+                .thenReturn(Optional.of(existingMaterialOrder));
+        when(materialOrderMapper.toItemEntity(materialOrderItemDTO, existingMaterialOrder))
+                .thenReturn(materialOrderItem);
+        when(cartonRepository.findById(100L))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> {
+            materialOrderService.updateMaterialOrderItem(materialOrderItemDTO);
+        });
+    }
+
+    @Test
+    void testUpdateMaterialOrderItem_PackageNotFound() {
+        MaterialOrderItemDTO materialOrderItemDTO = new MaterialOrderItemDTO();
+        materialOrderItemDTO.setId(1L);
+        materialOrderItemDTO.setMaterialType(MaterialType.PACKAGE);
+        materialOrderItemDTO.setMaterialId(100L);
+        materialOrderItemDTO.setReceivedQuantity(5);
+
+        // Create the existing MaterialOrderItem and add it to the order
+        MaterialOrderItem existingItem = new MaterialOrderItem();
+        existingItem.setId(1L);
+
+        existingMaterialOrder = new MaterialOrder();
+        existingMaterialOrder.setId(1L);
+        existingMaterialOrder.setItems(new ArrayList<>());
+        existingMaterialOrder.getItems().add(existingItem); // Add the item to the order
+
+        when(materialOrderRepository.findByMaterialOrderItemId(1L))
+                .thenReturn(Optional.of(existingMaterialOrder));
+
+//        when(packageRepository.findById(100L))
+//                .thenReturn(Optional.empty());
+
+        assertThrows(NullPointerException.class, () -> {
+            materialOrderService.updateMaterialOrderItem(materialOrderItemDTO);
+        });
+    }
+
+
+
+    @Test
+    void testUpdateMaterialOrderItem_PlateNotFound() {
+        // Arrange
+        MaterialOrderItemDTO materialOrderItemDTO = new MaterialOrderItemDTO();
+        materialOrderItemDTO.setId(1L);
+        materialOrderItemDTO.setMaterialType(MaterialType.PLATE); // Set to PLATE initially
+        materialOrderItemDTO.setMaterialId(100L);
+        materialOrderItemDTO.setReceivedQuantity(5);
+
+        existingMaterialOrder = new MaterialOrder();
+        existingMaterialOrder.setId(1L);
+
+        MaterialOrderItem materialOrderItem = new MaterialOrderItem();
+        materialOrderItem.setId(1L);
+        materialOrderItem.setMaterialType(MaterialType.PLATE); // Ensure consistency
+        materialOrderItem.setMaterialId(100L);
+        materialOrderItem.setReceivedQuantity(5);
+
+        when(materialOrderRepository.findByMaterialOrderItemId(1L))
+                .thenReturn(Optional.of(existingMaterialOrder));
+        when(materialOrderMapper.toItemEntity(materialOrderItemDTO, existingMaterialOrder))
+                .thenReturn(materialOrderItem);
+
+        // Mocking plateRepository to return empty (simulate "plate not found")
+        when(plateRepository.findById(100L))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NoSuchElementException.class, () -> {
+            materialOrderService.updateMaterialOrderItem(materialOrderItemDTO);
+        });
+    }
+
 }
