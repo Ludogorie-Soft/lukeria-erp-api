@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -30,39 +31,38 @@ class MaterialOrderMapperTest {
     private PackageRepository packageRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     void testToEntity_WithValidMaterialOrderDTO() {
-        // Arrange
         MaterialOrderDTO dto = new MaterialOrderDTO();
         dto.setId(1L);
         dto.setOrderDate(LocalDate.now().atStartOfDay());
         dto.setStatus("New");
-        dto.setArrivalDate(java.time.LocalDate.now());
+        dto.setArrivalDate(LocalDate.now());
         dto.setDeleted(false);
 
         MaterialOrderItemDTO itemDto = new MaterialOrderItemDTO();
         itemDto.setId(1L);
-        itemDto.setMaterialType(MaterialType.PLATE); // or any valid MaterialType
+        itemDto.setMaterialType(MaterialType.PLATE);
         itemDto.setMaterialId(1L);
         itemDto.setOrderedQuantity(10);
         itemDto.setMaterialName("Plate Material");
+        itemDto.setReceivedQuantity(10);
 
         dto.setItems(Collections.singletonList(itemDto));
 
-        // Act
         MaterialOrder result = materialOrderMapper.toEntity(dto);
 
-        // Assert
         assertNotNull(result);
         assertEquals(dto.getId(), result.getId());
         assertEquals(dto.getStatus(), result.getStatus());
         assertEquals(dto.getArrivalDate(), result.getArrivalDate());
         assertFalse(result.isDeleted());
         assertEquals(1, result.getItems().size());
+
         MaterialOrderItem item = result.getItems().get(0);
         assertEquals(itemDto.getId(), item.getId());
         assertEquals(itemDto.getMaterialType(), item.getMaterialType());
@@ -73,72 +73,67 @@ class MaterialOrderMapperTest {
 
     @Test
     void testToItemEntity_WithValidMaterialOrderItemDTO() {
-        // Arrange
         MaterialOrderItemDTO dto = new MaterialOrderItemDTO();
         dto.setId(1L);
         dto.setMaterialType(MaterialType.PACKAGE);
         dto.setMaterialId(1L);
         dto.setOrderedQuantity(5);
         dto.setMaterialName("Package Item");
+        dto.setReceivedQuantity(10);
 
         MaterialOrder order = new MaterialOrder();
-        order.setId(2L); // Example order ID
+        order.setId(2L);
 
-        when(packageRepository.findById(1L)).thenReturn(java.util.Optional.of(new Package())); // Mock package retrieval
+        when(packageRepository.findById(1L)).thenReturn(Optional.of(new Package()));
 
-        // Act
         MaterialOrderItem result = materialOrderMapper.toItemEntity(dto, order);
 
-        // Assert
         assertNotNull(result);
         assertEquals(dto.getId(), result.getId());
         assertEquals(dto.getMaterialType(), result.getMaterialType());
         assertEquals(dto.getMaterialId(), result.getMaterialId());
         assertEquals(dto.getOrderedQuantity(), result.getOrderedQuantity());
         assertEquals(dto.getMaterialName(), result.getMaterialName());
-        assertEquals(order, result.getOrder()); // Ensure the order reference is set
+        assertEquals(order, result.getOrder());
     }
 
     @Test
     void testToItemEntity_WithMaterialTypePackage_ShouldGetPhoto() {
-        // Arrange
         MaterialOrderItemDTO dto = new MaterialOrderItemDTO();
         dto.setMaterialType(MaterialType.PACKAGE);
-        dto.setMaterialId(1L); // Assume this is a valid ID for the package
+        dto.setMaterialId(1L);
         dto.setOrderedQuantity(170);
+        dto.setReceivedQuantity(10);
 
         MaterialOrder order = new MaterialOrder();
 
         Package pkg = new Package();
-        pkg.setPhoto("photo_url"); // Mock photo URL
-        when(packageRepository.findById(1L)).thenReturn(java.util.Optional.of(pkg));
+        pkg.setPhoto("photo_url");
+        when(packageRepository.findById(1L)).thenReturn(Optional.of(pkg));
 
-        // Act
         MaterialOrderItem result = materialOrderMapper.toItemEntity(dto, order);
-        // Assert
+
         assertNotNull(result);
-        assertEquals("photo_url", result.getPhoto()); // Check that the photo URL is set correctly
+        assertEquals("photo_url", result.getPhoto());
     }
 
     @Test
     void testToItemEntity_WithNullItems_ShouldNotThrowException() {
-        // Arrange
         MaterialOrderItemDTO dto = new MaterialOrderItemDTO();
         dto.setMaterialType(MaterialType.PACKAGE);
         dto.setMaterialId(1L);
         dto.setOrderedQuantity(5);
         dto.setMaterialName("Sample Material");
+        dto.setReceivedQuantity(10);
 
         MaterialOrder order = new MaterialOrder();
-        when(packageRepository.findById(anyLong())).thenReturn(java.util.Optional.empty());
+        when(packageRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        // Act
         MaterialOrderItem result = materialOrderMapper.toItemEntity(dto, order);
 
-        // Assert
         assertNotNull(result);
-        assertNull(result.getPhoto()); // Ensure that no photo is set when no package exists
-        assertEquals(order, result.getOrder()); // Ensure the order reference is set
+        assertNull(result.getPhoto());
+        assertEquals(order, result.getOrder());
     }
 }
 
