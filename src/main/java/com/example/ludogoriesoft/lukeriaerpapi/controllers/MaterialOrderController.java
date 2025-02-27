@@ -1,6 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderItemDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrderItem;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MaterialOrderService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -53,7 +55,20 @@ public class MaterialOrderController {
                     .body("Грешка при създаването на поръчка: " + e.getMessage());
         }
     }
-
+    @GetMapping("/items")
+    public ResponseEntity<List<MaterialOrderItemDTO>> getAllMaterialOrdersItems(@RequestHeader("Authorization") String auth) {
+        return ResponseEntity.ok(materialOrderService.getAllMaterialOrderItems());
+    }
+    @PutMapping("/item/update")
+    public ResponseEntity<?> updateMaterialOrdersItem(@Valid @RequestBody MaterialOrderItemDTO materialOrderItemDTO, @RequestHeader("Authorization") String auth) {
+        try {
+            MaterialOrderItem updatedMaterialOrderItem = materialOrderService.updateMaterialOrderItem(materialOrderItemDTO);
+            return ResponseEntity.ok(materialOrderItemDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Грешка при създаването на поръчка: " + e.getMessage());
+        }
+    }
 
 //    @GetMapping("products/{id}")
 //    public List<MaterialOrderDTO> getAllProductsByOrderId(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) {

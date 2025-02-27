@@ -32,6 +32,7 @@ public class MaterialOrderService {
     private final OrderProductRepository orderProductRepository;
     private final ModelMapper modelMapper;
     private final MaterialOrderMapper materialOrderMapper;
+    private final MaterialOrderItemRepository materialOrderItemRepository;
 
     public List<MaterialOrderDTO> getAllMaterialOrders() {
         List<MaterialOrder> materialOrders = materialOrderRepository.findByDeletedFalse();
@@ -132,17 +133,17 @@ public class MaterialOrderService {
             switch (materialOrderDTO.getItems().get(i).getMaterialType().toString()) {
                 case "CARTON" -> {
                     if (!cartonRepository.existsById(materialOrderDTO.getItems().get(i).getMaterialId())) {
-                        throw new ValidationException("Invalid Carton ID: "+materialOrderDTO.getItems().get(i).getMaterialId());
+                        throw new ValidationException("Invalid Carton ID: " + materialOrderDTO.getItems().get(i).getMaterialId());
                     }
                 }
                 case "PACKAGE" -> {
                     if (!packageRepository.existsById(materialOrderDTO.getItems().get(i).getMaterialId())) {
-                        throw new ValidationException("Invalid Package ID: "+materialOrderDTO.getItems().get(i).getMaterialId());
+                        throw new ValidationException("Invalid Package ID: " + materialOrderDTO.getItems().get(i).getMaterialId());
                     }
                 }
                 case "PLATE" -> {
                     if (!plateRepository.existsById(materialOrderDTO.getItems().get(i).getMaterialId())) {
-                        throw new ValidationException("Invalid Plate ID : "+materialOrderDTO.getItems().get(i).getMaterialId());
+                        throw new ValidationException("Invalid Plate ID : " + materialOrderDTO.getItems().get(i).getMaterialId());
                     }
                 }
                 default -> throw new ValidationException("Invalid Material Type");
@@ -250,7 +251,7 @@ public class MaterialOrderService {
                 .orElseThrow(() -> new RuntimeException("Продуктът не беше намерен"));
     }
 
-//    public void createPlateInsufficientMaterialOrder(MaterialOrderDTO allNeedsMaterialOrder, Package packageEntity, List<MaterialOrderDTO> allMaterialsForAllOrders) {
+    //    public void createPlateInsufficientMaterialOrder(MaterialOrderDTO allNeedsMaterialOrder, Package packageEntity, List<MaterialOrderDTO> allMaterialsForAllOrders) {
 //        if (calculatePlateInsufficientNumbers(packageEntity) < allNeedsMaterialOrder.getOrderedQuantity()) {
 //            int orderedQuantity = calculatePlateInsufficientNumbers(packageEntity) - allNeedsMaterialOrder.getOrderedQuantity();
 //            createMaterialOrder(PLATE, packageEntity.getPlateId().getId(), orderedQuantity, allMaterialsForAllOrders);
@@ -270,5 +271,43 @@ public class MaterialOrderService {
 //            createMaterialOrder(MaterialType.PACKAGE, packageEntity.getId(), orderedQuantity, allMaterialsForAllOrders);
 //        }
 //    }
+    public List<MaterialOrderItemDTO> getAllMaterialOrderItems() {
+        List<MaterialOrderItem> materialOrderItems = materialOrderItemRepository.findAll();
+        return materialOrderItems.stream().map(materialOrderItem -> modelMapper.map(materialOrderItem, MaterialOrderItemDTO.class)).toList();
+    }
 
+    public MaterialOrderItem updateMaterialOrderItem(MaterialOrderItemDTO materialOrderItemDTO) {
+//        Optional<MaterialOrder> materialOrder = materialOrderRepository.findByMaterialOrderItemId(materialOrderItemDTO.getId());
+        MaterialOrder materialOrder = materialOrderRepository.findByMaterialOrderItemId(materialOrderItemDTO.getId())
+                .orElseThrow(() -> new NoSuchElementException("Material order cannot be found for the specified material order item"));
+
+        MaterialOrderItem materialOrderItem = materialOrderMapper.toItemEntity(materialOrderItemDTO, materialOrder);
+        materialOrderItemRepository.save(materialOrderItem);
+        if (materialOrderItem.getMaterialType().toString().equals("CARTON")) {
+            Optional<Carton> carton = cartonRepository.findById(materialOrderItem.getMaterialId());
+            if (carton.isPresent()) {
+                carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() - materialOrderItem.getReceivedQuantity());
+                cartonRepository.save(carton.get());
+            } else {
+                throw new NoSuchElementException("carton cannot be found");
+            }
+        } else if (materialOrderItem.getMaterialType().toString().equals("PACKAGE")) {
+            Optional<Package> specificPackage = packageRepository.findById(materialOrderItem.getMaterialId());
+            if (specificPackage.isPresent()) {
+                specificPackage.get().setAvailableQuantity(specificPackage.get().getAvailableQuantity() - materialOrderItem.getReceivedQuantity());
+                packageRepository.save(specificPackage.get());
+            } else {
+                throw new NoSuchElementException("package cannot be found");
+            }
+        } else if (materialOrderItem.getMaterialType().toString().equals("PLATE")) {
+            Optional<Plate> plate = plateRepository.findById(materialOrderItem.getMaterialId());
+            if (plate.isPresent()) {
+                plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() - materialOrderItem.getReceivedQuantity());
+                plateRepository.save(plate.get());
+            } else {
+                throw new NoSuchElementException("plate cannot be found");
+            }
+        }
+        return materialOrderItem;
+    }
 }

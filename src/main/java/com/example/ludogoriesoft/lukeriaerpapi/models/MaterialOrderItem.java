@@ -26,6 +26,8 @@ public class MaterialOrderItem {
 
     @Column(name = "ordered_quantity")
     private int orderedQuantity;
+    @Column(name = "received_quantity")
+    private int receivedQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")

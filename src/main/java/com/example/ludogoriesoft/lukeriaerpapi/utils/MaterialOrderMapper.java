@@ -40,6 +40,7 @@ public class MaterialOrderMapper {
         item.setMaterialType(dto.getMaterialType());
         item.setMaterialId(dto.getMaterialId());
         item.setOrderedQuantity(dto.getOrderedQuantity());
+        item.setReceivedQuantity(dto.getReceivedQuantity());
         item.setMaterialName(dto.getMaterialName());
         if (item.getMaterialType() != null && item.getMaterialType().toString().equals("PACKAGE")) {
             // Fetch the package photo
