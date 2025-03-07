@@ -1,6 +1,8 @@
 package com.example.ludogoriesoft.lukeriaerpapi.controllers;
 
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderItemDTO;
+import com.example.ludogoriesoft.lukeriaerpapi.models.MaterialOrderItem;
 import com.example.ludogoriesoft.lukeriaerpapi.services.MaterialOrderService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -42,22 +44,47 @@ public class MaterialOrderController {
         materialOrderService.deleteMaterialOrder(id);
         return ResponseEntity.ok("Material Order with id: " + id + " has been deleted successfully!");
     }
-
-    @GetMapping("products/{id}")
-    public List<MaterialOrderDTO> getAllProductsByOrderId(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) {
-        return materialOrderService.getAllOrderProductsByOrderId(id);
+    @PostMapping("/submit")
+    public ResponseEntity<?> submitMaterialOrder(@Valid @RequestBody MaterialOrderDTO materialOrderDTO,
+                                                 @RequestHeader("Authorization") String auth) {
+        try {
+            MaterialOrderDTO createdOrder = materialOrderService.createMaterialOrder(materialOrderDTO);
+            return ResponseEntity.ok(createdOrder);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Грешка при създаването на поръчка: " + e.getMessage());
+        }
+    }
+    @GetMapping("/items")
+    public ResponseEntity<List<MaterialOrderItemDTO>> getAllMaterialOrdersItems(@RequestHeader("Authorization") String auth) {
+        return ResponseEntity.ok(materialOrderService.getAllMaterialOrderItems());
+    }
+    @PutMapping("/item/update")
+    public ResponseEntity<?> updateMaterialOrdersItem(@Valid @RequestBody MaterialOrderItemDTO materialOrderItemDTO, @RequestHeader("Authorization") String auth) {
+        try {
+            MaterialOrderItem updatedMaterialOrderItem = materialOrderService.updateMaterialOrderItem(materialOrderItemDTO);
+            return ResponseEntity.ok(materialOrderItemDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Грешка при създаването на поръчка: " + e.getMessage());
+        }
     }
 
-    @GetMapping("/all-ordered-products")
-    public List<MaterialOrderDTO> allOrderedProducts(@RequestHeader("Authorization") String auth) {
-        return materialOrderService.allOrderedProducts();
-
-    }
-
-    @GetMapping("/all-missing-materials")
-    public List<MaterialOrderDTO> allAvailableProducts(@RequestHeader("Authorization") String auth) {
-        List<MaterialOrderDTO> allOrderedProducts = materialOrderService.allOrderedProducts();
-        return materialOrderService.allMissingMaterials(allOrderedProducts);
-    }
+//    @GetMapping("products/{id}")
+//    public List<MaterialOrderDTO> getAllProductsByOrderId(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) {
+//        return materialOrderService.getAllOrderProductsByOrderId(id);
+//    }
+//
+//    @GetMapping("/all-ordered-products")
+//    public List<MaterialOrderDTO> allOrderedProducts(@RequestHeader("Authorization") String auth) {
+//        return materialOrderService.allOrderedProducts();
+//
+//    }
+//
+//    @GetMapping("/all-missing-materials")
+//    public List<MaterialOrderDTO> allAvailableProducts(@RequestHeader("Authorization") String auth) {
+//        List<MaterialOrderDTO> allOrderedProducts = materialOrderService.allOrderedProducts();
+//        return materialOrderService.allMissingMaterials(allOrderedProducts);
+//    }
 
 }

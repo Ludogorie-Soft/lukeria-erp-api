@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -15,29 +18,23 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Table(name = "material_order")
 public class MaterialOrder {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "ordered_quantity")
-    private int orderedQuantity;
+    @Column(name = "order_date")
+    private LocalDateTime orderDate = LocalDateTime.now();
 
-    @Column(name = "received_quantity")
-    private Integer receivedQuantity;
-
-    @Column(name = "material_id")
-    private Long materialId;
-
-    @Column(name = "material_type")
-    @Enumerated(EnumType.STRING)
-    private MaterialType materialType;
-
-    @Column(name = "material_price")
-    private BigDecimal materialPrice;
+    @Column(name = "status")
+    private String status = "PENDING"; // Default status
 
     @Column(name = "arrival_date")
     private LocalDate arrivalDate;
 
     @Column(name = "is_deleted")
     private boolean deleted;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MaterialOrderItem> items = new ArrayList<>();
 }
