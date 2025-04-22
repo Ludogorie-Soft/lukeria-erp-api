@@ -3,6 +3,7 @@ package com.example.ludogoriesoft.lukeriaerpapi.services;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.dtos.MaterialOrderItemDTO;
 import com.example.ludogoriesoft.lukeriaerpapi.enums.MaterialType;
+import com.example.ludogoriesoft.lukeriaerpapi.enums.OrderStatus;
 import com.example.ludogoriesoft.lukeriaerpapi.models.Package;
 import com.example.ludogoriesoft.lukeriaerpapi.models.*;
 import com.example.ludogoriesoft.lukeriaerpapi.repository.*;
@@ -309,5 +310,43 @@ public class MaterialOrderService {
             }
         }
         return materialOrderItem;
+    }
+
+    public MaterialOrderDTO updateWholeMaterialOrder(Long id, MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
+        MaterialOrder materialOrder = modelMapper.map(materialOrderDTO, MaterialOrder.class);
+        List<MaterialOrderItem> items = materialOrder.getItems();
+
+        for (MaterialOrderItem item : items){
+            item.setOrder(materialOrder);
+            if (item.getMaterialType().toString().equalsIgnoreCase("CARTON")) {
+                Optional<Carton> carton = cartonRepository.findById(item.getMaterialId());
+                if (carton.isPresent()) {
+                    carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() + item.getReceivedQuantity());
+                    cartonRepository.save(carton.get());
+                } else {
+                    throw new NoSuchElementException("carton cannot be found");
+                }
+            } else if (item.getMaterialType().toString().equalsIgnoreCase("PACKAGE")) {
+                Optional<Package> specificPackage = packageRepository.findById(item.getMaterialId());
+                if (specificPackage.isPresent()) {
+                    specificPackage.get().setAvailableQuantity(specificPackage.get().getAvailableQuantity() + item.getReceivedQuantity());
+                    packageRepository.save(specificPackage.get());
+                } else {
+                    throw new NoSuchElementException("package cannot be found");
+                }
+            } else if (item.getMaterialType().toString().equals("PLATE")) {
+                Optional<Plate> plate = plateRepository.findById(item.getMaterialId());
+                if (plate.isPresent()) {
+                    plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() + item.getReceivedQuantity());
+                    plateRepository.save(plate.get());
+                } else {
+                    throw new NoSuchElementException("plate cannot be found");
+                }
+            }
+        }
+
+        materialOrder.setStatus("COMPLETED");
+        materialOrder.setId(id);
+        return modelMapper.map(materialOrderRepository.save(materialOrder), MaterialOrderDTO.class);
     }
 }

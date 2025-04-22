@@ -44,6 +44,7 @@ public class MaterialOrderController {
         materialOrderService.deleteMaterialOrder(id);
         return ResponseEntity.ok("Material Order with id: " + id + " has been deleted successfully!");
     }
+
     @PostMapping("/submit")
     public ResponseEntity<?> submitMaterialOrder(@Valid @RequestBody MaterialOrderDTO materialOrderDTO,
                                                  @RequestHeader("Authorization") String auth) {
@@ -55,10 +56,12 @@ public class MaterialOrderController {
                     .body("Грешка при създаването на поръчка: " + e.getMessage());
         }
     }
+
     @GetMapping("/items")
     public ResponseEntity<List<MaterialOrderItemDTO>> getAllMaterialOrdersItems(@RequestHeader("Authorization") String auth) {
         return ResponseEntity.ok(materialOrderService.getAllMaterialOrderItems());
     }
+
     @PutMapping("/item/update")
     public ResponseEntity<?> updateMaterialOrdersItem(@Valid @RequestBody MaterialOrderItemDTO materialOrderItemDTO, @RequestHeader("Authorization") String auth) {
         try {
@@ -70,7 +73,7 @@ public class MaterialOrderController {
         }
     }
 
-//    @GetMapping("products/{id}")
+    //    @GetMapping("products/{id}")
 //    public List<MaterialOrderDTO> getAllProductsByOrderId(@PathVariable(name = "id") Long id, @RequestHeader("Authorization") String auth) {
 //        return materialOrderService.getAllOrderProductsByOrderId(id);
 //    }
@@ -86,5 +89,9 @@ public class MaterialOrderController {
 //        List<MaterialOrderDTO> allOrderedProducts = materialOrderService.allOrderedProducts();
 //        return materialOrderService.allMissingMaterials(allOrderedProducts);
 //    }
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<MaterialOrderDTO> updateWholeMaterialOrder(@PathVariable("id") Long id, @Valid @RequestBody MaterialOrderDTO materialOrderDTO, @RequestHeader("Authorization") String auth) throws ChangeSetPersister.NotFoundException {
+        return ResponseEntity.ok(materialOrderService.updateWholeMaterialOrder(id, materialOrderDTO));
+    }
 
 }
