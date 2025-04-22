@@ -286,7 +286,7 @@ public class MaterialOrderService {
         if (materialOrderItem.getMaterialType().toString().equals("CARTON")) {
             Optional<Carton> carton = cartonRepository.findById(materialOrderItem.getMaterialId());
             if (carton.isPresent()) {
-                carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() - materialOrderItem.getReceivedQuantity());
+                carton.get().setAvailableQuantity(carton.get().getAvailableQuantity() + materialOrderItem.getReceivedQuantity());
                 cartonRepository.save(carton.get());
             } else {
                 throw new NoSuchElementException("carton cannot be found");
@@ -294,7 +294,7 @@ public class MaterialOrderService {
         } else if (materialOrderItem.getMaterialType().toString().equals("PACKAGE")) {
             Optional<Package> specificPackage = packageRepository.findById(materialOrderItem.getMaterialId());
             if (specificPackage.isPresent()) {
-                specificPackage.get().setAvailableQuantity(specificPackage.get().getAvailableQuantity() - materialOrderItem.getReceivedQuantity());
+                specificPackage.get().setAvailableQuantity(specificPackage.get().getAvailableQuantity() + materialOrderItem.getReceivedQuantity());
                 packageRepository.save(specificPackage.get());
             } else {
                 throw new NoSuchElementException("package cannot be found");
@@ -302,7 +302,7 @@ public class MaterialOrderService {
         } else if (materialOrderItem.getMaterialType().toString().equals("PLATE")) {
             Optional<Plate> plate = plateRepository.findById(materialOrderItem.getMaterialId());
             if (plate.isPresent()) {
-                plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() - materialOrderItem.getReceivedQuantity());
+                plate.get().setAvailableQuantity(plate.get().getAvailableQuantity() + materialOrderItem.getReceivedQuantity());
                 plateRepository.save(plate.get());
             } else {
                 throw new NoSuchElementException("plate cannot be found");
