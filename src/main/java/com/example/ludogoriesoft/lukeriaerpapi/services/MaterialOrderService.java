@@ -313,10 +313,15 @@ public class MaterialOrderService {
     }
 
     public MaterialOrderDTO updateWholeMaterialOrder(Long id, MaterialOrderDTO materialOrderDTO) throws ChangeSetPersister.NotFoundException {
+        MaterialOrder materialOrderById = materialOrderRepository.findByIdAndDeletedFalse(id).orElseThrow(ChangeSetPersister.NotFoundException::new);
         MaterialOrder materialOrder = modelMapper.map(materialOrderDTO, MaterialOrder.class);
         List<MaterialOrderItem> items = materialOrder.getItems();
 
-        for (MaterialOrderItem item : items){
+        if(materialOrderById.getStatus().equalsIgnoreCase("COMPLETED")){
+            throw new ValidationException("This order can not be updated because it is completed");
+        }
+
+        for (MaterialOrderItem item : items) {
             item.setOrder(materialOrder);
             if (item.getMaterialType().toString().equalsIgnoreCase("CARTON")) {
                 Optional<Carton> carton = cartonRepository.findById(item.getMaterialId());
