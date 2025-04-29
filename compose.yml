@@ -16,14 +16,14 @@ services:
     restart: always
     healthcheck:
       test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 3
 
   backend:
     build:
       context: ./lukeria-erp-api
-    image: ludogoriesoft/lukeria-backend:v.0.0.3
+    image: ludogoriesoft/lukeria-backend:latest
     container_name: backend
     environment:
       DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
@@ -43,15 +43,13 @@ services:
       spring.mail.port: ${SPRING_MAIL_PORT}
       spring.mail.username: ${SPRING_MAIL_USERNAME}
       spring.mail.password: ${SPRING_MAIL_PASSWORD}
-      spring.mail.properties.mail.smtp.auth: ${SPRING_MAIL_PROPERTIEScat_MAIL_SMTP_AUTH}
+      spring.mail.properties.mail.smtp.auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}
       spring.mail.properties.mail.smtp.starttls.enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
-    #ports:
-    #  - "8088:8088"
     depends_on:
       mysql:
         condition: service_healthy
@@ -59,27 +57,32 @@ services:
       - app-network
     restart: always
     healthcheck:
-      test: ['CMD-SHELL', "curl -s -o /dev/null -w '%{http_code}' http://localhost:8088/api/v1/user | grep -q '403' || exit 1"]
-      interval: 30s
-      timeout: 10s
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:8088/actuator/health | grep -q '\"status\":\"UP\"' || exit 1" ]
+      interval: 10s
+      timeout: 5s
       retries: 3
 
   frontend:
     build:
       context: ./lukeria-erp-front-end
-    image: ludogoriesoft/lukeria-frontend:v.0.0.3
+    image: ludogoriesoft/lukeria-frontend:latest
     container_name: frontend
     environment:
       BACKEND_BASE_URL: http://backend:8088/api/v1
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
     ports:
-      - '8080:8080' # Expose port 8090 for the Spring Boot application
+      - '8080:8080'
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - app-network
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O - http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 networks:
   app-network:
