@@ -1,5 +1,6 @@
 package com.example.ludogoriesoft.lukeriaerpapi.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InvoiceDTO {
     private Long id;
     private LocalDate invoiceDate;
