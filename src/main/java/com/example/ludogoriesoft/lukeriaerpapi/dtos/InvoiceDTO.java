@@ -24,4 +24,5 @@ public class InvoiceDTO {
     private LocalDate deadline;
     private boolean created;
     private String bankAccount;
+    private OrderDTO order;
 }

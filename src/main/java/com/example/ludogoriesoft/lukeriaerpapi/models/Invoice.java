@@ -29,5 +29,7 @@ public class Invoice {
     @Column(name = "is_created")
     private boolean created;
     private String bankAccount;
-
+    @ManyToOne
+    @JoinColumn(name = "order_id") // това е името на колоната в таблицата invoice
+    private Order order;
 }
